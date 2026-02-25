@@ -4,7 +4,10 @@ function Sidebar() {
 
     return (
         <aside className="sidebar">
-            <h2 style={{ fontSize: '20px', marginBottom: '30px' }}>CLTIENE</h2>
+            <div style={{ fontSize: '20px', marginBottom: '30px', display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <img style={{ width: "12rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
+
+            </div>
             <div style={{ fontSize: '12px' }}>
                 <p style={{ marginBottom: '5px' }}>PERIODO</p>
                 <input type="date" defaultValue="2023-11-28" style={{ width: '100%', padding: '8px', background: '#1e293b', border: '1px solid #334155', color: 'white', borderRadius: '5px', marginBottom: '10px' }} />
