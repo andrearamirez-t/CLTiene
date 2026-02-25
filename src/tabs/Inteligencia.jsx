@@ -4,6 +4,7 @@ function Inteligencia() {
 
         {/* PRIMERA FILA: HORA Y DÍA */}
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'flex-start' }}>
+
             {/* RENDIMIENTO POR HORA */}
             <div className="card" style={{ flex: 1, minWidth: '450px', padding: '15px' }}>
                 <div style={{ borderBottom: '1px solid #3b82f6', marginBottom: '30px' }}>
@@ -115,6 +116,7 @@ function Inteligencia() {
 
         {/* TERCERA FILA: DESEMPEÑO Y EVOLUCIÓN */}
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
+            
             {/* Gráfica: Desempeño y Sentimiento por Asesor */}
             <div className="card" style={{ flex: 1, padding: '20px', minWidth: '550px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                 <div style={{ borderBottom: '2px solid #3b82f6', marginBottom: '25px', paddingBottom: '8px' }}>
@@ -122,6 +124,7 @@ function Inteligencia() {
                 </div>
 
                 <div style={{ height: '280px', display: 'flex', flexDirection: 'column' }}>
+                    
                     {/* Contenedor de Barras */}
                     <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', paddingBottom: '10px', borderBottom: '1px solid #cbd5e1' }}>
                         {[
@@ -134,7 +137,7 @@ function Inteligencia() {
                                     <span style={{ color: 'white', fontSize: '10px', fontWeight: 'bold' }}>100%</span>
                                 </div>
 
-                                {/* Nombres Rotados - El truco está en el transform-origin */}
+                                {/* Nombres Rotados */}
                                 <div style={{
                                     position: 'absolute',
                                     top: '110%',
@@ -152,7 +155,8 @@ function Inteligencia() {
                             </div>
                         ))}
                     </div>
-                    {/* Espacio extra abajo para que los nombres no se corten al final del card */}
+                    
+
                     <div style={{ height: '60px' }}></div>
                 </div>
             </div>
@@ -180,106 +184,107 @@ function Inteligencia() {
         </div>
 
         <div style={{ padding: '20px', backgroundColor: '#f8fafc' }}>
-  <div className="card" style={{ 
-    maxWidth: '1200px', 
-    margin: '0 auto', 
-    padding: '20px', 
-    backgroundColor: 'white', 
-    borderRadius: '8px', 
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)', 
-    border: '1px solid #e2e8f0' 
-  }}>
-    
-    <div style={{ borderBottom: '2px solid #3b82f6', marginBottom: '25px', paddingBottom: '10px' }}>
-      <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>⏱ Duración vs Efectividad</h4>
-    </div>
-
-    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-      
-      {/* SECCIÓN DE BARRAS DELGADAS */}
-      <div style={{ flex: '0 0 65%', position: 'relative' }}>
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '15px', fontSize: '12px' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: '12px', height: '12px', backgroundColor: '#e91e63' }}></div> Total</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: '15px', height: '2px', backgroundColor: '#10b981' }}></div> % Efectivas</span>
-        </div>
-
-        {/* El contenedor de las barras con altura fija de 250px */}
-        <div style={{ 
-          height: '250px', 
-          display: 'flex', 
-          alignItems: 'flex-end', 
-          justifyContent: 'space-around', 
-          borderBottom: '1px solid #cbd5e1',
-          position: 'relative',
-          paddingBottom: '5px' 
-        }}>
-          {[
-            { label: 'Buzón', total: 753, ef: '0.0%' },
-            { label: 'Muy Corta', total: 490, ef: '0.0%' },
-            { label: 'Corta', total: 733, ef: '0.0%' },
-            { label: 'Media', total: 1017, ef: '3.3%' },
-            { label: 'Larga', total: 306, ef: '49.4%' }
-          ].map((item, i) => (
-            <div key={i} style={{ 
-              width: '50px', // AQUÍ AJUSTAS EL ANCHO DE LA BARRA (Igual que imagen 2)
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              justifyContent: 'flex-end', 
-              alignItems: 'center', 
-              position: 'relative' 
+            <div className="card" style={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                padding: '20px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                border: '1px solid #e2e8f0'
             }}>
-              {/* Valor numérico sobre la barra */}
-              <span style={{ fontSize: '10px', color: '#64748b', marginBottom: '5px' }}>{item.total}</span>
-              
-              {/* La Barra propiamente dicha */}
-              <div style={{ 
-                width: '100%', 
-                height: `${(item.total / 1100) * 100}%`, // Altura proporcional
-                backgroundColor: '#e91e63', 
-                borderRadius: '3px 3px 0 0' 
-              }}></div>
-              
-              {/* Etiqueta inferior */}
-              <span style={{ position: 'absolute', bottom: '-25px', fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap' }}>
-                {item.label}
-              </span>
+
+                <div style={{ borderBottom: '2px solid #3b82f6', marginBottom: '25px', paddingBottom: '10px' }}>
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>⏱ Duración vs Efectividad</h4>
+                </div>
+
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+
+                    {/* SECCIÓN DE BARRAS DELGADAS */}
+                    <div style={{ flex: '0 0 65%', position: 'relative' }}>
+                        <div style={{ display: 'flex', gap: '20px', marginBottom: '15px', fontSize: '12px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: '12px', height: '12px', backgroundColor: '#e91e63' }}></div> Total</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><div style={{ width: '15px', height: '2px', backgroundColor: '#10b981' }}></div> % Efectivas</span>
+                        </div>
+
+                        {/* El contenedor de barras  */}
+                        <div style={{
+                            height: '250px',
+                            display: 'flex',
+                            alignItems: 'flex-end',
+                            justifyContent: 'space-around',
+                            borderBottom: '1px solid #cbd5e1',
+                            position: 'relative',
+                            paddingBottom: '5px'
+                        }}>
+                            {[
+                                { label: 'Buzón', total: 753, ef: '0.0%' },
+                                { label: 'Muy Corta', total: 490, ef: '0.0%' },
+                                { label: 'Corta', total: 733, ef: '0.0%' },
+                                { label: 'Media', total: 1017, ef: '3.3%' },
+                                { label: 'Larga', total: 306, ef: '49.4%' }
+                            ].map((item, i) => (
+                                <div key={i} style={{
+                                    width: '50px',
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center',
+                                    position: 'relative'
+                                }}>
+                                    
+                                    {/* Valor numérico sobre la barra */}
+                                    <span style={{ fontSize: '10px', color: '#64748b', marginBottom: '5px' }}>{item.total}</span>
+
+
+                                    <div style={{
+                                        width: '100%',
+                                        height: `${(item.total / 1100) * 100}%`, 
+                                        backgroundColor: '#e91e63',
+                                        borderRadius: '3px 3px 0 0'
+                                    }}></div>
+
+                                    {/* Etiqueta inferior */}
+                                    <span style={{ position: 'absolute', bottom: '-25px', fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                        {item.label}
+                                    </span>
+                                </div>
+                            ))}
+
+                            {/* Línea Verde */}
+                            <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible', pointerEvents: 'none' }}>
+                                <polyline
+                                    points="45,230 135,230 225,230 315,210 405,40"
+                                    fill="none" stroke="#10b981" strokeWidth="2.5"
+                                />
+                                {[45, 135, 225, 315, 405].map((x, idx) => (
+                                    <circle key={idx} cx={x} cy={idx === 4 ? 40 : (idx === 3 ? 210 : 230)} r="4" fill="#10b981" />
+                                ))}
+                            </svg>
+                        </div>
+                        <div style={{ height: '30px' }}></div> 
+                    </div>
+
+                    {/* SECCIÓN SENTIMIENTO (CÍRCULO) */}
+                    <div style={{ flex: '0 0 35%', textAlign: 'center' }}>
+                        <h5 style={{ fontSize: '13px', marginBottom: '15px' }}>** Clasificación de Sentimiento **</h5>
+                        <div style={{
+                            width: '250px', height: '250px',
+                            backgroundColor: '#634394',
+                            borderRadius: '50%',
+                            margin: '0 auto',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+                            color: 'white'
+                        }}>
+                            <span style={{ fontSize: '12px' }}>neutro</span>
+                            <span style={{ fontSize: '20px', fontWeight: 'bold' }}>100%</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-          ))}
-
-          {/* Línea Verde (SVG Overlay) */}
-          <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'visible', pointerEvents: 'none' }}>
-            <polyline 
-              points="45,230 135,230 225,230 315,210 405,40" 
-              fill="none" stroke="#10b981" strokeWidth="2.5" 
-            />
-            {[45, 135, 225, 315, 405].map((x, idx) => (
-              <circle key={idx} cx={x} cy={idx === 4 ? 40 : (idx === 3 ? 210 : 230)} r="4" fill="#10b981" />
-            ))}
-          </svg>
         </div>
-        <div style={{ height: '30px' }}></div> {/* Espacio para labels */}
-      </div>
-
-      {/* SECCIÓN SENTIMIENTO (CÍRCULO) */}
-      <div style={{ flex: '0 0 35%', textAlign: 'center' }}>
-        <h5 style={{ fontSize: '13px', marginBottom: '15px' }}>** Clasificación de Sentimiento **</h5>
-        <div style={{ 
-          width: '250px', height: '250px', 
-          backgroundColor: '#634394', 
-          borderRadius: '50%', 
-          margin: '0 auto',
-          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-          color: 'white'
-        }}>
-          <span style={{ fontSize: '12px' }}>neutro</span>
-          <span style={{ fontSize: '20px', fontWeight: 'bold' }}>100%</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 
     </div>

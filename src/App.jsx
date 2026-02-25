@@ -54,20 +54,6 @@ function App() {
         {tabActiva == "Inteligencia Operativa" && (<Inteligencia />)}
         {tabActiva == "Transcripciones" && (<Transcripciones />)}
         {tabActiva == "Agente IA PRO" && (<Agente />)}
-
-
-        
-
-
-        
-
-
-        
-
-
-
-       
-
       </main>
     </div>
   );
