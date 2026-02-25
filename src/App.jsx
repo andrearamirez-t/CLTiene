@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-<<<<<<< HEAD
-import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star } from 'lucide-react';
-=======
 import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star, ChevronDown } from 'lucide-react';
->>>>>>> main
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -76,7 +72,7 @@ function App() {
         .dark-table td { padding: 12px; border-bottom: 1px solid #1e293b; }
         .status-cell { padding: 5px 10px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; min-width: 50px; text-align: center; }
 
-        /* Estilos Pestaña Rendimiento */
+        /* Estilos Calidad y Turnos */
         .controls-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
         .selector-pink { background: #e11d48; color: white; padding: 12px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; cursor: pointer; }
         .btn-analyze { background: #e11d48; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
@@ -86,6 +82,11 @@ function App() {
         .q-fill { height: 100%; display: flex; align-items: center; padding-left: 10px; color: white; font-size: 10px; font-weight: bold; }
         .histo-container { height: 180px; display: flex; align-items: flex-end; gap: 2px; border-left: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; position: relative; background-image: linear-gradient(#f1f5f9 1px, transparent 1px); background-size: 100% 45px; margin-top: 10px; }
         .histo-bar { background: #e11d48; flex: 1; }
+
+        /* Estilos Análisis Detallado */
+        .pie-placeholder { width: 140px; height: 140px; border-radius: 50%; margin: 10px auto; position: relative; }
+        .pie-legend { font-size: 11px; margin-top: 10px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
       `}</style>
 
       <Sidebar />
@@ -139,19 +140,11 @@ function App() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="card">
-<<<<<<< HEAD
-                <div className="card-title">Embudo de conversión</div>
-                <div className="funnel-step" style={{ background: '#634394' }}><span>Total</span><span>3,299</span></div>
-                <div className="funnel-step" style={{ background: '#5181C2', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
-                <div className="funnel-step" style={{ background: '#634394', width: '75%' }}><span>Efectivas</span><span>185</span></div>
-                <div className="funnel-step" style={{ background: '#5181C2', width: '55%' }}><span>Ventas</span><span>62</span></div>
-=======
                 <div className="card-title" style={{borderBottom: '1px solid #f1f5f9'}}>Embudo de conversión</div>
                 <div className="funnel-step" style={{ background: '#EE7553' }}><span>Total</span><span>3,299</span></div>
                 <div className="funnel-step" style={{ background: '#fb7185', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
                 <div className="funnel-step" style={{ background: '#db2777', width: '75%' }}><span>Efectivas</span><span>185</span></div>
                 <div className="funnel-step" style={{ background: '#be123c', width: '55%' }}><span>Ventas</span><span>62</span></div>
->>>>>>> main
               </div>
               <div className="card" style={{ background: '#fff1f2', borderColor: '#fecdd3' }}>
                 <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#be123c' }}>Insights con IA</h4>
@@ -164,7 +157,6 @@ function App() {
           </div>
         )}
 
-        
         {tabActiva === 'Rendimiento Asesores' && (
           <div className="rendimiento-view">
             <div className="dark-table-card">
@@ -228,6 +220,72 @@ function App() {
             </div>
           </div>
         )}
+
+        {tabActiva === 'Análisis Detallado' && (
+          <div className="analisis-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="dashboard-grid">
+              {/* Planes Mencionados */}
+              <div className="card">
+                <div className="card-title">Planes Mencionados</div>
+                {[
+                  { n: "No Identificado", v: "2,113 (64.1%)", w: "90%" },
+                  { n: "Plan Mascotas", v: "733 (22.2%)", w: "35%" },
+                  { n: "Plan Salud", v: "185 (5.6%)", w: "15%" },
+                  { n: "Plan Movilidad", v: "144 (4.4%)", w: "12%" },
+                  { n: "Plan Vivienda", v: "111 (3.4%)", w: "8%" }
+                ].map((p, i) => (
+                  <div key={i} className="h-chart-row">
+                    <div className="h-label" style={{width: '120px'}}>{p.n}</div>
+                    <div className="h-bar-bg"><div className="h-bar-fill" style={{ width: p.w, background: '#EE7553' }}>{p.v}</div></div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Motivos de Rechazo */}
+              <div className="card">
+                <div className="card-title">Motivos de Rechazo</div>
+                {[
+                  { n: "No Interesa", v: "333 (51.2%)", w: "80%" },
+                  { n: "Sin Motivo", v: "166 (25.5%)", w: "40%" },
+                  { n: "Ya Tiene Servicio", v: "11 (1.7%)", w: "5%" },
+                  { n: "Precio", v: "2 (0.3%)", w: "2%" }
+                ].map((m, i) => (
+                  <div key={i} className="h-chart-row">
+                    <div className="h-label" style={{width: '120px'}}>{m.n}</div>
+                    <div className="h-bar-bg"><div className="h-bar-fill" style={{ width: m.w, background: '#f87171' }}>{m.v}</div></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="dashboard-grid">
+              {/* Mascotas */}
+              <div className="card" style={{ textAlign: 'center' }}>
+                <div className="card-title">Tipo de Mascota</div>
+                <div className="pie-placeholder" style={{ background: 'conic-gradient(#f43f5e 0% 70%, #fb923c 70% 85%, #fda4af 85% 100%)' }}></div>
+                <div className="pie-legend">
+                  <span><span className="dot" style={{backgroundColor:'#f43f5e'}}></span> Perro (70.1%)</span>
+                  <span><span className="dot" style={{backgroundColor:'#fb923c'}}></span> Ambos (15.5%)</span>
+                  <span><span className="dot" style={{backgroundColor:'#fda4af'}}></span> Gato (14.4%)</span>
+                </div>
+              </div>
+
+              {/* Vehículos */}
+              <div className="card" style={{ textAlign: 'center' }}>
+                <div className="card-title">Tipo de Vehículo</div>
+                <div className="pie-placeholder" style={{ background: 'conic-gradient(#db2777 0% 50%, #f472b6 50% 80%, #fbcfe8 80% 100%)' }}></div>
+                <div className="pie-legend">
+                  <span><span className="dot" style={{backgroundColor:'#db2777'}}></span> Carro (50.5%)</span>
+                  <span><span className="dot" style={{backgroundColor:'#f472b6'}}></span> Moto (30.2%)</span>
+                  <span><span className="dot" style={{backgroundColor:'#fbcfe8'}}></span> Ambos (19.3%)</span>
+                </div>
+              </div>
+            </div>
+            
+            <button className="btn-analyze" style={{ width: '100%', padding: '15px', fontSize: '14px' }}>Análisis Profundo IA - Patrones de Ventas</button>
+          </div>
+        )}
+
       </main>
     </div>
   );
