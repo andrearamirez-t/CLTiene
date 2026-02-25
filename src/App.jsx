@@ -232,7 +232,10 @@ function App() {
                   { n: "Plan Mascotas", v: "733 (22.2%)", w: "35%" },
                   { n: "Plan Salud", v: "185 (5.6%)", w: "15%" },
                   { n: "Plan Movilidad", v: "144 (4.4%)", w: "12%" },
-                  { n: "Plan Vivienda", v: "111 (3.4%)", w: "8%" }
+                  { n: "Plan Manada", v: "14 (1.4%)", w: "2%" },
+                  { n: "Plan Hogar", v: "111 (3.4%)", w: "8%" },
+                  { n: "Plan Complementario", v: "1 (1.2%)", w: "1%"},
+                  { n: "Plan Premium", v: "0 (0%)", w: "0%"}
                 ].map((p, i) => (
                   <div key={i} className="h-chart-row">
                     <div className="h-label" style={{width: '120px'}}>{p.n}</div>
@@ -245,10 +248,13 @@ function App() {
               <div className="card">
                 <div className="card-title">Motivos de Rechazo</div>
                 {[
-                  { n: "No Interesa", v: "333 (51.2%)", w: "80%" },
-                  { n: "Sin Motivo", v: "166 (25.5%)", w: "40%" },
+                  { n: "No Recuerda Registro", v: "333 (51.2%)", w: "80%" },
+                  { n: "Confusión", v: "166 (25.5%)", w: "40%" },
                   { n: "Ya Tiene Servicio", v: "11 (1.7%)", w: "5%" },
-                  { n: "Precio", v: "2 (0.3%)", w: "2%" }
+                  { n: "Precio", v: "2 (0.3%)", w: "2%" },
+                  { n: "No Aplica Servicio", v: "2 (0.3%)", w: "2%" },
+                  { n: "Sin Motivo", v: "2 (0.3%)", w: "2%" },
+                  { n: "No interesa", v: "103 (61.3%)", w: "80%" },
                 ].map((m, i) => (
                   <div key={i} className="h-chart-row">
                     <div className="h-label" style={{width: '120px'}}>{m.n}</div>
@@ -264,6 +270,7 @@ function App() {
                 <div className="card-title">Tipo de Mascota</div>
                 <div className="pie-placeholder" style={{ background: 'conic-gradient(#f43f5e 0% 70%, #fb923c 70% 85%, #fda4af 85% 100%)' }}></div>
                 <div className="pie-legend">
+                  <span><span className="dot" style={{backgroundColor:'#db2777'}}></span> No especificado (50.5%)</span>
                   <span><span className="dot" style={{backgroundColor:'#f43f5e'}}></span> Perro (70.1%)</span>
                   <span><span className="dot" style={{backgroundColor:'#fb923c'}}></span> Ambos (15.5%)</span>
                   <span><span className="dot" style={{backgroundColor:'#fda4af'}}></span> Gato (14.4%)</span>
@@ -275,6 +282,7 @@ function App() {
                 <div className="card-title">Tipo de Vehículo</div>
                 <div className="pie-placeholder" style={{ background: 'conic-gradient(#db2777 0% 50%, #f472b6 50% 80%, #fbcfe8 80% 100%)' }}></div>
                 <div className="pie-legend">
+                  <span><span className="dot" style={{backgroundColor:'#db2777'}}></span> No especificado (50.5%)</span>
                   <span><span className="dot" style={{backgroundColor:'#db2777'}}></span> Carro (50.5%)</span>
                   <span><span className="dot" style={{backgroundColor:'#f472b6'}}></span> Moto (30.2%)</span>
                   <span><span className="dot" style={{backgroundColor:'#fbcfe8'}}></span> Ambos (19.3%)</span>
