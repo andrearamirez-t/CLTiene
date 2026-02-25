@@ -147,10 +147,10 @@ function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="card">
                 <div className="card-title">Embudo de conversión</div>
-                <div className="funnel-step" style={{ background: '#EE7553' }}><span>Total</span><span>3,299</span></div>
-                <div className="funnel-step" style={{ background: '#fb7185', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
-                <div className="funnel-step" style={{ background: '#db2777', width: '75%' }}><span>Efectivas</span><span>185</span></div>
-                <div className="funnel-step" style={{ background: '#be123c', width: '55%' }}><span>Ventas</span><span>62</span></div>
+                <div className="funnel-step" style={{ background: '#634394' }}><span>Total</span><span>3,299</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
+                <div className="funnel-step" style={{ background: '#634394', width: '75%' }}><span>Efectivas</span><span>185</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '55%' }}><span>Ventas</span><span>62</span></div>
               </div>
 
               <div className="card" style={{ background: '#fff1f2', borderColor: '#fecdd3' }}>
