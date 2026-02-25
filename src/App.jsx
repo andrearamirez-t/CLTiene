@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star } from 'lucide-react';
+=======
 import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star, ChevronDown } from 'lucide-react';
+>>>>>>> main
 import Sidebar from './components/Sidebar';
 
 function App() {
@@ -136,11 +140,19 @@ function App() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="card">
+<<<<<<< HEAD
+                <div className="card-title">Embudo de conversión</div>
+                <div className="funnel-step" style={{ background: '#634394' }}><span>Total</span><span>3,299</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
+                <div className="funnel-step" style={{ background: '#634394', width: '75%' }}><span>Efectivas</span><span>185</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '55%' }}><span>Ventas</span><span>62</span></div>
+=======
                 <div className="card-title" style={{borderBottom: '1px solid #f1f5f9'}}>Embudo de conversión</div>
                 <div className="funnel-step" style={{ background: '#EE7553' }}><span>Total</span><span>3,299</span></div>
                 <div className="funnel-step" style={{ background: '#fb7185', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
                 <div className="funnel-step" style={{ background: '#db2777', width: '75%' }}><span>Efectivas</span><span>185</span></div>
                 <div className="funnel-step" style={{ background: '#be123c', width: '55%' }}><span>Ventas</span><span>62</span></div>
+>>>>>>> main
               </div>
               <div className="card" style={{ background: '#fff1f2', borderColor: '#fecdd3' }}>
                 <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#be123c' }}>Insights con IA</h4>
