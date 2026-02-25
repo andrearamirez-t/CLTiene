@@ -82,7 +82,7 @@ function App() {
         .dark-table td { padding: 12px; border-bottom: 1px solid #1e293b; }
         .status-cell { padding: 5px 10px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; min-width: 50px; text-align: center; }
 
-        /* Estilos Pestaña Rendimiento (Nuevos) */
+        /* Estilos Pestaña Rendimiento */
         .controls-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
         .selector-pink { background: #e11d48; color: white; padding: 12px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; cursor: pointer; }
         .btn-analyze { background: #e11d48; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
@@ -119,7 +119,6 @@ function App() {
           ))}
         </nav>
 
-        {/* CONTENIDO PESTAÑA RESUMEN EJECUTIVO (TU CÓDIGO ORIGINAL) */}
         {tabActiva === 'Resumen Ejecutivo' && (
           <div className="dashboard-grid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -163,7 +162,7 @@ function App() {
           </div>
         )}
 
-        {/* CONTENIDO PESTAÑA RENDIMIENTO ASESORES (TU TABLA + GRÁFICAS NUEVAS) */}
+        
         {tabActiva === 'Rendimiento Asesores' && (
           <div className="rendimiento-view">
             <div className="dark-table-card">
