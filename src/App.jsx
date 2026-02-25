@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star } from 'lucide-react';
+=======
 import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star, ChevronDown } from 'lucide-react';
-
-const Sidebar = () => (
-  <aside className="sidebar">
-    <h2 style={{ fontSize: '20px', marginBottom: '30px', fontWeight: 'bold' }}>CLTIENE</h2>
-    <div style={{ fontSize: '12px' }}>
-      <p style={{ marginBottom: '8px', opacity: 0.7 }}>PERIODO</p>
-      <input type="date" defaultValue="2023-11-28" style={{ width: '100%', padding: '10px', background: '#1e293b', border: '1px solid #334155', color: 'white', borderRadius: '5px', marginBottom: '10px' }} />
-      <input type="date" defaultValue="2024-02-23" style={{ width: '100%', padding: '10px', background: '#1e293b', border: '1px solid #334155', color: 'white', borderRadius: '5px' }} />
-    </div>
-  </aside>
-);
+>>>>>>> main
+import Sidebar from './components/Sidebar';
 
 function App() {
   const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
@@ -145,11 +139,19 @@ function App() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div className="card">
+<<<<<<< HEAD
+                <div className="card-title">Embudo de conversión</div>
+                <div className="funnel-step" style={{ background: '#634394' }}><span>Total</span><span>3,299</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
+                <div className="funnel-step" style={{ background: '#634394', width: '75%' }}><span>Efectivas</span><span>185</span></div>
+                <div className="funnel-step" style={{ background: '#5181C2', width: '55%' }}><span>Ventas</span><span>62</span></div>
+=======
                 <div className="card-title" style={{borderBottom: '1px solid #f1f5f9'}}>Embudo de conversión</div>
                 <div className="funnel-step" style={{ background: '#EE7553' }}><span>Total</span><span>3,299</span></div>
                 <div className="funnel-step" style={{ background: '#fb7185', width: '95%' }}><span>Contestadas</span><span>3,298</span></div>
                 <div className="funnel-step" style={{ background: '#db2777', width: '75%' }}><span>Efectivas</span><span>185</span></div>
                 <div className="funnel-step" style={{ background: '#be123c', width: '55%' }}><span>Ventas</span><span>62</span></div>
+>>>>>>> main
               </div>
               <div className="card" style={{ background: '#fff1f2', borderColor: '#fecdd3' }}>
                 <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#be123c' }}>Insights con IA</h4>
