@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
-function Analisis() {
+function Rendimiento() {
 
     const getColorExito = (valorStr) => {
         const valor = parseFloat(valorStr);
@@ -74,4 +74,4 @@ function Analisis() {
     );
 }
 
-export default Analisis
+export default Rendimiento

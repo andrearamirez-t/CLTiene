@@ -1,6 +1,6 @@
-function Transcripciones({ tabName }) {
+function Transcripciones() {
 
-    return (<>{tabName}</>);
+    return (<></>);
 }
 
 export default Transcripciones

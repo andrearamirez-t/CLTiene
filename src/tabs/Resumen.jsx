@@ -1,4 +1,4 @@
-function Resumen({ tabName }) {
+function Resumen() {
 
     const resultados = [
         { nombre: "Contactado", valor: "1.322 (40.1%)", ancho: "90%" },
@@ -23,7 +23,7 @@ function Resumen({ tabName }) {
         <div className="dashboard-grid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div className="card">
-                    <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9' }}>Distribución de Resultados {tabName}</div>
+                    <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9' }}>Distribución de Resultados</div>
                     {resultados.map((res, i) => (
                         <div key={i} className="h-chart-row">
                             <div className="h-label">{res.nombre}</div>

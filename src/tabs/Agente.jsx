@@ -1,6 +1,6 @@
-function Agente({ tabName }) {
+function Agente() {
 
-    return (<>{tabName}</>);
+    return (<></>);
 }
 
 export default Agente
