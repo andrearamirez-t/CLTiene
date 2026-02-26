@@ -10,7 +10,7 @@ function Analisis() {
                   { n: "Plan Mascotas", v: "733 (22.2%)", w: "35%" },
                   { n: "Plan Salud", v: "185 (5.6%)", w: "15%" },
                   { n: "Plan Movilidad", v: "144 (4.4%)", w: "12%" },
-                  { n: "Plan Vivienda", v: "111 (3.4%)", w: "8%" }
+                  { n: "Plan Hogar", v: "111 (3.4%)", w: "8%" }
                 ].map((p, i) => (
                   <div key={i} className="h-chart-row">
                     <div className="h-label" style={{ width: '120px' }}>{p.n}</div>

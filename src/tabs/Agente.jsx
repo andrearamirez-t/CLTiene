@@ -178,10 +178,10 @@ Implementando estas estrategias, podrías aumentar la tasa de contacto y, eventu
 
             {/* TARJETAS SUPERIORES */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
-                {['Chat Inteligente', 'Análisis Automáticos', 'Búsqueda + Ranking', 'Búsqueda Inteligente', 'Resumir Llamadas', 'Ranking IA', 'Reporte Completo'].map((title, i) => (
+                {['Chat Inteligente', 'Análisis Automáticos', 'Búsqueda Inteligente', 'Resumir Llamadas', 'Ranking IA', 'Reporte Completo'].map((title, i) => (
                     <div key={i} style={{ padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
                         <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>{title}</h4>
-                        <p style={{ fontSize: '11px', color: '#94a3b8' }}>Descripción breve de la herramienta de inteligencia.</p>
+                        <p style={{ fontSize: '11px', color: '#94a3b8' }}>Conversa sobre datos, pide análisis, genera reportes.</p>
                     </div>
                 ))}
             </div>
