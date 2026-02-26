@@ -281,12 +281,9 @@ function Inteligencia() {
                             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>100%</span>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-
-
     </div>
 
 }
