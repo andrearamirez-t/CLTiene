@@ -16,9 +16,6 @@ function App() {
   const tabs = ['Resumen Ejecutivo', 'Rendimiento Asesores', 'Análisis Detallado', 'Inteligencia Operativa', 'Transcripciones', 'Agente IA PRO'];
 
   
-
- 
-
   return (
     <div className="dashboard-container">
 
