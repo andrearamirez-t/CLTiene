@@ -44,15 +44,15 @@ const Transcripciones = () => {
                         />
                     </div>
 
-                    {/* 2. Seleccionar llamada (Fucsia) */}
+                    {/* 2. Seleccionar llamada */}
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Seleccionar llamada:</label>
-                        <select style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#e91e63', color: 'white', fontWeight: 'bold', fontSize: '13px' }}>
+                        <select style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '13px' }}>
                             <option>#3317 | Conectada | 3136437775 | Angie</option>
                         </select>
                     </div>
 
-                    {/* 3. Filtro de Gestión (Morado) */}
+                    {/* 3. Filtro de Gestión */}
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: '#475569' }}>
                             ** Clasificación de Gestión **
@@ -63,7 +63,7 @@ const Transcripciones = () => {
                                 padding: '12px',
                                 borderRadius: '8px',
                                 border: 'none',
-                                backgroundColor: '#634394',
+                                backgroundColor: '#fc3474',
                                 color: 'white',
                                 fontWeight: 'bold',
                                 fontSize: '13px',
@@ -102,13 +102,13 @@ const Transcripciones = () => {
 
                 {/* COLUMNA DERECHA: BURBUJAS DE TEXTO */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ backgroundColor: '#6cc071', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ backgroundColor: '#5483c3', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                         <b>[Cliente]:</b> Hola, Daniela, ¿cómo estás? Bien, sí, señora.
                     </div>
                     <div style={{ backgroundColor: '#f1f5f9', color: '#334155', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', border: '1px solid #e2e8f0', lineHeight: '1.5' }}>
                         <b>[Asesor]:</b> Me estoy comunicando con usted con respecto a una orientación médica telefónica brindada el día de ayer.
                     </div>
-                    <div style={{ backgroundColor: '#6cc071', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ backgroundColor: '#5483c3', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                         <b>[Cliente]:</b> Queríamos verificar cómo continuaba, si ha podido seguir las recomendaciones. Sí, sí, señora. Todo muy bien.
                     </div>
                     <div style={{ backgroundColor: '#f1f5f9', color: '#334155', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', border: '1px solid #e2e8f0', lineHeight: '1.5' }}>

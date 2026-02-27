@@ -1,0 +1,40 @@
+import React, { useState } from 'react';
+import HerramientaCard from '../components/HerramientaCard'; // Asegúrate de que la ruta sea correcta
+
+const Agente = () => {
+    const [tabActiva, setTabActiva] = useState('Chat Inteligente');
+    // ... (tus estados de inputValue y messages se mantienen igual)
+
+    const herramientas = [
+        'Chat Inteligente', 'Análisis Automáticos', 'Búsqueda Inteligente',
+        'Resumir Llamadas', 'Ranking IA', 'Reporte Completo'
+    ];
+
+    return (
+        <div style={{ padding: '30px', backgroundColor: '#ffffff', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+            
+            <h3 style={{ fontSize: '14px', color: '#475569', marginBottom: '20px' }}>Agente IA PRO - Herramienta:</h3>
+
+            {/* CONTENEDOR DE TARJETAS (2 FILAS X 3 COLUMNAS) */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)', // 3 columnas
+                gap: '20px',
+                marginBottom: '30px'
+            }}>
+                {herramientas.map((title) => (
+                    <HerramientaCard 
+                        key={title}
+                        title={title}
+                        isActive={tabActiva === title}
+                        onClick={() => setTabActiva(title)}
+                    />
+                ))}
+            </div>
+
+            {/* ... (ÁREA DE CHAT, INPUT Y SUGERENCIAS SE MANTIENEN IGUAL) */}
+        </div>
+    );
+};
+
+export default Agente;
