@@ -1,6 +1,6 @@
 import React from 'react';
 
-const HerramientaCard = ({ title, isActive, onClick }) => {
+const HerramientaCard = ({ title, description, isActive, onClick }) => {
   return (
     <div
       onClick={onClick}
@@ -27,8 +27,8 @@ const HerramientaCard = ({ title, isActive, onClick }) => {
       }}>
         {title}
       </h4>
-      <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0 }}>
-        Herramienta activa.
+      <p style={{ fontSize: '12px', color: '#7e8999', margin: 0 }}>
+        {description}
       </p>
     </div>
   );

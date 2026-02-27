@@ -39,7 +39,7 @@ const Transcripciones = () => {
                                 color: 'white',
                                 fontSize: '13px',
                                 outline: 'none',
-                                boxSizing: 'border-box'
+                                border:"none"
                             }}
                         />
                     </div>
