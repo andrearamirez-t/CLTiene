@@ -1,70 +1,133 @@
 import React, { useState } from 'react';
 
+import ResumenEjecutivoResult from './ResumenEjecutivoResult';
+import OportunidadesMejoraResult from './OportunidadesMejoraResult';
+import AnalisisRechazosResult from './AnalisisRechazosResult'; 
+import MejoresPracticasResult from './MejoresPracticasResult';
+import PatronesVentasResult from './PatronesVentasResult';
+import PlanCoachingResult from './PlanCoachingResult';
+import RecomendacionesSemanalesResult from './RecomendacionesSemanalesResult';
+import PredicciontendenciasResult from './PredicciontendenciasResult';
+
 const AnalisisAu = () => {
-    const [tipoAnalisis, setTipoAnalisis] = useState('Resumen Ejecutivo');
+    const [tipo, setTipo] = useState('Resumen Ejecutivo');
+    const [mostrarComponente, setMostrarComponente] = useState(null);
+    const [cargando, setCargando] = useState(false);
+
+    const opciones = [
+        "Resumen Ejecutivo",
+        "Oportunidades de Mejora",
+        "Análisis de Rechazos",
+        "Mejores Prácticas",
+        "Patrones de Ventas",
+        "Plan de Coaching",
+        "Recomendaciones Semanales",
+        "Predicción de Tendencias"
+    ];
 
     const handleGenerar = () => {
-        console.log("Generando análisis para:", tipoAnalisis);
-        
+        setCargando(true);
+        setMostrarComponente(null); 
+
+        setTimeout(() => {
+            setMostrarComponente(tipo);
+            setCargando(false);
+        }, 1000); 
     };
 
     return (
-        <div style={{ 
-            padding: '20px', 
-            backgroundColor: '#ffffff', 
-            borderRadius: '15px',
-            animation: 'fadeIn 0.5s'
-        }}>
-            <p style={{ fontSize: '14px', color: '#475569', marginBottom: '10px' }}>Tipo:</p>
+        <div style={{ padding: '20px', width: '100%' }}>
+            {/* 1. SELECTOR Y BOTÓN */}
+            <p style={{ fontSize: '14px', marginBottom: '10px', color: '#475569' }}>Tipo:</p>
             
-           
-            <select 
-                value={tipoAnalisis}
-                onChange={(e) => setTipoAnalisis(e.target.value)}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    backgroundColor: '#e91e63', 
-                    color: 'white',
-                    fontSize: '14px',
-                    marginBottom: '20px',
-                    appearance: 'none', 
-                    cursor: 'pointer'
-                }}
-            >
-                <option value="Resumen Ejecutivo">Resumen Ejecutivo</option>
-                <option value="Oportunidades de Mejora">Oportunidades de Mejora</option>
-                <option value="Análisis de Rechazos">Análisis de Rechazos</option>
-                <option value="Mejores Prácticas">Mejores Prácticas</option>
-                <option value="Patrones de Ventas">Patrones de Ventas</option>
-                <option value="Plan de Coaching">Plan de Coaching</option>
-                <option value="Recomendaciones Semanales">Recomendaciones Semanales</option>
-                <option value="Predicción de Tendencias">Predicción de Tendencias</option>
-            </select>
+            <div style={{ position: 'relative', width: '100%', marginBottom: '20px' }}>
+                <select 
+                    value={tipo}
+                    onChange={(e) => setTipo(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '15px',
+                        backgroundColor: '#1e293b', 
+                        color: 'white',
+                        border: '2px solid #e91e63', 
+                        borderRadius: '10px',
+                        appearance: 'none',
+                        cursor: 'pointer'
+                    }}
+                >
+                    {opciones.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                </select>
+                <div style={{ position: 'absolute', right: '20px', top: '15px', color: 'white', pointerEvents: 'none' }}>▼</div>
+            </div>
 
-            
-            <button
+            <button 
                 onClick={handleGenerar}
                 style={{
                     width: '100%',
                     padding: '15px',
-                    borderRadius: '10px',
-                    border: 'none',
                     backgroundColor: '#e91e63',
                     color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
                     fontWeight: 'bold',
-                    fontSize: '16px',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    transition: 'opacity 0.2s'
+                    cursor: 'pointer'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
-                onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
             >
-                Generar
+                {cargando ? 'Analizando...' : 'Generar'}
             </button>
+
+            {/* 2. ZONA DE RESULTADOS */}
+            <div style={{ marginTop: '20px' }}>
+                {cargando && (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#e91e63' }}>
+                        <p>La IA está procesando los datos...</p>
+                    </div>
+                )}
+
+               
+                {!cargando && mostrarComponente === 'Resumen Ejecutivo' && (
+                    <ResumenEjecutivoResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Oportunidades de Mejora' && (
+                    <OportunidadesMejoraResult />
+                )}
+
+                
+                {!cargando && mostrarComponente === 'Análisis de Rechazos' && (
+                    <AnalisisRechazosResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Mejores Prácticas' && (
+                    <MejoresPracticasResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Patrones de Ventas' && (
+                    <PatronesVentasResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Plan de Coaching' && (
+                    <PlanCoachingResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Recomendaciones Semanales' && (
+                    <RecomendacionesSemanalesResult />
+                )}
+
+                {!cargando && mostrarComponente === 'Predicción de Tendencias' && (
+                    <PredicciontendenciasResult />
+                )}
+
+                
+
+                {!cargando && mostrarComponente && !['Resumen Ejecutivo', 'Oportunidades de Mejora', 'Análisis de Rechazos', 'Mejores Prácticas', 'Patrones de Ventas', 'Plan de Coaching', 'Recomendaciones Semanales', 'Predicción de Tendencias'].includes(mostrarComponente) && (
+                    <div style={{ padding: '20px', backgroundColor: '#f1f5f9', borderRadius: '10px', textAlign: 'center' }}>
+                        Análisis para <strong>{mostrarComponente}</strong> generado. (Pronto estará el diseño final aquí)
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

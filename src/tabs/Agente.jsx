@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+// IMPORTACIÓN DE COMPONENTES
 import HerramientaCard from '../components/HerramientaCard';
 import Chat from '../components/Chat';
 import SendMessage from '../components/SendMessage';
 import AnalisisAu from '../components/AnalisisAu';
+import BusquedaInteligente from '../components/BusquedaInteligente';
+import ResumirLlamadas from '../components/ResumirLlamadas';
+import RankingIA from '../components/RankingIA'; // Asegúrate de que este archivo exista
+import ReporteCompleto from '../components/ReporteCompleto';
 
 const Agente = () => {
     const [tabActiva, setTabActiva] = useState('Chat Inteligente');
@@ -46,7 +51,7 @@ const Agente = () => {
         <div style={{ padding: '30px', backgroundColor: '#ffffff', minHeight: '100vh' }}>
             <h3 style={{ fontSize: '14px', color: '#475569', marginBottom: '20px' }}>Agente IA PRO - Herramienta:</h3>
 
-            {/* SECCIÓN DE TARJETAS */}
+            {/* SECCIÓN DE TARJETAS SUPERIORES */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
                 {herramientas.map((h) => (
                     <HerramientaCard
@@ -59,9 +64,10 @@ const Agente = () => {
                 ))}
             </div>
 
-            {/* CONTENIDO DINÁMICO */}
+            {/* CONTENIDO DINÁMICO SEGÚN TAB ACTIVA */}
             <div style={{ marginTop: '20px' }}>
-                {/* Caso 1: Chat Inteligente */}
+
+                {/* 1. CHAT INTELIGENTE */}
                 {tabActiva === 'Chat Inteligente' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <Chat messages={messages} />
@@ -71,7 +77,6 @@ const Agente = () => {
                             onSend={handleSend}
                             onClear={() => setMessages([])}
                         />
-                        {/* Sugerencias */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginTop: '15px' }}>
                             {[
                                 '¿Resumen del rendimiento?...',
@@ -93,13 +98,31 @@ const Agente = () => {
                     </div>
                 )}
 
-                {/* Caso 2: Análisis Automáticos */}
-                {tabActiva === 'Análisis Automáticos' && (
-                    <AnalisisAu />
+                {/* 2. ANÁLISIS AUTOMÁTICOS */}
+                {tabActiva === 'Análisis Automáticos' && <AnalisisAu />}
+
+                {/* 3. BÚSQUEDA INTELIGENTE */}
+                {tabActiva === 'Búsqueda Inteligente' && (
+                    <div style={{ backgroundColor: '#ffffff', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                        <BusquedaInteligente />
+                    </div>
                 )}
 
-                {/* Caso 3: Otras pestañas en desarrollo */}
-                {tabActiva !== 'Chat Inteligente' && tabActiva !== 'Análisis Automáticos' && (
+                {/* 4. RESUMIR LLAMADAS (Diseño de Imagen 2 aplicado) */}
+                {tabActiva === 'Resumir Llamadas' && <ResumirLlamadas />}
+
+                {/* 5. RANKING IA (Unificado) */}
+                {tabActiva === 'Ranking IA' && <RankingIA />}
+
+                {/* Caso 6: Reporte Completo */}
+                {tabActiva === 'Reporte Completo' && (
+                    <div style={{ marginTop: '20px' }}>
+                        <ReporteCompleto />
+                    </div>
+                )}
+
+                {/* 6. REPORTE COMPLETO (En desarrollo) */}
+                {tabActiva === 'Reporte Completo' && (
                     <div style={{ textAlign: 'center', padding: '50px', border: '1px dashed #cbd5e1', borderRadius: '15px', color: '#64748b' }}>
                         <h3>Módulo de {tabActiva}</h3>
                         <p>Contenido en desarrollo.</p>
