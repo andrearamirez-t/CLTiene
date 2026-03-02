@@ -102,13 +102,13 @@ const Transcripciones = () => {
 
                 {/* COLUMNA DERECHA: BURBUJAS DE TEXTO */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ backgroundColor: '#5483c3', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ backgroundColor: '#822BD2', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                         <b>[Cliente]:</b> Hola, Daniela, ¿cómo estás? Bien, sí, señora.
                     </div>
                     <div style={{ backgroundColor: '#f1f5f9', color: '#334155', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', border: '1px solid #e2e8f0', lineHeight: '1.5' }}>
                         <b>[Asesor]:</b> Me estoy comunicando con usted con respecto a una orientación médica telefónica brindada el día de ayer.
                     </div>
-                    <div style={{ backgroundColor: '#5483c3', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ backgroundColor: '#822BD2', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                         <b>[Cliente]:</b> Queríamos verificar cómo continuaba, si ha podido seguir las recomendaciones. Sí, sí, señora. Todo muy bien.
                     </div>
                     <div style={{ backgroundColor: '#f1f5f9', color: '#334155', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', border: '1px solid #e2e8f0', lineHeight: '1.5' }}>

@@ -11,7 +11,7 @@ const EmbudoChart = () => {
     ];
 
     const baseStyle = {
-        background: 'linear-gradient(to right, #822BD2, #408DFF)',
+        background: 'linear-gradient(to right, #FC3276, #FD7751)',
         borderRadius: '8px',
         color: 'white',
         fontSize: '12px',
