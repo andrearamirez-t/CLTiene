@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Phone, Download, CheckCircle, DollarSign, Clock, Calendar, Trophy, Star, Handshake, ChevronDown } from 'lucide-react';
 import Sidebar from './components/Sidebar';
+
+
+import { auth } from './firebase'; 
+import { onAuthStateChanged } from 'firebase/auth';
+import Login from './components/Login'; 
 
 import "./css/style.css"
 import Resumen from './tabs/Resumen';
@@ -12,15 +17,34 @@ import Agente from './tabs/Agente';
 
 function App() {
   const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
+  
+  
+  const [usuario, setUsuario] = useState(null);
+  const [cargando, setCargando] = useState(true);
+
+  
+  useEffect(() => {
+    const desubscribir = onAuthStateChanged(auth, (userFirebase) => {
+      setUsuario(userFirebase);
+      setCargando(false);
+    });
+    return () => desubscribir();
+  }, []);
 
   const tabs = ['Resumen Ejecutivo', 'Rendimiento Asesores', 'Análisis Detallado', 'Inteligencia Operativa', 'Transcripciones', 'Agente IA PRO', 'Esteban'];
 
+  
+  if (cargando) return <div style={{display:'flex', justifyContent:'center', marginTop:'50px'}}>Cargando...</div>;
 
+  
+  if (!usuario) {
+    return <Login />;
+  }
+
+  
   return (
     <div className="dashboard-container">
-
       <Sidebar />
-
       <main className="main">
         <header className="header-banner">
           <h1 style={{ margin: 0, fontSize: '22px' }}>Rendimiento de Asesores y Éxito de Llamadas</h1>
@@ -45,13 +69,14 @@ function App() {
           ))}
         </nav>
 
-        {tabActiva == "Resumen Ejecutivo" && (<Resumen />)}
-        {tabActiva == "Rendimiento Asesores" && (<Rendimiento />)}
-        {tabActiva == "Análisis Detallado" && (<Analisis />)}
-        {tabActiva == "Inteligencia Operativa" && (<Inteligencia />)}
-        {tabActiva == "Transcripciones" && (<Transcripciones />)}
-        {tabActiva == "Agente IA PRO" && (<Agente />)}
-        {tabActiva == "Esteban" && (<Esteban />)}
+        {tabActiva === "Resumen Ejecutivo" && (<Resumen />)}
+        {tabActiva === "Rendimiento Asesores" && (<Rendimiento />)}
+        {tabActiva === "Análisis Detallado" && (<Analisis />)}
+        {tabActiva === "Inteligencia Operativa" && (<Inteligencia />)}
+        {tabActiva === "Transcripciones" && (<Transcripciones />)}
+        {tabActiva === "Agente IA PRO" && (<Agente />)}
+        
+        {tabActiva === "Esteban" && (<div>Contenido de Esteban</div>)}
 
         <footer style={{ 
           marginTop: '40px', 
