@@ -13,7 +13,7 @@ import Agente from './tabs/Agente';
 function App() {
   const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
 
-  const tabs = ['Resumen Ejecutivo', 'Rendimiento Asesores', 'Análisis Detallado', 'Inteligencia Operativa', 'Transcripciones', 'Agente IA PRO'];
+  const tabs = ['Resumen Ejecutivo', 'Rendimiento Asesores', 'Análisis Detallado', 'Inteligencia Operativa', 'Transcripciones', 'Agente IA PRO', 'Esteban'];
 
 
   return (
@@ -51,6 +51,7 @@ function App() {
         {tabActiva == "Inteligencia Operativa" && (<Inteligencia />)}
         {tabActiva == "Transcripciones" && (<Transcripciones />)}
         {tabActiva == "Agente IA PRO" && (<Agente />)}
+        {tabActiva == "Esteban" && (<Esteban />)}
 
         <footer style={{ 
           marginTop: '40px', 
