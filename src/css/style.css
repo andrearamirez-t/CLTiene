@@ -130,7 +130,7 @@ body {
   width: 100%;
 }
 
-/* Gráficas Resumen */
+/* Gráficas */
 .v-chart-container {
   height: 250px;
   display: flex;
@@ -243,7 +243,7 @@ body {
   text-align: center;
 }
 
-/* Estilos Calidad y Turnos */
+/* Calidad y Turnos */
 .controls-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -315,7 +315,7 @@ body {
   flex: 1;
 }
 
-/* Estilos Análisis Detallado */
+/* Análisis Detallado */
 .pie-placeholder {
   width: 140px;
   height: 140px;

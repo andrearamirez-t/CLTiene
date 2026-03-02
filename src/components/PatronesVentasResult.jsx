@@ -14,7 +14,7 @@ const PatronesVentasResult = () => {
                 Análisis de Patrones de Ventas Exitosas 📊
             </h3>
 
-            {/* Bloque 1: Duración */}
+            {/* Duración */}
             <div style={{ marginBottom: '20px' }}>
                 <p style={{ fontWeight: 'bold', margin: '10px 0' }}>1. Duración Óptima de Llamadas 📞</p>
                 <p style={{ fontSize: '14px', color: '#64748b' }}>
@@ -25,7 +25,7 @@ const PatronesVentasResult = () => {
                 </div>
             </div>
 
-            {/* Bloque 2: Turnos */}
+            {/* Turnos */}
             <div style={{ marginBottom: '20px' }}>
                 <p style={{ fontWeight: 'bold', margin: '10px 0' }}>2. Turnos con Mayor Conversión ⏰</p>
                 <p style={{ fontSize: '14px', color: '#64748b' }}>
@@ -33,7 +33,7 @@ const PatronesVentasResult = () => {
                 </p>
             </div>
 
-            {/* Bloque 3: Planes */}
+            {/* Planes */}
             <div style={{ marginBottom: '20px' }}>
                 <p style={{ fontWeight: 'bold', margin: '10px 0' }}>3. Planes más Vendidos 🌟</p>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>

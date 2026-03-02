@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 
 const BusquedaInteligente = () => {
-    // 1. Estados para controlar el texto
-    const [inputValue, setInputValue] = useState(''); // Solo para lo que escribes
-    const [palabraEnAlerta, setPalabraEnAlerta] = useState(''); // Solo para mostrar en el banner verde/amarillo
     
-    // 2. Estados para resultados y visualización
+    const [inputValue, setInputValue] = useState('');
+    const [palabraEnAlerta, setPalabraEnAlerta] = useState(''); 
+    
     const [resultados, setResultados] = useState([]);
     const [haBuscado, setHaBuscado] = useState(false);
     const [itemAbierto, setItemAbierto] = useState(null);
 
-    // Base de datos con la info de mascotas (asegúrate de que los keywords coincidan)
+    // Base de datos con la info de mascotas 
     const baseDatos = [
         { 
             id: "#15555", 
@@ -45,7 +44,7 @@ const BusquedaInteligente = () => {
         
         if (query === "") return;
 
-        // "Congelamos" la palabra en la alerta para que no cambie mientras escribes después
+        
         setPalabraEnAlerta(inputValue); 
         
         const filtrados = baseDatos.filter(item => 
@@ -54,7 +53,7 @@ const BusquedaInteligente = () => {
 
         setResultados(filtrados);
         setHaBuscado(true);
-        setItemAbierto(null); // Reseteamos el despliegue al buscar algo nuevo
+        setItemAbierto(null); 
     };
 
     return (
@@ -64,7 +63,7 @@ const BusquedaInteligente = () => {
                 <input 
                     type="text"
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)} // YA NO escribe en la alerta
+                    onChange={(e) => setInputValue(e.target.value)} 
                     onKeyPress={(e) => e.key === 'Enter' && ejecutarBusqueda()}
                     placeholder="Ej: precio, mascotas..."
                     style={{ flex: 1, padding: '14px', borderRadius: '10px', backgroundColor: '#1e293b', color: 'white', border: 'none' }}
@@ -74,7 +73,7 @@ const BusquedaInteligente = () => {
                 </button>
             </div>
 
-            {/* Banner de Resultados (Usa 'palabraEnAlerta' para ser estático) */}
+            {/* Banner de Resultados */}
             {haBuscado && (
                 <div style={{ 
                     backgroundColor: resultados.length > 0 ? '#f0fdf4' : '#fefce8', 
@@ -99,7 +98,7 @@ const BusquedaInteligente = () => {
                         <span>{itemAbierto === index ? '▲' : '▼'}</span>
                     </div>
 
-                    {/* Información Desplegada (Ahora sí aparece) */}
+                    {/* Información Desplegada */}
                     {itemAbierto === index && (
                         <div style={{ padding: '20px', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 10px 10px', backgroundColor: '#fafafa', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px', fontSize: '13px' }}>
                             <div>

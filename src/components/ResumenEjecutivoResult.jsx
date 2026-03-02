@@ -11,7 +11,7 @@ const ResumenEjecutivoResult = () => {
             color: '#1e293b',
             fontSize: '14px',
             lineHeight: '1.6',
-            maxHeight: '400px', // Opcional, para añadir scroll si es muy largo
+            maxHeight: '400px', 
             overflowY: 'auto'
         }}>
             <h4 style={{ color: '#e91e63', marginBottom: '15px' }}>**Resumen Ejecutivo Profesional Call Center CL Tiene Soluciones**</h4>

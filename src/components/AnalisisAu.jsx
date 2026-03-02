@@ -37,7 +37,7 @@ const AnalisisAu = () => {
 
     return (
         <div style={{ padding: '20px', width: '100%' }}>
-            {/* 1. SELECTOR Y BOTÓN */}
+            {/*  SELECTOR Y BOTÓN */}
             <p style={{ fontSize: '14px', marginBottom: '10px', color: '#475569' }}>Tipo:</p>
             
             <div style={{ position: 'relative', width: '100%', marginBottom: '20px' }}>
@@ -78,7 +78,7 @@ const AnalisisAu = () => {
                 {cargando ? 'Analizando...' : 'Generar'}
             </button>
 
-            {/* 2. ZONA DE RESULTADOS */}
+            {/* ZONA DE RESULTADOS */}
             <div style={{ marginTop: '20px' }}>
                 {cargando && (
                     <div style={{ textAlign: 'center', padding: '20px', color: '#e91e63' }}>

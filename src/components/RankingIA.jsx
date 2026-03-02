@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const RankingIA = () => {
-    // Estado para mostrar/ocultar el informe detallado
+    
     const [mostrarInforme, setMostrarInforme] = useState(false);
 
     const asesores = [
@@ -48,7 +48,7 @@ const RankingIA = () => {
                 {mostrarInforme ? '⬆️ Cerrar Análisis' : '✨ Análisis Comparativo IA'}
             </button>
 
-            {/* SECCIÓN DEL INFORME (Solo se ve si mostrarInforme es true) */}
+            {/* SECCIÓN DEL INFORME */}
             {mostrarInforme && (
                 <div style={{
                     marginTop: '20px', padding: '30px', backgroundColor: 'white',
@@ -59,7 +59,7 @@ const RankingIA = () => {
                         📊 Informe de Operaciones del Call Center
                     </h2>
 
-                    {/* 1. TOP 3 ASESORES */}
+                    {/* TOP 3 ASESORES */}
                     <div style={{ marginTop: '20px' }}>
                         <h3 style={{ color: '#e91e63' }}>1. 🏆 TOP 3 ASESORES</h3>
                         <ul style={{ listStyle: 'none', paddingLeft: '10px' }}>
@@ -78,7 +78,7 @@ const RankingIA = () => {
                         </ul>
                     </div>
 
-                    {/* 2. OPORTUNIDADES DE MEJORA */}
+                    {/* OPORTUNIDADES DE MEJORA */}
                     <div style={{ marginTop: '30px' }}>
                         <h3 style={{ color: '#e91e63' }}>2. 📈 OPORTUNIDADES DE MEJORA</h3>
                         <div style={{ padding: '15px', backgroundColor: '#fff1f2', borderRadius: '10px', border: '1px solid #fecdd3' }}>
@@ -86,7 +86,7 @@ const RankingIA = () => {
                         </div>
                     </div>
 
-                    {/* 3. ANÁLISIS INDIVIDUAL */}
+                    {/* ANÁLISIS INDIVIDUAL */}
                     <div style={{ marginTop: '30px' }}>
                         <h3 style={{ color: '#e91e63' }}>3. 🧬 ANÁLISIS INDIVIDUAL POR ASESOR</h3>
                         <div style={{ marginBottom: '20px' }}>

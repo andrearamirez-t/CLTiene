@@ -2,7 +2,7 @@ function Inteligencia() {
 
     return <div className="operativa-view" style={{ padding: '20px', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-        {/* PRIMERA FILA: HORA Y DÍA */}
+        {/* HORA Y DÍA */}
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'flex-start' }}>
 
             {/* RENDIMIENTO POR HORA */}
@@ -70,7 +70,7 @@ function Inteligencia() {
             </div>
         </div>
 
-        {/* SEGUNDA FILA: VENTAS VS SERVICIO Y SUBJETIVIDAD */}
+        {/* VENTAS VS SERVICIO Y SUBJETIVIDAD */}
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
             <div className="card" style={{ flex: 1, padding: '15px', minWidth: '450px' }}>
                 <div style={{ borderBottom: '1px solid #3b82f6', marginBottom: '20px' }}>
@@ -114,10 +114,10 @@ function Inteligencia() {
             </div>
         </div>
 
-        {/* TERCERA FILA: DESEMPEÑO Y EVOLUCIÓN */}
+        {/* DESEMPEÑO Y EVOLUCIÓN */}
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
             
-            {/* Gráfica: Desempeño y Sentimiento por Asesor */}
+            
             <div className="card" style={{ flex: 1, padding: '20px', minWidth: '550px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                 <div style={{ borderBottom: '2px solid #3b82f6', marginBottom: '25px', paddingBottom: '8px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', color: '#1e293b', fontWeight: '600' }}>Desempeño y Sentimiento por Asesor</h4>
@@ -125,7 +125,7 @@ function Inteligencia() {
 
                 <div style={{ height: '280px', display: 'flex', flexDirection: 'column' }}>
                     
-                    {/* Contenedor de Barras */}
+                    
                     <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', paddingBottom: '10px', borderBottom: '1px solid #cbd5e1' }}>
                         {[
                             'Angie Daniela', 'Dayana Alex.', 'Edwin Cendales', 'Jenifer Andrea',
@@ -137,7 +137,7 @@ function Inteligencia() {
                                     <span style={{ color: 'white', fontSize: '10px', fontWeight: 'bold' }}>100%</span>
                                 </div>
 
-                                {/* Nombres Rotados */}
+                                
                                 <div style={{
                                     position: 'absolute',
                                     top: '110%',
@@ -161,7 +161,7 @@ function Inteligencia() {
                 </div>
             </div>
 
-            {/* Gráfica: Evolución de Ventas */}
+            {/* Evolución de Ventas */}
             <div className="card" style={{ flex: 1, padding: '20px', minWidth: '550px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                 <div style={{ borderBottom: '2px solid #3b82f6', marginBottom: '25px', paddingBottom: '8px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', color: '#1e293b', fontWeight: '600' }}>Evolución de Ventas en el Tiempo</h4>
@@ -266,7 +266,7 @@ function Inteligencia() {
                         <div style={{ height: '30px' }}></div> 
                     </div>
 
-                    {/* SECCIÓN SENTIMIENTO (CÍRCULO) */}
+                    {/* SECCIÓN SENTIMIENTO */}
                     <div style={{ flex: '0 0 35%', textAlign: 'center' }}>
                         <h5 style={{ fontSize: '13px', marginBottom: '15px' }}>** Clasificación de Sentimiento **</h5>
                         <div style={{

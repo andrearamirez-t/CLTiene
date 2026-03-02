@@ -2,7 +2,7 @@ function Analisis() {
 
     return (<div className="analisis-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="dashboard-grid">
-              {/* Planes Mencionados */}
+              
               <div className="card">
                 <div className="card-title">Planes Mencionados</div>
                 {[

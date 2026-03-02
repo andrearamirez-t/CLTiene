@@ -3,7 +3,7 @@ import CuerpoLlamada from './CuerpoLlamada';
 import BotonAnalisis from './BotonAnalisis';
 
 const ResumirLlamadas = () => {
-    const [isOpen, setIsOpen] = useState(true); // Controla el despliegue
+    const [isOpen, setIsOpen] = useState(true);
 
     const llamadaData = {
         info: { resultado: "Contactado", plan: "Plan Mascotas", duracion: "Media", turnos: "12", calificacion: 50 },
@@ -12,7 +12,7 @@ const ResumirLlamadas = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            {/* Cabecera Interactiva */}
+            
             <div 
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
@@ -25,7 +25,7 @@ const ResumirLlamadas = () => {
                 <span>{isOpen ? '▲' : '▼'}</span>
             </div>
 
-            {/* Contenedor Desplegable */}
+            {/* Contenedor */}
             {isOpen && (
                 <div style={{ 
                     backgroundColor: 'white', border: '1px solid #e2e8f0', borderTop: 'none', 

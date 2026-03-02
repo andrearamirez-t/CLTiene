@@ -14,7 +14,7 @@ const PrediccionTendenciasResult = () => {
                 Proyección de KPIs para el Próximo Mes 🔮
             </h3>
 
-            {/* Metas Proyectadas */}
+            
             <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
                 <div style={{ flex: 1, padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '10px', border: '1px solid #bae6fd' }}>
                     <p style={{ margin: 0, fontSize: '12px', color: '#0369a1', fontWeight: 'bold' }}>META DE CONTACTO</p>

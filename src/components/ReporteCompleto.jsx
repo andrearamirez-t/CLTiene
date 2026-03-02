@@ -6,7 +6,7 @@ const ReporteCompleto = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            {/* TARJETA INICIAL (PLANTILLA) */}
+            
             <div style={{
                 backgroundColor: 'white',
                 border: '1px solid #e2e8f0',
@@ -37,7 +37,7 @@ const ReporteCompleto = () => {
                 </button>
             </div>
 
-            {/* CONTENIDO DEL REPORTE (DESPLEGABLE) */}
+            {/* CONTENIDO DEL REPORTE */}
             {mostrarResumen && (
                 <div style={{
                     backgroundColor: '#ffffff',
@@ -52,7 +52,7 @@ const ReporteCompleto = () => {
                         # REPORTE EJECUTIVO CALL CENTER CL TIENE SOLUCIONES
                     </span>
 
-                    {/* 1. RESUMEN EJECUTIVO */}
+                    {/*  RESUMEN EJECUTIVO */}
                     <section style={{ marginTop: '20px' }}>
                         <h3 style={{ fontSize: '22px', marginBottom: '15px' }}>1. Resumen Ejecutivo</h3>
                         <p style={{ color: '#475569', textAlign: 'justify' }}>
@@ -62,7 +62,7 @@ const ReporteCompleto = () => {
                         </p>
                     </section>
 
-                    {/* 2. KPIs PRINCIPALES */}
+                    {/*  KPIs */}
                     <section style={{ marginTop: '30px' }}>
                         <h3 style={{ fontSize: '20px', marginBottom: '15px' }}>2. KPIs Principales</h3>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -93,7 +93,7 @@ const ReporteCompleto = () => {
                         </table>
                     </section>
 
-                    {/* 3. RENDIMIENTO POR ASESOR */}
+                    {/* RENDIMIENTO POR ASESOR */}
                     <section style={{ marginTop: '30px' }}>
                         <h3 style={{ fontSize: '20px', marginBottom: '15px' }}>3. Rendimiento por Asesor</h3>
                         <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '10px' }}>

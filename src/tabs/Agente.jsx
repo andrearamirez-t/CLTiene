@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-// IMPORTACIÓN DE COMPONENTES
+
 import HerramientaCard from '../components/HerramientaCard';
 import Chat from '../components/Chat';
 import SendMessage from '../components/SendMessage';
 import AnalisisAu from '../components/AnalisisAu';
 import BusquedaInteligente from '../components/BusquedaInteligente';
 import ResumirLlamadas from '../components/ResumirLlamadas';
-import RankingIA from '../components/RankingIA'; // Asegúrate de que este archivo exista
+import RankingIA from '../components/RankingIA';
 import ReporteCompleto from '../components/ReporteCompleto';
 
 const Agente = () => {
@@ -64,10 +64,10 @@ const Agente = () => {
                 ))}
             </div>
 
-            {/* CONTENIDO DINÁMICO SEGÚN TAB ACTIVA */}
+            {/* CONTENIDO DINÁMICO */}
             <div style={{ marginTop: '20px' }}>
 
-                {/* 1. CHAT INTELIGENTE */}
+                {/* CHAT INTELIGENTE */}
                 {tabActiva === 'Chat Inteligente' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <Chat messages={messages} />
@@ -98,30 +98,30 @@ const Agente = () => {
                     </div>
                 )}
 
-                {/* 2. ANÁLISIS AUTOMÁTICOS */}
+                {/* ANÁLISIS AUTOMÁTICOS */}
                 {tabActiva === 'Análisis Automáticos' && <AnalisisAu />}
 
-                {/* 3. BÚSQUEDA INTELIGENTE */}
+                {/* BÚSQUEDA INTELIGENTE */}
                 {tabActiva === 'Búsqueda Inteligente' && (
                     <div style={{ backgroundColor: '#ffffff', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                         <BusquedaInteligente />
                     </div>
                 )}
 
-                {/* 4. RESUMIR LLAMADAS (Diseño de Imagen 2 aplicado) */}
+                {/* RESUMIR LLAMADAS */}
                 {tabActiva === 'Resumir Llamadas' && <ResumirLlamadas />}
 
-                {/* 5. RANKING IA (Unificado) */}
+                {/* RANKING */}
                 {tabActiva === 'Ranking IA' && <RankingIA />}
 
-                {/* Caso 6: Reporte Completo */}
+                {/* Reporte Completo */}
                 {tabActiva === 'Reporte Completo' && (
                     <div style={{ marginTop: '20px' }}>
                         <ReporteCompleto />
                     </div>
                 )}
 
-                {/* 6. REPORTE COMPLETO (En desarrollo) */}
+                {/* REPORTE COMPLETO */}
                 {tabActiva === 'Reporte Completo' && (
                     <div style={{ textAlign: 'center', padding: '50px', border: '1px dashed #cbd5e1', borderRadius: '15px', color: '#64748b' }}>
                         <h3>Módulo de {tabActiva}</h3>

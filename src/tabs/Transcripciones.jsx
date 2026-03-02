@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const Transcripciones = () => {
-    // Score de ejemplo: 87 (Verde)
+    
     const [score] = useState(87);
 
     const getQualityStyle = (val) => {
@@ -15,15 +15,15 @@ const Transcripciones = () => {
     return (
         <div style={{ padding: '40px', backgroundColor: '#ffffff', minHeight: '100vh', fontFamily: 'Segoe UI, Roboto, sans-serif' }}>
 
-            {/* SECCIÓN SUPERIOR: FILTROS + TRANSCRIPCIÓN */}
+            {/* FILTROS + TRANSCRIPCION */}
             <div style={{ display: 'flex', gap: '50px', alignItems: 'flex-start' }}>
 
-                {/* COLUMNA IZQUIERDA: CONFIGURACIÓN Y FILTROS */}
+                {/* CONFIGURACION Y FILTROS */}
                 <div style={{ flex: '0 0 380px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                     <h2 style={{ fontSize: '16px', color: '#626947', margin: 0 }}>Visor de Transcripciones AI</h2>
 
-                    {/* 1. Buscador con Borde Fucsia */}
+                    
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
                             ** Buscar por teléfono o asesor **
@@ -44,7 +44,7 @@ const Transcripciones = () => {
                         />
                     </div>
 
-                    {/* 2. Seleccionar llamada */}
+                    {/* Seleccionar llamada */}
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>Seleccionar llamada:</label>
                         <select style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '13px' }}>
@@ -52,7 +52,7 @@ const Transcripciones = () => {
                         </select>
                     </div>
 
-                    {/* 3. Filtro de Gestión */}
+                    {/* Filtro de Gestión */}
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: '#475569' }}>
                             ** Clasificación de Gestión **
@@ -78,7 +78,7 @@ const Transcripciones = () => {
                         </select>
                     </div>
 
-                    {/* 4. Score de Calidad (Dinámico) */}
+                    {/* Score de Calidad */}
                     <div>
                         <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>** Score de Calidad **</label>
                         <div style={{ backgroundColor: quality.bg, color: 'white', padding: '10px 20px', borderRadius: '25px', fontSize: '12px', fontWeight: 'bold', display: 'inline-block' }}>
@@ -86,7 +86,7 @@ const Transcripciones = () => {
                         </div>
                     </div>
 
-                    {/* 5. Cuadro de Métricas (Gris) */}
+                    {/* Cuadro de Métricas */}
                     <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
                         <p style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '15px' }}>** Métricas **</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px' }}>
@@ -100,7 +100,7 @@ const Transcripciones = () => {
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: BURBUJAS DE TEXTO */}
+                {/* BURBUJAS DE TEXTO */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ backgroundColor: '#822BD2', color: 'white', padding: '15px 25px', borderRadius: '10px', fontSize: '14px', lineHeight: '1.5' }}>
                         <b>[Cliente]:</b> Hola, Daniela, ¿cómo estás? Bien, sí, señora.
@@ -117,7 +117,7 @@ const Transcripciones = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN INFERIOR: REJILLA DE RESULTADOS */}
+            {/* RESULTADOS */}
             <div style={{ marginTop: '50px', borderTop: '2px solid #f1f5f9', paddingTop: '40px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px 60px' }}>
                     {[

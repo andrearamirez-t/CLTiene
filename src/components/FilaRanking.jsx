@@ -14,7 +14,7 @@ const FilaRanking = ({ asesor }) => {
             fontSize: '13px',
             boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
         }}>
-            {/* Izquierda: Info del Asesor */}
+            {/* Info del Asesor */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontWeight: 'bold', color: '#1e293b' }}>
                     #{asesor.posicion} {asesor.nombre}
@@ -26,7 +26,7 @@ const FilaRanking = ({ asesor }) => {
                 </div>
             </div>
 
-            {/* Derecha: Puntaje (Círculo Rojo) */}
+            {/* Puntaje  */}
             <div style={{
                 backgroundColor: '#e91e63',
                 color: 'white',
