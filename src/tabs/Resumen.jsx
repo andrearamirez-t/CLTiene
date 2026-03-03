@@ -1,8 +1,8 @@
 import React from "react";
-import ResultadosChart from "../components/ResultadosChart";
-import EmbudoChart from "../components/EmbudoChart";
-import DuracionChart from "../components/DuracionChart";
-import InsightsCard from "../components/InsightsCard"; 
+import ResultadosChart from "../components/charts/ResultadosChart";
+import EmbudoChart from "../components/charts/EmbudoChart";
+import DuracionChart from "../components/charts/DuracionChart";
+import InsightsCard from "../components/ui/InsightsCard"; 
 
 function Resumen() {
   const resultados = [

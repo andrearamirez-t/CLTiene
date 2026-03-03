@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-import ResumenEjecutivoResult from './ResumenEjecutivoResult';
-import OportunidadesMejoraResult from './OportunidadesMejoraResult';
-import AnalisisRechazosResult from './AnalisisRechazosResult'; 
-import MejoresPracticasResult from './MejoresPracticasResult';
-import PatronesVentasResult from './PatronesVentasResult';
-import PlanCoachingResult from './PlanCoachingResult';
-import RecomendacionesSemanalesResult from './RecomendacionesSemanalesResult';
-import PredicciontendenciasResult from './PredicciontendenciasResult';
+import ResumenEjecutivoResult from '../tabs/detalles/ResumenEjecutivoResult';
+import OportunidadesMejoraResult from '../tabs/detalles/OportunidadesMejoraResult';
+import AnalisisRechazosResult from '../tabs/detalles/AnalisisRechazosResult'; 
+import MejoresPracticasResult from '../tabs/detalles/MejoresPracticasResult';
+import PatronesVentasResult from '../tabs/detalles/PatronesVentasResult';
+import PlanCoachingResult from '../tabs/detalles/PlanCoachingResult';
+import RecomendacionesSemanalesResult from '../tabs/detalles/RecomendacionesSemanalesResult';
+import PredicciontendenciasResult from '../tabs/detalles/PrediccionTendenciasResult';
 
 const AnalisisAu = () => {
     const [tipo, setTipo] = useState('Resumen Ejecutivo');

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 import HerramientaCard from '../components/HerramientaCard';
 import Chat from '../components/Chat';
-import SendMessage from '../components/SendMessage';
+import SendMessage from '../components/ui/SendMessage';
 import AnalisisAu from '../components/AnalisisAu';
-import BusquedaInteligente from '../components/BusquedaInteligente';
+import BusquedaInteligente from '../components/ui/BusquedaInteligente';
 import ResumirLlamadas from '../components/ResumirLlamadas';
 import RankingIA from '../components/RankingIA';
 import ReporteCompleto from '../components/ReporteCompleto';

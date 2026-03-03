@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CuerpoLlamada from './CuerpoLlamada';
-import BotonAnalisis from './BotonAnalisis';
+import BotonAnalisis from './ui/BotonAnalisis';
 
 const ResumirLlamadas = () => {
     const [isOpen, setIsOpen] = useState(true);

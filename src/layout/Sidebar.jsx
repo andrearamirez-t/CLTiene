@@ -1,15 +1,18 @@
 import { auth } from '../firebase'; 
 import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; 
 
 function Sidebar() {
+    const navigate = useNavigate(); 
+    
     const customInput = { width: '100%', padding: '8px', background: '#1e293b', border: '1px solid #334155', color: 'white', borderRadius: '5px', marginBottom: '10px' }
     const labelMargin = { marginBottom: "1rem" }
 
-    
     const handleLogout = async () => {
         try {
             await signOut(auth);
             console.log("Sesión cerrada");
+            navigate('/login'); 
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
         }
@@ -38,7 +41,6 @@ function Sidebar() {
                 <label style={labelMargin}>Tipo de Llamada</label><select style={customInput}></select>
             </div>
 
-            {/* BOTÓN DE CERRAR SESIÓN */}
             <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
                 <button 
                     onClick={handleLogout}
