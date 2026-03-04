@@ -20,6 +20,13 @@ const Analisis = () => {
     { name: 'Gato', value: 5.1 }
   ];
 
+  const datosVehiculo = [
+    { name: 'No especificado', value: 34.9 },
+    { name: 'Carro', value: 32.9 },
+    { name: 'Ambos', value: 30.1 },
+    { name: 'Moto', value: 2.05 }
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px', backgroundColor: '#f8fafc' }}>
       
@@ -32,7 +39,7 @@ const Analisis = () => {
       {/* Graficas de Tortas */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         <GraficaPastelAnalisis titulo="Tipo de Mascota" datos={datosMascota} colores={['#f43f5e', '#fb923c', '#fb7185', '#fda4af']} />
-        <GraficaPastelAnalisis titulo="Tipo de Vehículo" datos={datosMascota} colores={['#db2777', '#f472b6', '#fbcfe8']} />
+        <GraficaPastelAnalisis titulo="Tipo de Vehículo" datos={datosVehiculo} colores={['#db2777', '#f472b6', '#fbcfe8']} />
       </div>
 
       {/* BOTON */}
