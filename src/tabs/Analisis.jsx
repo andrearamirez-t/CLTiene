@@ -1,84 +1,79 @@
-function Analisis() {
+import React, { useState } from 'react';
+import GraficaBarrasAnalisis from '../components/ui/GraficaBarrasAnalisis';
+import GraficaPastelAnalisis from '../components/ui/GraficaPastelAnalisis';
 
-    return (<div className="analisis-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="dashboard-grid">
-              
-              <div className="card">
-                <div className="card-title">Planes Mencionados</div>
-                {[
-                  { n: "No Identificado", v: "2,113 (64.1%)", w: "90%" },
-                  { n: "Plan Mascotas", v: "733 (22.2%)", w: "35%" },
-                  { n: "Plan Salud", v: "185 (5.6%)", w: "15%" },
-                  { n: "Plan Movilidad", v: "144 (4.4%)", w: "12%" },
-                  { n: "Plan Hogar", v: "111 (3.4%)", w: "8%" }
-                ].map((p, i) => (
-                  <div key={i} className="h-chart-row">
-                    <div className="h-label" style={{ width: '120px' }}>{p.n}</div>
-                    <div className="h-bar-bg"><div className="h-bar-fill" style={{ width: p.w, background: '#EE7553' }}>{p.v}</div></div>
-                  </div>
-                ))}
-              </div>
+const Analisis = () => {
+ 
+  const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
 
-              {/* Motivos de Rechazo */}
-              <div className="card">
-                <div className="card-title">Motivos de Rechazo</div>
-                {[
-                  { n: "No Interesa", v: "333 (51.2%)", w: "80%" },
-                  { n: "Sin Motivo", v: "166 (25.5%)", w: "40%" },
-                  { n: "Ya Tiene Servicio", v: "11 (1.7%)", w: "5%" },
-                  { n: "Precio", v: "2 (0.3%)", w: "2%" },
-                  { n: "No Aplica", v: "2 (0.3%)", w: "2%" },
-                  { n: "Otro", v: "103 (61.3%)", w: "80%" }
-                ].map((m, i) => (
-                  <div key={i} className="h-chart-row">
-                    <div className="h-label" style={{ width: '120px' }}>{m.n}</div>
-                    <div className="h-bar-bg"><div className="h-bar-fill" style={{ width: m.w, background: '#f87171' }}>{m.v}</div></div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  const datosPlanes = [
+    { n: "No identificado", v: "2,118 (64.2%)", valorReal: 2118 },
+    { n: "Plan Mascotas", v: "720 (21.8%)", valorReal: 720 },
+    { n: "Plan Salud", v: "185 (5.6%)", valorReal: 185 },
+    { n: "Plan Movilidad", v: "146 (4.4%)", valorReal: 146 }
+  ];
 
-            <div className="dashboard-grid">
-              {/* Mascotas con números internos */}
-              <div className="card" style={{ textAlign: 'center' }}>
-                <div className="card-title">Tipo de Mascota</div>
-                <div className="pie-placeholder" style={{
-                  background: 'conic-gradient(#f43f5e 0% 70%, #fb923c 70% 85%, #fda4af 85% 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '14px'
-                }}>
-                  <span style={{ position: 'absolute', top: '40px', left: '60px' }}>70%</span>
-                  <span style={{ position: 'absolute', top: '80px', right: '20px', fontSize: '10px' }}>15%</span>
-                </div>
-                <div className="pie-legend">
-                  <span><span className="dot" style={{ backgroundColor: '#f43f5e' }}></span> No especificado </span>
-                  <span><span className="dot" style={{ backgroundColor: '#f43f5e' }}></span> Perro </span>
-                  <span><span className="dot" style={{ backgroundColor: '#fb923c' }}></span> Ambos </span>
-                  <span><span className="dot" style={{ backgroundColor: '#fda4af' }}></span> Gato </span>
-                </div>
-              </div>
+  const datosMascota = [
+    { name: 'No especificado', value: 72 },
+    { name: 'Perro', value: 14.7 },
+    { name: 'Ambos', value: 8.2 },
+    { name: 'Gato', value: 5.1 }
+  ];
 
-              {/* Vehículos con números internos */}
-              <div className="card" style={{ textAlign: 'center' }}>
-                <div className="card-title">Tipo de Vehículo</div>
-                <div className="pie-placeholder" style={{
-                  background: 'conic-gradient(#db2777 0% 50%, #f472b6 50% 80%, #fbcfe8 80% 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '14px'
-                }}>
-                  <span style={{ position: 'absolute', top: '50px', left: '35px' }}>50%</span>
-                  <span style={{ position: 'absolute', top: '40px', right: '35px', fontSize: '12px' }}>30%</span>
-                </div>
-                <div className="pie-legend">
-                  <span><span className="dot" style={{ backgroundColor: '#f43f5e' }}></span> No especificado </span>
-                  <span><span className="dot" style={{ backgroundColor: '#db2777' }}></span> Carro </span>
-                  <span><span className="dot" style={{ backgroundColor: '#f472b6' }}></span> Moto </span>
-                  <span><span className="dot" style={{ backgroundColor: '#fbcfe8' }}></span> Ambos </span>
-                </div>
-              </div>
-            </div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px', backgroundColor: '#f8fafc' }}>
+      
+      {/* Graficas de Barras */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <GraficaBarrasAnalisis titulo="Planes Mencionados" datos={datosPlanes} colorBarra="#EE7553" />
+        <GraficaBarrasAnalisis titulo="Motivos de Rechazo" datos={datosPlanes} colorBarra="#f87171" />
+      </div>
 
-            <button className="btn-analyze" style={{ width: '100%', padding: '15px', fontSize: '14px' }}>Análisis Profundo IA - Patrones de Ventas</button>
-          </div>);
-}
+      {/* Graficas de Tortas */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <GraficaPastelAnalisis titulo="Tipo de Mascota" datos={datosMascota} colores={['#f43f5e', '#fb923c', '#fb7185', '#fda4af']} />
+        <GraficaPastelAnalisis titulo="Tipo de Vehículo" datos={datosMascota} colores={['#db2777', '#f472b6', '#fbcfe8']} />
+      </div>
 
-export default Analisis
+      {/* BOTON */}
+      <button 
+        onClick={() => setMostrarAnalisis(!mostrarAnalisis)}
+        style={{
+          width: '100%', padding: '16px', backgroundColor: '#be185d', color: 'white',
+          border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer',
+          fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+        }}
+      >
+        {mostrarAnalisis ? 'Ocultar Análisis' : 'Análisis Profundo IA - Patrones de Ventas'}
+      </button>
 
+      
+      {mostrarAnalisis && (
+        <div style={{
+          backgroundColor: 'white', padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)', animation: 'fadeIn 0.5s ease-in-out'
+        }}>
+          <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6' }}>
+            Con base en la información provista sobre el call center CL tiene soluciones, puedo detectar los siguientes patrones...
+          </p>
+          
+          <h4 style={{ color: '#be185d', fontSize: '14px', marginTop: '20px' }}>1. PATRÓN DE ÉXITO:</h4>
+          <ul style={{ fontSize: '13px', color: '#64748b' }}>
+            <li>El agente Melany Camila Ramirez tiene el mejor desempeño con un 4.99% de llamadas efectivas.</li>
+            <li>Planes específicos como el Plan Mascotas tienen una presencia notable en las llamadas exitosas.</li>
+          </ul>
+
+          <h4 style={{ color: '#be185d', fontSize: '14px', marginTop: '20px' }}>2. PATRÓN DE FRACASO:</h4>
+          <ul style={{ fontSize: '13px', color: '#64748b' }}>
+            <li>Muchos planes mencionados no están identificados (2118), lo que sugiere falta de guion claro.</li>
+          </ul>
+
+          <h4 style={{ color: '#be185d', fontSize: '14px', marginTop: '20px' }}>3. ESTRATEGIA:</h4>
+          <p style={{ fontSize: '13px', color: '#64748b' }}>Capacitar a los agentes con mejor desempeño para compartir mejores prácticas en manejo de objeciones.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Analisis;
