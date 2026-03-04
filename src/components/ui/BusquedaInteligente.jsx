@@ -9,7 +9,6 @@ const BusquedaInteligente = () => {
     const [haBuscado, setHaBuscado] = useState(false);
     const [itemAbierto, setItemAbierto] = useState(null);
 
-    // Base de datos con la info de mascotas 
     const baseDatos = [
         { 
             id: "#15555", 
@@ -58,7 +57,7 @@ const BusquedaInteligente = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            {/* Buscador Balanceado */}
+
             <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
                 <input 
                     type="text"
@@ -73,7 +72,6 @@ const BusquedaInteligente = () => {
                 </button>
             </div>
 
-            {/* Banner de Resultados */}
             {haBuscado && (
                 <div style={{ 
                     backgroundColor: resultados.length > 0 ? '#f0fdf4' : '#fefce8', 

@@ -79,7 +79,7 @@ const Dashboard = () => {
                             textAlign: 'center'
                         }}>
                             <div style={{ color: '#be123c', marginBottom: '8px' }}>{item.icon}</div>
-                            <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', color: '#3a3d3a', marginBottom: '4px' }}>
                                 {item.label}
                             </span>
                             <span style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>

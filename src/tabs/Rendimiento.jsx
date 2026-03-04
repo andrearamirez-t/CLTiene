@@ -1,77 +1,179 @@
-import { ChevronDown } from "lucide-react";
+import React, { useState } from 'react';
+import ControlesAnalisis from '../components/ui/ControlesAnalisis';
 
-function Rendimiento() {
+const Rendimiento = () => {
+    const [asesorSeleccionado, setAsesorSeleccionado] = useState("");
 
-    const getColorExito = (valorStr) => {
-        const valor = parseFloat(valorStr);
-        if (valor >= 4) return '#10b981';
-        if (valor >= 2) return '#f59e0b';
-        return '#ef4444';
-    };
+
+    const datosAsesores = [
+        { n: "Melany Camila Ramirez", llamadas: 422, turnos: 5.6, palabras: 21, efectividad: "4.99%", color: "#22c55e" },
+        { n: "Maria de Villadiego", llamadas: 412, turnos: 5.4, palabras: 14, efectividad: "3.41%", color: "#22c55e" },
+        { n: "Jenifer Andrea Rodriguez", llamadas: 651, turnos: 5.1, palabras: 11, efectividad: "1.69%", color: "#eab308" },
+        { n: "Dayana Alexandra Marulanda", llamadas: 593, turnos: 4.4, palabras: 8, efectividad: "1.35%", color: "#ef4444" }
+    ];
 
     return (
-        <div className="rendimiento-view">
-            <div className="dark-table-card">
-                <table className="dark-table">
+        <div style={{ padding: '24px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>
+                Rendimiento por Agente
+            </h2>
+
+
+            <div style={{
+                backgroundColor: '#0f172a',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                marginBottom: '24px'
+            }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#cbd5e1', fontSize: '13px' }}>
+
                     <thead>
-                        <tr>
-                            <th>Asesor</th><th>Llamadas</th><th>Turnos Prom.</th><th>Palabras</th><th>Efectivas</th><th>Éxito %</th><th>Calidad IA</th>
+                        <tr style={{ borderBottom: '1px solid #1e293b', textAlign: 'left' }}>
+                            <th style={{ padding: '16px', color: '#64748b', fontSize: '12px' }}>#</th>
+
+
+                            <th style={{ padding: '12px 16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#cbd5e1' }}>Cuenta</span>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Filtrar..."
+                                            style={{
+                                                width: '100%',
+                                                backgroundColor: '#1e293b',
+                                                border: '1px solid #334155',
+                                                borderRadius: '4px',
+                                                color: 'white',
+                                                padding: '4px 8px 4px 24px', 
+                                                fontSize: '11px',
+                                                outline: 'none'
+                                            }}
+                                        />
+
+                                        <span style={{ position: 'absolute', left: '6px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', fontSize: '12px' }}>🔍</span>
+                                    </div>
+                                </div>
+                            </th>
+
+
+                            <th style={{ padding: '12px 16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#cbd5e1' }}>Llamadas</span>
+                                    <input
+                                        type="number"
+                                        style={{
+                                            width: '60px',
+                                            backgroundColor: '#1e293b',
+                                            border: '1px solid #334155',
+                                            borderRadius: '4px',
+                                            color: 'white',
+                                            padding: '4px',
+                                            fontSize: '11px'
+                                        }}
+                                    />
+                                </div>
+                            </th>
+
+
+                            <th style={{ padding: '12px 16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#cbd5e1' }}>Turnos_Prom</span>
+                                    <input
+                                        type="number"
+                                        style={{
+                                            width: '60px',
+                                            backgroundColor: '#1e293b',
+                                            border: '1px solid #334155',
+                                            borderRadius: '4px',
+                                            color: 'white',
+                                            padding: '4px',
+                                            fontSize: '11px'
+                                        }}
+                                    />
+                                </div>
+                            </th>
+
+                            <th style={{ padding: '16px', fontSize: '12px' }}>Palabras_Prom</th>
+                            <th style={{ padding: '16px', fontSize: '12px' }}>Efectivas</th>
+
+
+                            <th style={{ padding: '12px 16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#cbd5e1' }}>Éxito_%</span>
+                                    <select style={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '4px',
+                                        color: 'white',
+                                        padding: '3px',
+                                        fontSize: '10px'
+                                    }}>
+                                        <option>Todos</option>
+                                        <option>Alto</option>
+                                        <option>Bajo</option>
+                                    </select>
+                                </div>
+                            </th>
+
+                            <th style={{ padding: '16px', fontSize: '12px' }}>Calidad_IA</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        {[
-                            { n: "Melany Camila Ramirez", ll: 422, t: 5.6, p: 237, e: 21, ex: "4.99%", c: 25 },
-                            { n: "Maria de Villadiego", ll: 412, t: 5.4, p: 121, e: 14, ex: "3.41%", c: 18 },
-                            { n: "Jenifer Andrea Rodriguez", ll: 651, t: 5.1, p: 229, e: 11, ex: "1.69%", c: 12 },
-                            { n: "Dayana Alexandra Marulanda", ll: 593, t: 4.4, p: 111, e: 8, ex: "1.35%", c: 8 },
-                        ].map((row, i) => (
-                            <tr key={i}>
-                                <td><strong>{row.n}</strong></td>
-                                <td>{row.ll}</td><td>{row.t}</td><td>{row.p}</td><td>{row.e}</td>
-                                <td><span className="status-cell" style={{ background: getColorExito(row.ex) }}>{row.ex}</span></td>
-                                <td><span className="status-cell" style={{ background: row.c > 20 ? '#10b981' : row.c > 10 ? '#f59e0b' : '#ef4444' }}>{row.c}</span></td>
+                        {datosAsesores.map((agente, index) => (
+                            <tr key={index} style={{ borderBottom: '1px solid #1e293b' }}>
+                                <td style={{ padding: '16px', color: '#64748b' }}>{index}</td>
+                                <td style={{ padding: '16px', fontWeight: '500' }}>{agente.n}</td>
+                                <td style={{ padding: '16px' }}>{agente.llamadas}</td>
+                                <td style={{ padding: '16px' }}>{agente.turnos}</td>
+                                <td style={{ padding: '16px' }}>{agente.palabras}</td>
+                                <td style={{ padding: '16px' }}>
+                                    <div style={{
+                                        backgroundColor: agente.color,
+                                        color: 'white',
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        display: 'inline-block',
+                                        fontWeight: 'bold',
+                                        fontSize: '11px'
+                                    }}>
+                                        {agente.efectividad}
+                                    </div>
+                                </td>
+                                <td style={{ padding: '16px' }}></td>
+                                <td style={{ padding: '16px' }}></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
 
-            <div className="controls-row">
-                <div className="selector-pink"><span>Melany Camila Ramirez</span><ChevronDown size={18} /></div>
-                <button className="btn-analyze">Analizar Asesor con IA</button>
-            </div>
 
-            <div className="dashboard-grid">
-                <div className="card">
-                    <div className="card-title">Calidad del Asesor</div>
-                    {[
-                        { l: "Despedida", v: "368 (11.2%)", w: "95%", c: "#f43f5e" },
-                        { l: "WhatsApp", v: "361 (10.9%)", w: "90%", c: "#e15b64" },
-                        { l: "Beneficios", v: "42 (1.3%)", w: "15%", c: "#f87171" },
-                        { l: "Saludo", v: "221 (6.7%)", w: "65%", c: "#fb923c" }
-                    ].map((q, i) => (
-                        <div key={i} className="q-row">
-                            <div className="q-name">{q.l}</div>
-                            <div className="q-track"><div className="q-fill" style={{ width: q.w, background: q.c }}>{q.v}</div></div>
-                        </div>
-                    ))}
+            <ControlesAnalisis
+                asesores={datosAsesores}
+                seleccionado={asesorSeleccionado}
+                onSeleccionar={setAsesorSeleccionado}
+            />
+
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '24px' }}>
+                <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: '#1e293b' }}>Calidad del Asesor</h3>
+                    <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                        [Espacio para Gráfica de Barras]
+                    </div>
                 </div>
-                <div className="card">
-                    <div className="card-title">Distribución de Turnos</div>
-                    <div style={{ paddingLeft: '30px' }}>
-                        <div className="histo-container">
-                            {[100, 70, 55, 40, 25, 15, 8, 4].map((h, i) => (
-                                <div key={i} className="histo-bar" style={{ height: `${h}%` }}></div>
-                            ))}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '10px', color: '#94a3b8' }}>
-                            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span>
-                        </div>
+                <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: '#1e293b' }}>Distribución de Turnos</h3>
+                    <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                        [Espacio para Histograma]
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
 
-export default Rendimiento
+export default Rendimiento;
