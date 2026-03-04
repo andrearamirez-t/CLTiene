@@ -19,7 +19,7 @@ function Sidebar() {
     }
 
     return (
-        <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column'}}>
             <div style={{ fontSize: '20px', marginBottom: '30px', display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <img style={{ width: "12rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
             </div>
