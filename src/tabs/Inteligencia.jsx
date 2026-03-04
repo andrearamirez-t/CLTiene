@@ -63,10 +63,10 @@ export default function Inteligencia() {
   ];
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#f8fafc', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'flex-start' }}>
+    <div style={{ padding: '24px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* OPERATIVO */}
+        {/* FILA 1: OPERATIVO */}
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
           <CardGrafica titulo="Rendimiento por Hora">
             <Hora data={datosHoras} />
