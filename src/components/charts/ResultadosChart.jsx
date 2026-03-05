@@ -1,58 +1,80 @@
 import React from 'react';
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+    ResponsiveContainer, LabelList 
+} from 'recharts';
 
 const ResultadosChart = ({ datos }) => {
+    const dataFormateada = datos.map(item => ({
+        name: item.nombre,
+        valor: parseInt(item.valor.split(' ')[0].replace('.', '')),
+        etiquetaCompleta: item.valor // Guardamos "1.322 (40.1%)" para mostrarlo
+    }));
+
     return (
-        <div className="card">
-            <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '25px' }}>
+        <div className="card" style={{ height: '500px', padding: '20px' }}>
+            <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '25px', paddingBottom: '10px' }}>
                 Distribución de Resultados
             </div>
             
-            <div style={{ position: 'relative', paddingBottom: '30px', marginTop: '10px' }}>
-                
-                <div style={{ 
-                    position: 'absolute', width: 'calc(100% - 150px)', height: '100%', 
-                    left: '140px', display: 'flex', justifyContent: 'space-between', zIndex: 0 
-                }}>
-                    {[0, 200, 400, 600, 800, 1000, 1200].map(val => (
-                        <div key={val} style={{ borderLeft: '1px solid #f1f5f9', height: '100%', position: 'relative' }}>
-                            <span style={{ position: 'absolute', bottom: '-20px', left: '-10px', fontSize: '10px', color: '#94a3b8' }}>{val}</span>
-                        </div>
-                    ))}
-                </div>
+            <ResponsiveContainer width="100%" height="85%">
+                <BarChart
+                    layout="vertical"
+                    data={dataFormateada}
+                    margin={{ top: 5, right: 80, left: 40, bottom: 20 }}
+                >
+                    <defs>
+                        <linearGradient id="colorRes" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="5%" stopColor="#FC3276" stopOpacity={1}/>
+                            <stop offset="95%" stopColor="#FD7751" stopOpacity={1}/>
+                        </linearGradient>
+                    </defs>
 
-                
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {datos.map((res, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{ width: '130px', textAlign: 'right', paddingRight: '10px', fontSize: '11px', color: '#64748b' }}>
-                                {res.nombre}
-                            </div>
-                            <div style={{ flex: 1, height: '22px' }}>
-                                <div style={{ 
-                                    width: res.ancho, 
-                                    height: '100%', 
-                                    
-                                    background: 'linear-gradient(to right, #FC3276, #FD7751)', 
-                                    borderRadius: '2px', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'flex-end', 
-                                    paddingRight: '10px',
-                                    transition: 'width 0.8s ease-in-out'
-                                }}>
-                                    <span style={{ fontSize: '9px', color: 'white', fontWeight: 'bold' }}>
-                                        {res.valor}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="#f1f5f9" />
+                    
+                    <XAxis 
+                        type="number" 
+                        domain={[0, 'dataMax + 200']} 
+                        tick={{ fontSize: 10, fill: '#94a3b8' }}
+                        axisLine={false}
+                        tickLine={false}
+                    />
+                    
+                    <YAxis 
+                        dataKey="name" 
+                        type="category" 
+                        tick={{ fontSize: 11, fill: '#64748b' }} 
+                        width={120}
+                        axisLine={false}
+                        tickLine={false}
+                    />
+                    
+                    <Tooltip 
+                        cursor={{ fill: '#f8fafc' }}
+                        contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    
+                    <Bar 
+                        dataKey="valor" 
+                        fill="url(#colorRes)" 
+                        radius={[0, 4, 4, 0]} 
+                        barSize={20}
+                    >
+                        <LabelList 
+                            dataKey="etiquetaCompleta" 
+                            position="right" 
+                            style={{ fontSize: '10px', fill: '#64748b', fontWeight: '500' }} 
+                            offset={10}
+                        />
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+            
+            <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '11px', color: '#94a3b8' }}>
+                Cantidad
             </div>
-            <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '11px', color: '#94a3b8' }}>Cantidad</div>
         </div>
     );
 };
 
 export default ResultadosChart;
-

@@ -1,111 +1,44 @@
 import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 
 const DuracionChart = () => {
     const datos = [
-        { label: "Buzón", valor: "753", porcentaje: "22.8%", color: "#EE7553" },
-        { label: "Muy Corta", valor: "490", porcentaje: "14.9%", color: "#EC635F" },
-        { label: "Corta", valor: "733", porcentaje: "22.2%", color: "#EB526A" },
-        { label: "Media", valor: "1,017", porcentaje: "30.8%", color: "#E94176" },
-        { label: "Larga", valor: "306", porcentaje: "9.3%", color: "#E83081" },
+        { label: "Buzón", valor: 753, porcentaje: "22.8%", color: "#EE7553" },
+        { label: "Muy Corta", valor: 490, porcentaje: "14.9%", color: "#EC635F" },
+        { label: "Corta", valor: 733, porcentaje: "22.2%", color: "#EB526A" },
+        { label: "Media", valor: 1017, porcentaje: "30.8%", color: "#E94176" },
+        { label: "Larga", valor: 306, porcentaje: "9.3%", color: "#E83081" },
     ];
 
-    const maxValor = 1100; 
-
     return (
-        <div className="card">
-            <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '15px' }}>
+        <div className="card" style={{ height: '350px', padding: '20px' }}>
+            <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '25px', paddingBottom: '10px' }}>
                 Distribución por Duración
             </div>
             
-           
-            <div style={{ 
-                height: '220px', 
-                position: 'relative', 
-                marginTop: '30px', 
-                paddingBottom: '30px',
-                paddingLeft: '45px', 
-                marginRight: '10px'
-            }}>
-                
-                {/* Rejilla de fondo */}
-                <div style={{ 
-                    position: 'absolute', 
-                    width: 'calc(100% - 55px)', 
-                    height: '100%', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    justifyContent: 'space-between',
-                    left: '45px'
-                }}>
-                    {[1000, 800, 600, 400, 200, 0].map(val => (
-                        <div key={val} style={{ borderBottom: '1px solid #f1f5f9', width: '100%', position: 'relative' }}>
-                            <span style={{ 
-                                position: 'absolute', 
-                                left: '-40px',  
-                                top: '-8px', 
-                                fontSize: '10px', 
-                                color: '#94a3b8',
-                                width: '30px',
-                                textAlign: 'right'
-                            }}>{val}</span>
-                        </div>
-                    ))}
-                </div>
-
-                
-                <div style={{ 
-                    position: 'relative', 
-                    height: '100%', 
-                    display: 'flex', 
-                    alignItems: 'flex-end', 
-                    justifyContent: 'space-around'
-                }}>
-                    {datos.map((item, i) => {
-                        const valorNum = parseInt(item.valor.replace(',', ''));
-                        const alturaPx = (valorNum / maxValor) * 100;
-
-                        return (
-                            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16%', height: '100%', justifyContent: 'flex-end' }}>
-                                <div style={{ 
-                                    fontSize: '9px', 
-                                    fontWeight: 'bold', 
-                                    marginBottom: '5px',
-                                    color: 'white',
-                                    position: 'absolute',
-                                    bottom: `${alturaPx / 2}%`,  
-                                    zIndex: 2,
-                                    textAlign: 'center',
-                                    width: '100%',
-                                    pointerEvents: 'none'
-                                }}>
-                                    {item.valor}<br/>({item.porcentaje})
-                                </div>
-
-                                <div style={{ 
-                                    height: `${alturaPx}%`, 
-                                    width: '100%', 
-                                    backgroundColor: item.color, 
-                                    borderRadius: '4px 4px 0 0',
-                                    position: 'relative',
-                                    transition: 'height 0.6s ease-out',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                }} />
-                                
-                                <span style={{ 
-                                    fontSize: '10px', 
-                                    color: '#64748b', 
-                                    marginTop: '10px', 
-                                    fontWeight: '500', 
-                                    whiteSpace: 'nowrap',
-                                    textAlign: 'center'
-                                }}>
-                                    {item.label}
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            <ResponsiveContainer width="100%" height="80%">
+                <BarChart data={datos} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 'bold' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} domain={[0, 1200]} />
+                    <Tooltip cursor={{ fill: '#f8fafc' }} />
+                    
+                    <Bar dataKey="valor" radius={[6, 6, 0, 0]} barSize={120}> 
+                        {datos.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                        <LabelList 
+                            dataKey="valor" 
+                            position="center"
+                            content={(props) => (
+                                <text x={props.x + props.width/2} y={props.y + 20} fill="white" textAnchor="middle" style={{ fontSize: '10px', fontWeight: 'bold', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
+                                    {props.value}
+                                </text>
+                            )}
+                        />
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 };

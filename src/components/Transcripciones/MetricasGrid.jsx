@@ -6,7 +6,7 @@ const MetricasGrid = ({ data }) => {
     const getStatusColor = (val) => {
         const lowerVal = val.toString().toLowerCase();
         if (['sí', 'venta', 'excelente'].some(k => lowerVal.includes(k))) return '#2ecc71';
-        if (['no', 'bajo'].some(k => lowerVal.includes(k))) return '#e74c3c';
+        if (['no', 'bajo'].some(k => lowerVal.includes(k))) return '#FC3276';
         return '#1e293b';
     };
 
@@ -29,7 +29,7 @@ const MetricasGrid = ({ data }) => {
                     onClick={() => setMostrarAnalisis(!mostrarAnalisis)}
                     style={{ 
                         padding: '12px 25px', 
-                        backgroundColor: '#fc3474', 
+                        backgroundColor: '#FC3276', 
                         color: 'white', 
                         border: 'none', 
                         borderRadius: '10px', 
@@ -59,7 +59,7 @@ const MetricasGrid = ({ data }) => {
                         
                         <div>
                             <p><b>1. RESUMEN:</b> La llamada se realizó pero no se estableció contacto directo con el cliente, terminando en el buzón de voz.</p>
-                            <p><b style={{ color: '#e74c3c' }}>2. RESULTADO:</b> Sin contacto con el cliente; la llamada culminó en el buzón de voz.</p>
+                            <p><b style={{ color: '#FC3276' }}>2. RESULTADO:</b> Sin contacto con el cliente; la llamada culminó en el buzón de voz.</p>
                         </div>
 
                      
@@ -69,7 +69,7 @@ const MetricasGrid = ({ data }) => {
                                 <li>Intento de llamada realizado.</li>
                                 <li>Registro de contacto exitoso.</li>
                             </ul>
-                            <p><b style={{ color: '#e74c3c' }}>4. ERRORES:</b></p>
+                            <p><b style={{ color: '#FC3276' }}>4. ERRORES:</b></p>
                             <ul style={{ paddingLeft: '20px' }}>
                                 <li>No se ofreció saludo apropiado.</li>
                                 <li>Falta de identificación del plan o servicio.</li>
