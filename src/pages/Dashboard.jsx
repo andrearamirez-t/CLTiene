@@ -32,7 +32,7 @@ const Dashboard = () => {
             <Sidebar />
 
             
-            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto', marginLeft:"260px" }}>
                 
                 
                 <header className="header-banner" style={{ 

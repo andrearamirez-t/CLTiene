@@ -12,9 +12,17 @@ function Sidebar() {
         border: '1px solid #334155',
         color: 'white',
         borderRadius: '5px',
-        marginBottom: '20px'
+        marginBottom: '20px',
+        fontSize: '12px'
     }
-    const labelMargin = { marginBottom: "10px", display: 'block' }
+    
+    const labelMargin = { 
+        marginBottom: "8px", 
+        display: 'block', 
+        fontSize: '11px', 
+        color: '#94a3b8',
+        fontWeight: '500'
+    }
 
     const handleLogout = async () => {
         try {
@@ -26,75 +34,121 @@ function Sidebar() {
     }
 
     return (
-        <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '20px', marginBottom: '50px', marginTop: '50px', display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <img style={{ width: "12rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
+        <aside className="sidebar" style={{ 
+            width: '260px',           
+            height: '100vh',          
+            position: 'fixed',        
+            left: 0,
+            top: 0,
+            display: 'flex', 
+            flexDirection: 'column',
+            background: '#0f172a',    
+            padding: '20px',
+            borderRight: '1px solid #1e293b',
+            zIndex: 1000
+        }}>
+            <div style={{ 
+                padding: '20px 0 40px 0', 
+                display: "flex", 
+                justifyContent: "center", 
+                alignItems: "center",
+                flexShrink: 0 
+            }}>
+                <img style={{ width: "10rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
             </div>
 
-            <div style={{ fontSize: '12px', flexGrow: 1, overflowY: 'auto' }}>
-                <p style={{ marginBottom: '5px', fontWeight: 'bold', color: '#94a3b8' }}>PERIODO</p>
+            <div className="scroll-filters" style={{ 
+                fontSize: '12px', 
+                flexGrow: 1, 
+                overflowY: 'auto',   
+                overflowX: 'hidden',
+                paddingRight: '10px', 
+            }}>
+                <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
+                <label style={labelMargin}>Desde</label>
                 <input type="date" defaultValue="2023-11-28" style={customInput} />
+                <label style={labelMargin}>Hasta</label>
                 <input type="date" defaultValue="2024-02-23" style={customInput} />
 
-                <hr style={{ border: '0.1px solid #334155', margin: '20px 0' }} />
+                <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
 
-                <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#94a3b8' }}>FILTROS</p>
+                <p style={{ marginBottom: '15px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>FILTROS</p>
 
+                <label style={labelMargin}>Resultado de la Llamada</label>
+                <select style={customInput}><option>Todas</option></select>
+                
+                <label style={labelMargin}>Plan Mencionado</label>
+                <select style={customInput}><option>Todos</option></select>
+                
+                <label style={labelMargin}>Duración de la Llamada</label>
+                <select style={customInput}><option>Todas</option></select>
+                
+                <label style={labelMargin}>Saludo del Asesor</label>
+                <select style={customInput}><option>Todos</option></select>
+                
+                <label style={labelMargin}>Nombre del Asesor</label>
+                <select style={customInput}><option>Todos</option></select>
+                
+                <label style={labelMargin}>Módulo de Atención</label>
+                <select style={customInput}><option>Todos</option></select>
+                
+                <label style={labelMargin}>Clasificación del Sentimiento</label>
+                <select style={customInput}><option>Todas</option></select>
+                
+                <label style={labelMargin}>Tipo de Llamada</label>
+                <select style={customInput}><option>Todas</option></select>
+                
+                <label style={labelMargin}>Asistencia Mencionada</label>
+                <select style={customInput}><option>Todas</option></select>
 
-
-
-                <label style={labelMargin}>Resultado de la Llamada</label><select style={customInput}></select>
-                <label style={labelMargin}>Plan Mencionado</label><select style={customInput}></select>
-                <label style={labelMargin}>Duración de la Llamada</label><select style={customInput}></select>
-                <label style={labelMargin}>Saludo del Asesor</label><select style={customInput}></select>
-                <label style={labelMargin}>Nombre del Asesor</label><select style={customInput}></select>
-                <label style={labelMargin}>Módulo de Atención</label><select style={customInput}></select>
-                <label style={labelMargin}>Clasificación del Sentimiento</label><select style={customInput}></select>
-                <label style={labelMargin}>Tipo de Llamada</label><select style={customInput}></select>
-                <label style={labelMargin}>Asistencia Mencionada</label><select style={customInput}></select>
-                <label style={labelMargin}>Transcripciones</label>
+                <p style={{ marginBottom: '20px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>TRANSCRIPCIONES</p>
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
+                    gap: '12px',
                     background: '#1e293b',
-                    padding: '15px',
-                    borderRadius: '5px',
+                    padding: '12px',
+                    borderRadius: '8px',
                     border: '1px solid #334155',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginBottom: '20px'
                 }}>
                     <input
                         type="checkbox"
                         id="transcription-filter"
                         style={{
                             cursor: 'pointer',
-                            width: '16px',
-                            height: '16px',
+                            width: '18px',
+                            height: '18px',
                             accentColor: '#FC3276'
                         }}
                     />
                     <label
                         htmlFor="transcription-filter"
-                        style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '11px' }}
+                        style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '13px' }}
                     >
                         Solo con transcripción
                     </label>
                 </div>
             </div>
 
-            <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
+            <div style={{ flexShrink: 0, paddingTop: '20px', marginTop: '10px', borderTop: '1px solid #1e293b' }}>
                 <button
                     onClick={handleLogout}
                     style={{
                         width: '100%',
-                        padding: '10px',
-                        background: '#FC3276',
+                        padding: '12px',
+                        background: 'linear-gradient(90deg, #FC3276 0%, #be123c 100%)',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '5px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        fontSize: '13px',
+                        transition: 'opacity 0.2s'
                     }}
+                    onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                    onMouseOut={(e) => e.target.style.opacity = '1'}
                 >
                     Cerrar Sesión
                 </button>
