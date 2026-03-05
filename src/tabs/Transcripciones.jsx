@@ -15,10 +15,10 @@ const Transcripciones = () => {
     return (
         <div style={{ padding: '40px', backgroundColor: '#ffffff', minHeight: '100vh', fontFamily: 'Segoe UI, Roboto, sans-serif' }}>
 
-            {/* FILTROS + TRANSCRIPCION */}
+            
             <div style={{ display: 'flex', gap: '50px', alignItems: 'flex-start' }}>
 
-                {/* CONFIGURACION Y FILTROS */}
+               
                 <div style={{ flex: '0 0 380px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                     <h2 style={{ fontSize: '16px', color: '#626947', margin: 0 }}>Visor de Transcripciones AI</h2>

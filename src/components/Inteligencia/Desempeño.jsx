@@ -12,28 +12,33 @@ import {
 
 const Desempeño = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height={350}>
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data}
-        margin={{ top: 20, right: 30, left: 10, bottom: 70 }} 
+        
+        margin={{ top: 20, right: 30, left: 10, bottom: 100 }}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
         
         <XAxis 
           dataKey="n" 
-          tick={{ fill: '#64748b', fontSize: 10 }}
+          fontSize={10}
+          tick={{ fill: '#64748b' }}
           axisLine={{ stroke: '#cbd5e1' }}
-          interval={0}
-          angle={-45} 
+          interval={0} 
+          angle={-45}  
           textAnchor="end"
+          dy={35}
+          dx={-10}
+          height={120} 
         />
         
         <YAxis 
           domain={[0, 100]} 
-          tick={{ fill: '#94a3b8', fontSize: 12 }}
+          fontSize={12}
+          tick={{ fill: '#94a3b8' }}
           axisLine={false}
           tickLine={false}
-          label={{ value: '%', angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
         />
         
         <Tooltip cursor={{ fill: '#f8fafc' }} />
