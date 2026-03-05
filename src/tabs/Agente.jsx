@@ -8,6 +8,7 @@ import BusquedaInteligente from '../components/ui/BusquedaInteligente';
 import ResumirLlamadas from '../components/ResumirLlamadas';
 import RankingIA from '../components/RankingIA';
 import ReporteCompleto from '../components/ReporteCompleto';
+import BotonAnalisis from '../components/ui/BotonAnalisis';
 
 const Agente = () => {
     const [tabActiva, setTabActiva] = useState('Chat Inteligente');
@@ -79,41 +80,41 @@ const Agente = () => {
                         />
                         ** Sugerencias:**
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginTop: '15px' }}>
-    {[
-        '¿Resumen del rendimiento?...',
-        '¿Mejor asesor y por qué?...',
-        '¿Motivos de rechazo?...',
-        '¿Patrones de ventas exitosas?...',
-        '¿Plan de acción semanal?...',
-        '¿Como mejorar contactabilidad?...'
-    ].map((sug, index) => {
-        
-        return (
-            <button
-                key={index}
-                onClick={() => handleSend(sug)}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#FC3276'; 
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#999999'; 
-                }}
-                style={{ 
-                    padding: '12px', 
-                    backgroundColor: '#999999', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '10px', 
-                    fontSize: '11px', 
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s ease' 
-                }}
-            >
-                {sug}
-            </button>
-        );
-    })}
-</div>
+                            {[
+                                '¿Resumen del rendimiento?...',
+                                '¿Mejor asesor y por qué?...',
+                                '¿Motivos de rechazo?...',
+                                '¿Patrones de ventas exitosas?...',
+                                '¿Plan de acción semanal?...',
+                                '¿Como mejorar contactabilidad?...'
+                            ].map((sug, index) => {
+
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleSend(sug)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor = '#FC3276';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = '#999999';
+                                        }}
+                                        style={{
+                                            padding: '12px',
+                                            backgroundColor: '#999999',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '10px',
+                                            fontSize: '11px',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.3s ease'
+                                        }}
+                                    >
+                                        {sug}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 
@@ -128,7 +129,13 @@ const Agente = () => {
                 )}
 
                 {/* RESUMIR LLAMADAS */}
-                {tabActiva === 'Resumir Llamadas' && <ResumirLlamadas />}
+                {tabActiva === 'Resumir Llamadas' && <>
+                    <ResumirLlamadas />
+                    <div style={{ padding: "20px" }}>
+                        <BotonAnalisis onAnalizar={() => alert('Analizando...')} />
+                    </div>
+                </>
+                }
 
                 {/* RANKING */}
                 {tabActiva === 'Ranking IA' && <RankingIA />}
@@ -140,7 +147,7 @@ const Agente = () => {
                     </div>
                 )}
 
-                
+
             </div>
         </div>
     );

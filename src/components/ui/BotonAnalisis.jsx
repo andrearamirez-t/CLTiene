@@ -1,7 +1,7 @@
 import React from 'react';
 
 const BotonAnalisis = ({ onAnalizar }) => (
-    <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '20px', display: 'flex' }}>
+    <div style={{  display: 'flex' }}>
         <button 
             onClick={onAnalizar}
             style={{
@@ -16,7 +16,8 @@ const BotonAnalisis = ({ onAnalizar }) => (
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)'
+                boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)',
+                width:'100%'
             }}
         >
             📊 Analizar resultados con IA

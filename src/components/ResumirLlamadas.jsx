@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import CuerpoLlamada from './CuerpoLlamada';
-import BotonAnalisis from './ui/BotonAnalisis';
 
 const ResumirLlamadas = () => {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const llamadaData = {
         info: { resultado: "Contactado", plan: "Plan Mascotas", duracion: "Media", turnos: "12", calificacion: 50 },
@@ -32,7 +31,6 @@ const ResumirLlamadas = () => {
                     borderRadius: '0 0 12px 12px', padding: '30px' 
                 }}>
                     <CuerpoLlamada datos={llamadaData.info} transcripcion={llamadaData.chat} />
-                    <BotonAnalisis onAnalizar={() => alert('Analizando...')} />
                 </div>
             )}
         </div>
