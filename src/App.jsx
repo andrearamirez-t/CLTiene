@@ -6,28 +6,31 @@ import { onAuthStateChanged } from 'firebase/auth';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import "./css/style.css";
+import { FiltersProvider } from './FiltersContext';
 
 function App() {
-  const [usuario, setUsuario] = useState(null);
-  const [cargando, setCargando] = useState(true);
+    const [usuario, setUsuario] = useState(null);
+    const [cargando, setCargando] = useState(true);
 
-  useEffect(() => {
-    const desubscribir = onAuthStateChanged(auth, (user) => {
-      setUsuario(user);
-      setCargando(false);
-    });
-    return () => desubscribir();
-  }, []);
+    useEffect(() => {
+        const desubscribir = onAuthStateChanged(auth, (user) => {
+            setUsuario(user);
+            setCargando(false);
+        });
+        return () => desubscribir();
+    }, []);
 
-  if (cargando) return <div className="loading">Cargando...</div>;
+    if (cargando) return <div className="loading">Cargando...</div>;
 
-  return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={!usuario ? <Login /> : <Navigate to="/" />} />
-        <Route path="/" element={usuario ? <Dashboard /> : <Navigate to="/login" />} />
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/login" element={!usuario ? <Login /> : <Navigate to="/" />} />
+                <Route path="/" element={usuario ? <FiltersProvider>
+                    <Dashboard />
+                </FiltersProvider> : <Navigate to="/login" />} />
+            </Routes>
+        </Router>
+    );
 }
 export default App;
