@@ -43,4 +43,6 @@ const DuracionChart = () => {
     );
 };
 
+
+
 export default DuracionChart;

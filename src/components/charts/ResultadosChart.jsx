@@ -8,7 +8,7 @@ const ResultadosChart = ({ datos }) => {
     const dataFormateada = datos.map(item => ({
         name: item.nombre,
         valor: parseInt(item.valor.split(' ')[0].replace('.', '')),
-        etiquetaCompleta: item.valor // Guardamos "1.322 (40.1%)" para mostrarlo
+        etiquetaCompleta: item.valor 
     }));
 
     return (
