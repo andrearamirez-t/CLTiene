@@ -33,7 +33,7 @@ const CardGrafica = ({ titulo, children, height = '500px' }) => (
 export default function Inteligencia() {
   const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
 
-  // Datos (Se mantienen igual)
+
   const datosHoras = [{ name: '08', t: 215, ef: 10.1 }, { name: '09', t: 413, ef: 15.4 }, { name: '10', t: 317, ef: 7.1 }, { name: '11', t: 487, ef: 6.5 }];
   const datosDias = [{ name: 'Lunes', t: 528, ef: 3.4 }, { name: 'Martes', t: 558, ef: 5.4 }, { name: 'Miércoles', t: 411, ef: 6.6 }];
   const datosVentas = [{ name: 'ventas', total: 813, efectivas: 53 }, { name: 'servicio', total: 706, efectivas: 38 }, { name: 'mixto', total: 1780, efectivas: 94 }];
