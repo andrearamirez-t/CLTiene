@@ -20,8 +20,8 @@ const ChatVisor = ({ chat, resaltar }) => {
                     maxWidth: '80%',
                     padding: '15px 20px',
                     borderRadius: '15px',
-                    backgroundColor: msg.role === 'cliente' ? '#822BD2' : '#f1f5f9',
-                    color: msg.role === 'cliente' ? 'white' : '#334155',
+                    backgroundColor: msg.role === 'cliente' ? '#FD7751' : '#999999',
+                    color: msg.role === 'cliente' ? 'white' : '#ffffff',
                     fontSize: '14px',
                     lineHeight: '1.5'
                 }}>

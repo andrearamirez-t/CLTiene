@@ -16,7 +16,7 @@ const ResumirLlamadas = () => {
             <div 
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
-                    backgroundColor: '#e91e63', color: 'white', padding: '12px 25px',
+                    backgroundColor: '#FC3276', color: 'white', padding: '12px 25px',
                     borderRadius: isOpen ? '12px 12px 0 0' : '12px',
                     display: 'flex', justifyContent: 'space-between', cursor: 'pointer'
                 }}

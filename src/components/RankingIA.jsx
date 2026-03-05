@@ -28,7 +28,7 @@ const RankingIA = () => {
                         </div>
                     </div>
                     <div style={{
-                        backgroundColor: '#e91e63', color: 'white', width: '35px', height: '35px',
+                        backgroundColor: '#822BD2', color: 'white', width: '35px', height: '35px',
                         borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
                     }}>
                         {asesor.puntos}
@@ -40,12 +40,12 @@ const RankingIA = () => {
             <button 
                 onClick={() => setMostrarInforme(!mostrarInforme)}
                 style={{
-                    width: '100%', backgroundColor: '#e91e63', color: 'white', padding: '12px',
+                    width: '100%', backgroundColor: '#FC3276', color: 'white', padding: '12px',
                     borderRadius: '10px', border: 'none', fontWeight: 'bold', cursor: 'pointer',
                     marginTop: '10px', fontSize: '14px'
                 }}
             >
-                {mostrarInforme ? '⬆️ Cerrar Análisis' : '✨ Análisis Comparativo IA'}
+                {mostrarInforme ? 'Cerrar Análisis' : ' Análisis Comparativo IA'}
             </button>
 
             {/* SECCIÓN DEL INFORME */}
@@ -61,18 +61,18 @@ const RankingIA = () => {
 
                     {/* TOP 3 ASESORES */}
                     <div style={{ marginTop: '20px' }}>
-                        <h3 style={{ color: '#e91e63' }}>1. 🏆 TOP 3 ASESORES</h3>
+                        <h3 style={{ color: '#FC3276' }}>1. 🏆 TOP 3 ASESORES</h3>
                         <ul style={{ listStyle: 'none', paddingLeft: '10px' }}>
                             <li style={{ marginBottom: '15px' }}>
                                 <strong>1. Dayana Alexandra Marulanda Feo</strong>
                                 <p style={{ margin: '5px 0', fontSize: '13px', color: '#475569' }}>
-                                    <span style={{ color: '#e91e63' }}>●</span> <strong>Por qué es la mejor:</strong> Tiene un excelente balance entre alta carga de llamadas y ventas.
+                                    <span style={{ color: '#FC3276' }}>●</span> <strong>Por qué es la mejor:</strong> Tiene un excelente balance entre alta carga de llamadas y ventas.
                                 </p>
                             </li>
                             <li>
                                 <strong>2. Jenifer Andrea Rodriguez Cespedes</strong>
                                 <p style={{ margin: '5px 0', fontSize: '13px', color: '#475569' }}>
-                                    <span style={{ color: '#e91e63' }}>●</span> <strong>Qué hace bien:</strong> Sobresale en el ofrecimiento de soluciones y cierre de servicio.
+                                    <span style={{ color: '#FC3276' }}>●</span> <strong>Qué hace bien:</strong> Sobresale en el ofrecimiento de soluciones y cierre de servicio.
                                 </p>
                             </li>
                         </ul>
@@ -80,7 +80,7 @@ const RankingIA = () => {
 
                     {/* OPORTUNIDADES DE MEJORA */}
                     <div style={{ marginTop: '30px' }}>
-                        <h3 style={{ color: '#e91e63' }}>2. 📈 OPORTUNIDADES DE MEJORA</h3>
+                        <h3 style={{ color: '#FC3276' }}>2. 📈 OPORTUNIDADES DE MEJORA</h3>
                         <div style={{ padding: '15px', backgroundColor: '#fff1f2', borderRadius: '10px', border: '1px solid #fecdd3' }}>
                             <p><strong>Jimmy Alexander Rusinque:</strong> Bajo éxito en ventas (0.44%). Necesita mejorar en manejo de objeciones y cierre.</p>
                         </div>
@@ -88,12 +88,12 @@ const RankingIA = () => {
 
                     {/* ANÁLISIS INDIVIDUAL */}
                     <div style={{ marginTop: '30px' }}>
-                        <h3 style={{ color: '#e91e63' }}>3. 🧬 ANÁLISIS INDIVIDUAL POR ASESOR</h3>
+                        <h3 style={{ color: '#FC3276' }}>3. 🧬 ANÁLISIS INDIVIDUAL POR ASESOR</h3>
                         <div style={{ marginBottom: '20px' }}>
                             <strong>Dayana Alexandra Marulanda Feo</strong>
                             <div style={{ fontSize: '13px', marginTop: '5px' }}>
                                 <p style={{ color: '#059669', margin: '2px 0' }}>✅ Fortalezas: Alta cantidad de llamadas y buen manejo de duración.</p>
-                                <p style={{ color: '#dc2626', margin: '2px 0' }}>❌ Debilidades: Baja índice en la explicación de beneficios (2%).</p>
+                                <p style={{ color: '#FC3276', margin: '2px 0' }}>❌ Debilidades: Baja índice en la explicación de beneficios (2%).</p>
                             </div>
                         </div>
                     </div>

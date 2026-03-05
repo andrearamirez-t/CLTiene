@@ -5,7 +5,7 @@ const BotonAnalisis = ({ onAnalizar }) => (
         <button 
             onClick={onAnalizar}
             style={{
-                backgroundColor: '#e91e63',
+                backgroundColor: '#FC3276',
                 color: 'white',
                 padding: '10px 25px',
                 borderRadius: '25px',

@@ -12,17 +12,17 @@ function SenMessage({ inputValue, setInputValue, onSend, onClear }) {
                     onKeyPress={(e) => e.key === 'Enter' && onSend()}
                     placeholder="Ej: ¿Qué asesor rinde mejor?"
                     style={{
-                        width: '100%', padding: '15px', borderRadius: '8px', border: '2px solid #e91e63',
+                        width: '100%', padding: '15px', borderRadius: '8px', border: '2px solid #FC3276',
                         backgroundColor: '#1e293b', color: 'white', outline: 'none', boxSizing: 'border-box'
                     }}
                 />
             </div>
 
             <div style={{ display: 'flex', gap: '15px' }}>
-                <button onClick={() => onSend()} style={{ flex: 1, padding: '12px', backgroundColor: '#e91e63', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={() => onSend()} style={{ flex: 1, padding: '12px', backgroundColor: '#FC3276', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Enviar
                 </button>
-                <button onClick={onClear} style={{ flex: 1, padding: '12px', backgroundColor: '#e91e63', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button onClick={onClear} style={{ flex: 1, padding: '12px', backgroundColor: '#FC3276', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                     Limpiar
                 </button>
             </div>

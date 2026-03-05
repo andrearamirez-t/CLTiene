@@ -49,7 +49,7 @@ const AnalisisAu = () => {
                         padding: '15px',
                         backgroundColor: '#1e293b', 
                         color: 'white',
-                        border: '2px solid #e91e63', 
+                        border: '2px solid #FC3276', 
                         borderRadius: '10px',
                         appearance: 'none',
                         cursor: 'pointer'
@@ -67,7 +67,7 @@ const AnalisisAu = () => {
                 style={{
                     width: '100%',
                     padding: '15px',
-                    backgroundColor: '#e91e63',
+                    backgroundColor: '#FC3276',
                     color: 'white',
                     border: 'none',
                     borderRadius: '10px',

@@ -39,6 +39,8 @@ function Sidebar() {
                 <label style={labelMargin}>Módulo de Atención</label><select style={customInput}></select>
                 <label style={labelMargin}>Clasificación del Sentimiento</label><select style={customInput}></select>
                 <label style={labelMargin}>Tipo de Llamada</label><select style={customInput}></select>
+                <label style={labelMargin}>Asistencia Mencionada</label><select style={customInput}></select>
+                
             </div>
 
             <div style={{ marginTop: 'auto', paddingTop: '20px' }}>

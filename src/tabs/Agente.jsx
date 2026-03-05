@@ -64,7 +64,7 @@ const Agente = () => {
                 ))}
             </div>
 
-            {/* CONTENIDO DINÁMICO */}
+            {/* CONTENIDO DINAMICO */}
             <div style={{ marginTop: '20px' }}>
 
                 {/* CHAT INTELIGENTE */}
@@ -77,24 +77,43 @@ const Agente = () => {
                             onSend={handleSend}
                             onClear={() => setMessages([])}
                         />
+                        ** Sugerencias:**
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginTop: '15px' }}>
-                            {[
-                                '¿Resumen del rendimiento?...',
-                                '¿Mejor asesor y por qué?...',
-                                '¿Motivos de rechazo?...',
-                                '¿Patrones de ventas exitosas?...',
-                                '¿Plan de acción semanal?...',
-                                '¿Como mejorar contactabilidad?...'
-                            ].map((sug, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => handleSend(sug)}
-                                    style={{ padding: '12px', backgroundColor: '#e91e63', color: 'white', border: 'none', borderRadius: '10px', fontSize: '11px', cursor: 'pointer' }}
-                                >
-                                    {sug}
-                                </button>
-                            ))}
-                        </div>
+    {[
+        '¿Resumen del rendimiento?...',
+        '¿Mejor asesor y por qué?...',
+        '¿Motivos de rechazo?...',
+        '¿Patrones de ventas exitosas?...',
+        '¿Plan de acción semanal?...',
+        '¿Como mejorar contactabilidad?...'
+    ].map((sug, index) => {
+        
+        return (
+            <button
+                key={index}
+                onClick={() => handleSend(sug)}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#FC3276'; 
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#999999'; 
+                }}
+                style={{ 
+                    padding: '12px', 
+                    backgroundColor: '#999999', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '10px', 
+                    fontSize: '11px', 
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease' 
+                }}
+            >
+                {sug}
+            </button>
+        );
+    })}
+</div>
                     </div>
                 )}
 
@@ -121,13 +140,7 @@ const Agente = () => {
                     </div>
                 )}
 
-                {/* REPORTE COMPLETO */}
-                {tabActiva === 'Reporte Completo' && (
-                    <div style={{ textAlign: 'center', padding: '50px', border: '1px dashed #cbd5e1', borderRadius: '15px', color: '#64748b' }}>
-                        <h3>Módulo de {tabActiva}</h3>
-                        <p>Contenido en desarrollo.</p>
-                    </div>
-                )}
+                
             </div>
         </div>
     );

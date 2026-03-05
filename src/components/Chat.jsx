@@ -6,7 +6,7 @@ function Chat({ messages }) {
                     padding: '15px 25px',
                     borderRadius: '15px',
                     marginBottom: '10px', 
-                    background: msg.role === 'user' ? 'linear-gradient(90deg, #E8347E 0%, #634394 100%)' : '#f8fafc',
+                    background: msg.role === 'user' ? 'linear-gradient(90deg, #FD7751 0%, #FD7751 100%)' : '#f8fafc',
                     color: msg.role === 'user' ? 'white' : '#1e293b',
                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     maxWidth: '85%' ,

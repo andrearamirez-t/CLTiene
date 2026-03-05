@@ -28,12 +28,12 @@ const ReporteCompleto = () => {
                 <button 
                     onClick={() => setMostrarResumen(!mostrarResumen)}
                     style={{
-                        width: '100%', backgroundColor: '#e91e63', color: 'white', padding: '12px',
+                        width: '100%', backgroundColor: '#FC3276', color: 'white', padding: '12px',
                         borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                     }}
                 >
-                    {mostrarResumen ? '⬆️ Ocultar Reporte' : '🪄 Generar Reporte'}
+                    {mostrarResumen ? ' Ocultar Reporte' : ' Generar Reporte'}
                 </button>
             </div>
 
@@ -77,12 +77,12 @@ const ReporteCompleto = () => {
                                 <tr>
                                     <td style={{ padding: '10px' }}>Total Llamadas</td>
                                     <td style={{ padding: '10px' }}>2,556</td>
-                                    <td style={{ padding: '10px', color: '#dc2626' }}>🚨 Baja Gestión</td>
+                                    <td style={{ padding: '10px', color: '#FC3276' }}>🚨 Baja Gestión</td>
                                 </tr>
                                 <tr>
                                     <td style={{ padding: '10px' }}>% Ventas</td>
                                     <td style={{ padding: '10px' }}>2.19%</td>
-                                    <td style={{ padding: '10px', color: '#dc2626' }}>⚠️ Bajo</td>
+                                    <td style={{ padding: '10px', color: '#FC3276' }}>⚠️ Bajo</td>
                                 </tr>
                                 <tr>
                                     <td style={{ padding: '10px' }}>Clasificación Completa</td>
@@ -108,7 +108,7 @@ const ReporteCompleto = () => {
                             ].map((item, idx) => (
                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
                                     <span>{item.n}</span>
-                                    <span style={{ fontWeight: 'bold', color: '#e91e63' }}>{item.e}</span>
+                                    <span style={{ fontWeight: 'bold', color: '#FC3276' }}>{item.e}</span>
                                 </div>
                             ))}
                         </div>
