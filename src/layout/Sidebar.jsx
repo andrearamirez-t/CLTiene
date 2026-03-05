@@ -1,9 +1,16 @@
+import React, { useState } from 'react'; 
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar() {
     const navigate = useNavigate();
+    
+    const [isOpen, setIsOpen] = useState(true);
+
+    const toggleSidebar = () => {
+        setIsOpen(!isOpen);
+    };
 
     const customInput = {
         width: '100%',
@@ -34,126 +41,159 @@ function Sidebar() {
     }
 
     return (
-        <aside className="sidebar" style={{ 
-            width: '260px',           
-            height: '100vh',          
-            position: 'fixed',        
-            left: 0,
-            top: 0,
-            display: 'flex', 
-            flexDirection: 'column',
-            background: '#0f172a',    
-            padding: '20px',
-            borderRight: '1px solid #1e293b',
-            zIndex: 1000
-        }}>
-            <div style={{ 
-                padding: '20px 0 40px 0', 
-                display: "flex", 
-                justifyContent: "center", 
-                alignItems: "center",
-                flexShrink: 0 
-            }}>
-                <img style={{ width: "10rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
-            </div>
-
-            <div className="scroll-filters" style={{ 
-                fontSize: '12px', 
-                flexGrow: 1, 
-                overflowY: 'auto',   
-                overflowX: 'hidden',
-                paddingRight: '10px', 
-            }}>
-                <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
-                <label style={labelMargin}>Desde</label>
-                <input type="date" defaultValue="2023-11-28" style={customInput} />
-                <label style={labelMargin}>Hasta</label>
-                <input type="date" defaultValue="2024-02-23" style={customInput} />
-
-                <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
-
-                <p style={{ marginBottom: '15px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>FILTROS</p>
-
-                <label style={labelMargin}>Resultado de la Llamada</label>
-                <select style={customInput}><option>Todas</option></select>
-                
-                <label style={labelMargin}>Plan Mencionado</label>
-                <select style={customInput}><option>Todos</option></select>
-                
-                <label style={labelMargin}>Duración de la Llamada</label>
-                <select style={customInput}><option>Todas</option></select>
-                
-                <label style={labelMargin}>Saludo del Asesor</label>
-                <select style={customInput}><option>Todos</option></select>
-                
-                <label style={labelMargin}>Nombre del Asesor</label>
-                <select style={customInput}><option>Todos</option></select>
-                
-                <label style={labelMargin}>Módulo de Atención</label>
-                <select style={customInput}><option>Todos</option></select>
-                
-                <label style={labelMargin}>Clasificación del Sentimiento</label>
-                <select style={customInput}><option>Todas</option></select>
-                
-                <label style={labelMargin}>Tipo de Llamada</label>
-                <select style={customInput}><option>Todas</option></select>
-                
-                <label style={labelMargin}>Asistencia Mencionada</label>
-                <select style={customInput}><option>Todas</option></select>
-
-                <p style={{ marginBottom: '20px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>TRANSCRIPCIONES</p>
-                <div style={{
+        <>
+            <button
+                onClick={toggleSidebar}
+                style={{
+                    position: 'fixed',
+                    left: isOpen ? '260px' : '0px', 
+                    top: '20px',
+                    zIndex: 1100, 
+                    background: '#1e293b',
+                    color: 'white',
+                    border: '1px solid #334155',
+                    borderLeft: 'none',
+                    borderRadius: '0 8px 8px 0',
+                    padding: '10px 6px',
+                    cursor: 'pointer',
+                    transition: 'left 0.3s ease', 
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    background: '#1e293b',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #334155',
-                    cursor: 'pointer',
-                    marginBottom: '20px'
-                }}>
-                    <input
-                        type="checkbox"
-                        id="transcription-filter"
-                        style={{
-                            cursor: 'pointer',
-                            width: '18px',
-                            height: '18px',
-                            accentColor: '#FC3276'
-                        }}
-                    />
-                    <label
-                        htmlFor="transcription-filter"
-                        style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '13px' }}
-                    >
-                        Solo con transcripción
-                    </label>
-                </div>
-            </div>
+                    boxShadow: '2px 0 5px rgba(0,0,0,0.2)'
+                }}
+            >
+                <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                    {isOpen ? '«' : '»'}
+                </span>
+            </button>
 
-            <div style={{ flexShrink: 0, paddingTop: '20px', marginTop: '10px', borderTop: '1px solid #1e293b' }}>
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        width: '100%',
+            {/* SIDEBAR */}
+            <aside className="sidebar" style={{ 
+                width: '260px',           
+                height: '100vh',          
+                position: 'fixed',        
+                left: isOpen ? 0 : '-260px', 
+                top: 0,
+                display: 'flex', 
+                flexDirection: 'column',
+                background: '#0f172a',    
+                padding: '20px',
+                borderRight: '1px solid #1e293b',
+                zIndex: 1000,
+                transition: 'left 0.3s ease', 
+                boxShadow: isOpen ? '5px 0 15px rgba(0,0,0,0.3)' : 'none'
+            }}>
+                {/* LOGO */}
+                <div style={{ 
+                    padding: '20px 0 40px 0', 
+                    display: "flex", 
+                    justifyContent: "center", 
+                    alignItems: "center",
+                    flexShrink: 0 
+                }}>
+                    <img style={{ width: "10rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
+                </div>
+
+                
+                <div className="scroll-filters" style={{ 
+                    fontSize: '12px', 
+                    flexGrow: 1, 
+                    overflowY: 'auto',   
+                    overflowX: 'hidden',
+                    paddingRight: '10px', 
+                }}>
+                    <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
+                    <label style={labelMargin}>Desde</label>
+                    <input type="date" defaultValue="2025-01-11" style={customInput} />
+                    <label style={labelMargin}>Hasta</label>
+                    <input type="date" defaultValue="2026-02-08" style={customInput} />
+
+                    <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
+
+                    <p style={{ marginBottom: '15px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>FILTROS</p>
+
+                    <label style={labelMargin}>Resultado de la Llamada</label>
+                    <select style={customInput}><option>Todas</option></select>
+                    
+                    <label style={labelMargin}>Plan Mencionado</label>
+                    <select style={customInput}><option>Todos</option></select>
+                    
+                    <label style={labelMargin}>Duración de la Llamada</label>
+                    <select style={customInput}><option>Todas</option></select>
+                    
+                    <label style={labelMargin}>Saludo del Asesor</label>
+                    <select style={customInput}><option>Todos</option></select>
+                    
+                    <label style={labelMargin}>Nombre del Asesor</label>
+                    <select style={customInput}><option>Todos</option></select>
+                    
+                    <label style={labelMargin}>Módulo de Atención</label>
+                    <select style={customInput}><option>Todos</option></select>
+                    
+                    <label style={labelMargin}>Clasificación del Sentimiento</label>
+                    <select style={customInput}><option>Todas</option></select>
+                    
+                    <label style={labelMargin}>Tipo de Llamada</label>
+                    <select style={customInput}><option>Todas</option></select>
+                    
+                    <label style={labelMargin}>Asistencia Mencionada</label>
+                    <select style={customInput}><option>Todas</option></select>
+
+                    <p style={{ marginBottom: '20px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>TRANSCRIPCIONES</p>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        background: '#1e293b',
                         padding: '12px',
-                        background: 'linear-gradient(90deg, #FC3276 0%, #be123c 100%)',
-                        color: 'white',
-                        border: 'none',
                         borderRadius: '8px',
+                        border: '1px solid #334155',
                         cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '13px',
-                        transition: 'opacity 0.2s'
-                    }}
-                    onMouseOver={(e) => e.target.style.opacity = '0.9'}
-                    onMouseOut={(e) => e.target.style.opacity = '1'}
-                >
-                    Cerrar Sesión
-                </button>
-            </div>
-        </aside>
+                        marginBottom: '20px'
+                    }}>
+                        <input
+                            type="checkbox"
+                            id="transcription-filter"
+                            style={{
+                                cursor: 'pointer',
+                                width: '18px',
+                                height: '18px',
+                                accentColor: '#FC3276' 
+                            }}
+                        />
+                        <label
+                            htmlFor="transcription-filter"
+                            style={{ cursor: 'pointer', color: '#cbd5e1', fontSize: '13px' }}
+                        >
+                            Solo con transcripción
+                        </label>
+                    </div>
+                </div>
+
+                {/* CERRAR SESION */}
+                <div style={{ flexShrink: 0, paddingTop: '20px', marginTop: '10px', borderTop: '1px solid #1e293b' }}>
+                    <button
+                        onClick={handleLogout}
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            background: 'linear-gradient(90deg, #FC3276 0%, #FC3276 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '13px',
+                            transition: 'opacity 0.2s'
+                        }}
+                        onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                        onMouseOut={(e) => e.target.style.opacity = '1'}
+                    >
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </aside>
+        </>
     )
 }
 
