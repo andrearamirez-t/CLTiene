@@ -34,3 +34,7 @@ def option(query: str, column_id: str, column_name: str | None = None):
         return {}
 
     return df.to_dict(orient="records")
+
+
+if __name__ == "__main__":
+    print(client)
