@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+
 import HerramientaCard from '../components/HerramientaCard';
 import Chat from '../components/Chat';
 import SendMessage from '../components/ui/SendMessage';
@@ -9,6 +10,8 @@ import ResumirLlamadas from '../components/ResumirLlamadas';
 import RankingIA from '../components/RankingIA';
 import ReporteCompleto from '../components/ReporteCompleto';
 import BotonAnalisis from '../components/ui/BotonAnalisis';
+
+const PROMPT_CHAT_INTELIGENTE = "Eres analista experto de call centers en Colombia. Genera 5 insights accionables. Español, emojis, datos específicos.";
 
 const Agente = () => {
     const [tabActiva, setTabActiva] = useState('Chat Inteligente');
@@ -23,29 +26,59 @@ const Agente = () => {
         { title: "Búsqueda Inteligente", description: "Localiza momentos clave en miles de transcripciones." },
         { title: "Resumir Llamadas", description: "Síntesis automáticas de compromisos y próximos pasos." },
         { title: "Ranking IA", description: "Evaluación de asesores por calidad y éxito en ventas." },
-        { title: "Reporte Completo", description: "Consolidado integral de métricas listo para descargar." }
+        { title: "Reporte Completo", description: "Consolidado integral de métricas listo para descargar." },
     ];
 
-    const handleSend = (textOverride) => {
+    const AGENTE_IA_PRO = {
+        RESUMEN_EJECUTIVO: "Resumen ejecutivo profesional: KPIs, tendencias, fortalezas...",
+        COACH_ASESOR: "Eres coach de call center. Genera: 1.DIAGNÓSTICO 2.FORTALEZAS...",
+        DIRECTOR_OPERACIONES: "Eres director de operaciones. Analiza: 1.MEJORES HORARIOS..."
+    };
+
+
+    //  handleSend
+    const handleSend = async (textOverride) => {
         const text = textOverride || inputValue;
         if (!text.trim()) return;
 
         setMessages(prev => [...prev, { role: 'user', content: text }]);
         setInputValue('');
 
-        setTimeout(() => {
-            let aiResponse = "";
-            if (text.includes("Como mejorar contactabilidad")) {
-                aiResponse = "Para mejorar la contactabilidad en el call center, puedes considerar las siguientes estrategias: Optimizar horarios, validar bases de datos y usar multicanalidad.";
-            } else if (text.includes("Motivos de rechazo")) {
-                aiResponse = "Los motivos de rechazo principales son: falta de presupuesto, ya cuentan con el servicio o no hay interés en el producto actual.";
-            } else if (text.includes("Mejor asesor")) {
-                aiResponse = "El mejor asesor es Melany Camila Ramirez. Realizó 421 llamadas y logró 21 ventas (4.99% de éxito).";
-            } else {
-                aiResponse = "Estoy analizando los datos solicitados basándome en el historial del call center...";
+        try {
+
+            const response = await fetch('http://localhost:8000/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_message: text,
+                    system_prompt: "Eres un analista experto de call centers."
+                })
+            });
+
+            if (response.status === 404) {
+                throw new Error("La ruta /chat no existe en el backend. Revisa api/routes.py");
             }
-            setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
-        }, 1000);
+
+            const data = await response.json();
+
+
+            setMessages(prev => [...prev, {
+                role: 'ai',
+                content: data.respuesta || data.response || "Análisis recibido con éxito."
+            }]);
+
+        } catch (error) {
+            console.error("Error detallado:", error);
+            setMessages(prev => [...prev, {
+                role: 'ai',
+                content: `❌ Error: ${error.message}`
+            }]);
+        }
+    };
+
+    const ejecutarAnalisisRapido = (textoAnalisis) => {
+
+        handleSend(`Realiza un: ${textoAnalisis}`);
     };
 
     return (
@@ -67,19 +100,19 @@ const Agente = () => {
 
             {/* CONTENIDO DINAMICO */}
             <div style={{ marginTop: '20px' }}>
-
-                {/* CHAT INTELIGENTE */}
                 {tabActiva === 'Chat Inteligente' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <Chat messages={messages} />
                         <SendMessage
                             inputValue={inputValue}
                             setInputValue={setInputValue}
-                            onSend={handleSend}
+                            onSend={() => handleSend()}
                             onClear={() => setMessages([])}
                         />
-                        ** Sugerencias:**
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginTop: '15px' }}>
+                        <div style={{ marginTop: '10px', fontSize: '12px', color: '#64748b' }}>
+                            <strong>Sugerencias:</strong>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginTop: '10px' }}>
                             {[
                                 '¿Resumen del rendimiento?...',
                                 '¿Mejor asesor y por qué?...',
@@ -87,67 +120,51 @@ const Agente = () => {
                                 '¿Patrones de ventas exitosas?...',
                                 '¿Plan de acción semanal?...',
                                 '¿Como mejorar contactabilidad?...'
-                            ].map((sug, index) => {
-
-                                return (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleSend(sug)}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.backgroundColor = '#FC3276';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.backgroundColor = '#999999';
-                                        }}
-                                        style={{
-                                            padding: '12px',
-                                            backgroundColor: '#999999',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '10px',
-                                            fontSize: '11px',
-                                            cursor: 'pointer',
-                                            transition: 'background-color 0.3s ease'
-                                        }}
-                                    >
-                                        {sug}
-                                    </button>
-                                );
-                            })}
+                            ].map((sug, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => ejecutarAnalisisRapido(sug)}
+                                    style={{
+                                        padding: '12px',
+                                        backgroundColor: '#999999',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontSize: '11px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {sug}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 )}
 
-                {/* ANÁLISIS AUTOMÁTICOS */}
                 {tabActiva === 'Análisis Automáticos' && <AnalisisAu />}
 
-                {/* BÚSQUEDA INTELIGENTE */}
                 {tabActiva === 'Búsqueda Inteligente' && (
                     <div style={{ backgroundColor: '#ffffff', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                         <BusquedaInteligente />
                     </div>
                 )}
 
-                {/* RESUMIR LLAMADAS */}
-                {tabActiva === 'Resumir Llamadas' && <>
-                    <ResumirLlamadas />
-                    <div style={{ padding: "20px" }}>
-                        <BotonAnalisis onAnalizar={() => alert('Analizando...')} />
-                    </div>
-                </>
-                }
+                {tabActiva === 'Resumir Llamadas' && (
+                    <>
+                        <ResumirLlamadas />
+                        <div style={{ padding: "20px" }}>
+                            <BotonAnalisis onAnalizar={() => alert('Analizando...')} />
+                        </div>
+                    </>
+                )}
 
-                {/* RANKING */}
                 {tabActiva === 'Ranking IA' && <RankingIA />}
 
-                {/* Reporte Completo */}
                 {tabActiva === 'Reporte Completo' && (
                     <div style={{ marginTop: '20px' }}>
                         <ReporteCompleto />
                     </div>
                 )}
-
-
             </div>
         </div>
     );
