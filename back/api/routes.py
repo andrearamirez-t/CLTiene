@@ -34,6 +34,11 @@ from api.charts.motivo_rechazo import motivo_rechazo
 from api.charts.duraccion_efectivo import duraccion_efectivo
 from api.charts.embudo_conversacion import embudo_conversacion
 from api.charts.kpi import kpi
+from api.ia.generar_insights import generar_insights
+
+import dotenv
+
+dotenv.load_dotenv()
 
 router = APIRouter()
 
@@ -157,6 +162,10 @@ def api_embudo_conversacion(filters: FilterModel = Depends()):
 @router.get("/api/kpi")
 def api_kpi(filters: FilterModel = Depends()):
     return kpi(filters)
+
+@router.get("/ia/generar_insights")
+def api_generar_insights(filters: FilterModel = Depends()):
+    return generar_insights(filters)
 
 # -------------------------------------------------- #
 # ----------------------- IA ----------------------- #

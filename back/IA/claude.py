@@ -1,6 +1,10 @@
 import os
 from openai import OpenAI
 
+import dotenv
+
+dotenv.load_dotenv()
+
 
 def call(system_prompt, user_message):
     api_key = os.getenv("API_KEY")
