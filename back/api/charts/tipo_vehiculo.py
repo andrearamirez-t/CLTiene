@@ -1,14 +1,14 @@
-from api.database import option
+from api.database import result
 from api.models import FilterModel
 
 
 def tipo_vehiculo(filters: FilterModel):
-    return option(f"""
+    return result(f"""
     with
         resultado as (
             SELECT
                 Tipo_Vehiculo,
-                count(*) total
+                count(*) value
             from
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             where
@@ -19,7 +19,7 @@ def tipo_vehiculo(filters: FilterModel):
         )
     SELECT
         *,
-        concat (round(total * 100.0 / sum(total) over (), 2), "%") porcentaje
+        concat (round(value * 100.0 / sum(value) over (), 2), "%") porcentaje
     from
         resultado
-    """, "Nombre_del_Modulo")
+    """)

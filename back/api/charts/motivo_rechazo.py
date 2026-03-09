@@ -15,9 +15,9 @@ def motivo_rechazo(filters: FilterModel):
         Motivo_Rechazo
     )
     select
-    Motivo_Rechazo nombre,
-    total value,
-    concat (ROUND(total * 100.0 / SUM(total) OVER (), 2), "%") porcentaje
+    Motivo_Rechazo n,
+    total valorReal,
+    concat (ROUND(total * 100.0 / SUM(total) OVER (), 2), "%") v
     from
     resultado;
     """)

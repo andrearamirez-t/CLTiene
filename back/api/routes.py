@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 from fastapi import APIRouter
 
 from fastapi import APIRouter, Depends
@@ -5,6 +8,9 @@ from fastapi import APIRouter, Depends
 from api.models import FilterModel
 
 from api.filters.test import test
+
+from api.database import client
+
 
 from api.filters.resultado_llamada import resultado_llamada
 from api.filters.plan_mencionado import plan_mencionado
@@ -98,49 +104,405 @@ def api_asistencia_mencionada(filters: FilterModel = Depends()):
 # ----------------------- Charts ----------------------- #
 # ------------------------------------------------------ #
 @router.get("/api/transcripciones")
-def api_transcripciones(filters: FilterModel = Depends):
+def api_transcripciones(filters: FilterModel = Depends()):
     return transcripciones(filters)
 
 
 @router.get("/api/tipo_vehiculo")
-def api_tipo_vehiculo(filters: FilterModel = Depends):
+def api_tipo_vehiculo(filters: FilterModel = Depends()):
     return tipo_vehiculo(filters)
 
 
 @router.get("/api/tipo_mascota")
-def api_tipo_mascota(filters: FilterModel = Depends):
+def api_tipo_mascota(filters: FilterModel = Depends()):
     return tipo_mascota(filters)
 
 
 @router.get("/api/rendimiento_hora")
-def api_rendimiento_hora(filters: FilterModel = Depends):
+def api_rendimiento_hora(filters: FilterModel = Depends()):
     return rendimiento_hora(filters)
 
 
 @router.get("/api/rendimiento_agente")
-def api_rendimiento_agente(filters: FilterModel = Depends):
+def api_rendimiento_agente(filters: FilterModel = Depends()):
     return rendimiento_agente(filters)
 
 
 @router.get("/api/planes_mencionados")
-def api_planes_mencionados(filters: FilterModel = Depends):
+def api_planes_mencionados(filters: FilterModel = Depends()):
     return planes_mencionados(filters)
 
 
 @router.get("/api/distribucion_resultado")
-def api_distribucion_resultado(filters: FilterModel = Depends):
+def api_distribucion_resultado(filters: FilterModel = Depends()):
     return distribucion_resultado(filters)
 
 
 @router.get("/api/motivo_rechazo")
-def api_motivo_rechazo(filters: FilterModel = Depends):
+def api_motivo_rechazo(filters: FilterModel = Depends()):
     return motivo_rechazo(filters)
 
 
 @router.get("/api/duraccion_efectivo")
-def api_duraccion_efectivo(filters: FilterModel = Depends):
+def api_duraccion_efectivo(filters: FilterModel = Depends()):
     return duraccion_efectivo(filters)
 
+
 @router.get("/api/embudo_conversacion")
-def api_embudo_conversacion(filters: FilterModel = Depends):
+def api_embudo_conversacion(filters: FilterModel = Depends()):
     return embudo_conversacion(filters)
+
+# -------------------------------------------------- #
+# ----------------------- IA ----------------------- #
+# -------------------------------------------------- #
+
+
+@router.get("/rendimiento-hora")
+def x_rendimiento_hora(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+    LPAD (
+        CAST(
+        EXTRACT(
+            HOUR
+            FROM
+            PARSE_TIMESTAMP (
+                '%d/%m/%Y %H:%M:%S',
+                CONCAT (
+                REGEXP_EXTRACT (fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
+                ' ',
+                REGEXP_EXTRACT (fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
+                )
+            ) + IF (
+                REGEXP_CONTAINS (fecha, r'(?i)p'),
+                INTERVAL 12 HOUR,
+                INTERVAL 0 HOUR
+            )
+        ) AS STRING
+        ),
+        2,
+        '0'
+    ) name,
+    COUNT(*) t,
+    SUM(
+        CASE
+        WHEN resultado_llamada = 'Venta' THEN 1
+        ELSE 0
+        END
+    ) ventas
+    FROM
+    `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY
+    name
+    ORDER BY
+    name
+    """
+
+    print(query)
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    df["ef"] = (df["ventas"] / df["t"] * 100).round(1)
+
+    return df[["name", "t", "ef"]].to_dict(orient="records")
+
+# api/routes/inteligencia.py
+
+
+@router.get("/rendimiento-dia")
+def x_rendimiento_dia(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        FORMAT_DATE(
+            '%A',
+            DATE(
+                PARSE_TIMESTAMP(
+                    '%d/%m/%Y %H:%M:%S',
+                    CONCAT(
+                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
+                        ' ',
+                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
+                    )
+                )
+                +
+                IF(
+                    REGEXP_CONTAINS(fecha, r'(?i)p'),
+                    INTERVAL 12 HOUR,
+                    INTERVAL 0 HOUR
+                )
+            )
+        ) name,
+        COUNT(*) t,
+        SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY name
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    df["ef"] = (df["ventas"] / df["t"] * 100).replace([float("inf"), -float("inf")], 0).fillna(0).round(1)
+
+    # orden = {
+    #     "Monday": "Lunes",
+    #     "Tuesday": "Martes",
+    #     "Wednesday": "Miércoles",
+    #     "Thursday": "Jueves",
+    #     "Friday": "Viernes",
+    #     "Saturday": "Sábado",
+    #     "Sunday": "Domingo"
+    # }
+
+    # Reemplazar inf y -inf
+    df = df.replace([np.inf, -np.inf], None)
+
+    # Convertir NaN, NA y NaT a None
+    df = df.where(pd.notnull(df), None)
+
+    # Convertir columnas a tipos Python estándar
+    df = df.astype(object)
+
+    result = df[["name", "t", "ef"]].to_dict(orient="records")
+
+    return result
+
+
+@router.get("/ventas-vs-servicio")
+def ventas_vs_servicio(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        tipo name,
+        COUNT(*) total,
+        SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) efectivas
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY tipo
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    return df[["name", "total", "efectivas"]].to_dict(orient="records")
+
+
+@router.get("/subjetividad-confianza-modulo")
+def subjetividad_confianza_modulo(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        Nombre_del_Modulo name,
+        AVG(subjectivity) x,
+        AVG(confianza) y
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY Nombre_del_Modulo
+    """
+
+    print(query)
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    colores = {
+        "CRM": "#10b981",
+        "ASISTENCIA": "#e11d48"
+    }
+
+    df["color"] = df["name"].map(colores).fillna("#94a3b8")
+
+    return df[["x", "y", "name", "color"]].to_dict(orient="records")
+
+
+@router.get("/desempeno-sentimiento-asesor")
+def desempeno_sentimiento_asesor(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    WITH base AS (
+        SELECT
+            Cuenta,
+            clasificacion
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        WHERE {where}
+    ),
+
+    agg AS (
+        SELECT
+            Cuenta,
+            COUNTIF(clasificacion = 'negativo') neg,
+            COUNTIF(clasificacion = 'neutro') neu,
+            COUNTIF(clasificacion = 'positivo') pos,
+            COUNT(*) total
+        FROM base
+        GROUP BY Cuenta
+    )
+
+    SELECT
+        Cuenta n,
+        SAFE_DIVIDE(neg,total)*100 negativo,
+        SAFE_DIVIDE(neu,total)*100 neutro,
+        SAFE_DIVIDE(pos,total)*100 positivo
+    FROM agg
+    ORDER BY total DESC
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    return df.fillna(0).to_dict(orient="records")
+
+
+@router.get("/evolucion-ventas")
+def evolucion_ventas(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    WITH base AS (
+        SELECT
+            DATE_TRUNC(
+                DATE(
+                    PARSE_TIMESTAMP(
+                        '%d/%m/%Y %H:%M:%S',
+                        CONCAT(
+                            REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
+                            ' ',
+                            REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
+                        )
+                    )
+                    +
+                    IF(
+                        REGEXP_CONTAINS(fecha, r'(?i)p'),
+                        INTERVAL 12 HOUR,
+                        INTERVAL 0 HOUR
+                    )
+                ),
+                WEEK(MONDAY)
+            ) semana,
+            CAST(efectiva AS FLOAT64) efectiva
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        WHERE {where}
+    )
+
+    SELECT
+        semana fecha,
+        COUNT(*) ingresos,
+        SUM(efectiva) ventas
+    FROM base
+    GROUP BY semana
+    ORDER BY semana
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+    df["fecha"] = df["fecha"].dt.strftime("%b %d")
+
+    df = df.replace([float("inf"), -float("inf")], None)
+    df = df.where(pd.notnull(df), None)
+
+    return df.to_dict(orient="records")
+
+
+@router.get("/scorecard-asesores")
+def scorecard_asesores(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        Cuenta nombre,
+        COUNT(*) total,
+        SUM(CAST(efectiva AS FLOAT64)) ventas,
+        ROUND(
+            SAFE_DIVIDE (SUM(CAST(efectiva AS FLOAT64)), COUNT(*)) * 100,
+            1
+        ) efectividad,
+        ROUND(AVG(CAST(Turnos_Asesor_V4 AS FLOAT64)), 1) turnosAsesor,
+        ROUND(AVG(CAST(Turnos_Cliente_V4 AS FLOAT64)), 1) turnosCliente,
+        ROUND(AVG(CAST(palabras AS FLOAT64)), 0) palabras,
+        ROUND(AVG(CAST(saludo_inicial AS FLOAT64)), 3) saludo,
+        ROUND(AVG(CAST(identificacion_cliente AS FLOAT64)), 3) identificacion,
+        ROUND(AVG(CAST(comprension_problema AS FLOAT64)), 3) comprension,
+        ROUND(AVG(CAST(ofrecimiento_solucion AS FLOAT64)), 3) ofrecimiento,
+        ROUND(AVG(CAST(manejo_inquietudes AS FLOAT64)), 3) manejo,
+        ROUND(AVG(CAST(cierre_servicio AS FLOAT64)), 3) cierre,
+        ROUND(AVG(CAST(proximo_paso AS FLOAT64)), 3) paso
+    FROM
+        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY
+        Cuenta
+    ORDER BY
+        efectividad DESC
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    return df.to_dict(orient="records")
+
+
+@router.get("/duracion-vs-efectividad")
+def duracion_vs_efectividad(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        duracion_estimada name,
+        COUNT(*) total,
+        ROUND(
+            SAFE_DIVIDE(
+                SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END),
+                COUNT(*)
+            ) * 100,1
+        ) efectividad
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    GROUP BY duracion_estimada
+    """
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    return df[["name", "total", "efectividad"]].to_dict(orient="records")
+
+
+@router.get("/clasificacion-sentimiento")
+def x_clasificacion_sentimiento(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    query = f"""
+    SELECT
+        clasificacion AS name,
+        COUNT(*) AS value
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where} and clasificacion IS NOT NULL
+    GROUP BY clasificacion
+    ORDER BY value DESC
+    """
+
+    print(query)
+
+    job = client.query(query)
+    df = job.to_dataframe()
+
+    return df[["name", "value"]].to_dict(orient="records")

@@ -20,7 +20,7 @@ const Analisis = () => {
         const planesRes = await fetch(`http://localhost:8000/api/planes_mencionados${params ? `?${params}` : ""}`);
         const mascotasRes = await fetch(`http://localhost:8000/api/tipo_mascota${params ? `?${params}` : ""}`);
         const vehiculosRes = await fetch(`http://localhost:8000/api/tipo_vehiculo${params ? `?${params}` : ""}`);
-        const motivosRechazoRes = await fetch(`http://localhost:8000/api/tipo_vehiculo${params ? `?${params}` : ""}`);
+        const motivosRechazoRes = await fetch(`http://localhost:8000/api/motivo_rechazo${params ? `?${params}` : ""}`);
 
         const planes = await planesRes.json();
         const mascotas = await mascotasRes.json();
@@ -72,7 +72,6 @@ const Analisis = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         <GraficaBarrasAnalisis titulo="Planes Mencionados" datos={datosPlanes} colorBarra="#EE7553" />
 
-        {/* Corregir */}
         <GraficaBarrasAnalisis titulo="Motivos de Rechazo" datos={datosMotivoRechazo} colorBarra="#f87171" />
       </div>
 

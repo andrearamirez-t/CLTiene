@@ -8,7 +8,7 @@ def tipo_mascota(filters: FilterModel):
         resultado as (
             select
                 Tipo_Mascota,
-                count(*) total
+                count(*) value
             from
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             where
@@ -19,7 +19,7 @@ def tipo_mascota(filters: FilterModel):
         )
     select
         *,
-        concat (round(total * 100.0 / sum(total) over (), 2), "%") porcentaje
+        concat (round(value * 100.0 / sum(value) over (), 2), "%") porcentaje
     from
         resultado
     """)

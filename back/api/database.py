@@ -11,6 +11,8 @@ def result(query: str, query_parameters: list = []):
 
     job = client.query(query, job)
 
+    print(f"Query-result: {query}")
+
     df = job.to_dataframe()
 
     if df.empty:
