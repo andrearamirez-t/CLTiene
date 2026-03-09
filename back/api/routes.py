@@ -26,6 +26,7 @@ from api.charts.planes_mencionados import planes_mencionados
 from api.charts.distribucion_resultado import distribucion_resultado
 from api.charts.motivo_rechazo import motivo_rechazo
 from api.charts.duraccion_efectivo import duraccion_efectivo
+from api.charts.embudo_conversacion import embudo_conversacion
 
 router = APIRouter()
 
@@ -139,3 +140,7 @@ def api_motivo_rechazo(filters: FilterModel = Depends):
 @router.get("/api/duraccion_efectivo")
 def api_duraccion_efectivo(filters: FilterModel = Depends):
     return duraccion_efectivo(filters)
+
+@router.get("/api/embudo_conversacion")
+def api_embudo_conversacion(filters: FilterModel = Depends):
+    return embudo_conversacion(filters)

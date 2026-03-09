@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ControlesAnalisis from '../components/ui/ControlesAnalisis';
 import GraficaCalidadIA from '../components/ui/GraficaCalidadIA';
 import GraficaDistribucion from '../components/ui/GraficaDistribucion';
+import { useFilters } from '../FiltersContext';
 
 const Rendimiento = () => {
+    const [rendimiento, setRendiemiento] = useState([]);
+    const { filters, buildQuery } = useFilters();
+
+    useEffect(() => {
+        const params = buildQuery() || null
+
+        fetch(`http://localhost:8000/api/rendimiento_agente?${(params ? `?${params}` : "")}`)
+            .then(res => res.json())
+            .then(data => setRendiemiento(data));
+    }, [filters]);
+
     const [asesorSeleccionado, setAsesorSeleccionado] = useState("");
     const [busqueda, setBusqueda] = useState("");
     const [orden, setOrden] = useState("todos");
@@ -11,13 +23,15 @@ const Rendimiento = () => {
     const [mostrarIA, setMostrarIA] = useState(false);
     const [cargandoIA, setCargandoIA] = useState(false);
 
-    
-    const datosAsesores = [
-        { n: "Melany Camila Ramirez", llamadas: 422, turnos: 5.6, palabras: 21, efectivas: 21, exito: 85, calidad: 95, color: "#22c55e" },
-        { n: "Maria de Villadiego", llamadas: 412, turnos: 5.4, palabras: 14, efectivas: 14, exito: 70, calidad: 88, color: "#22c55e" },
-        { n: "Jenifer Andrea Rodriguez", llamadas: 651, turnos: 5.1, palabras: 11, efectivas: 11, exito: 45, calidad: 75, color: "#eab308" },
-        { n: "Dayana Alexandra Marulanda", llamadas: 593, turnos: 4.4, palabras: 8, efectivas: 8, exito: 30, calidad: 60, color: "#ef4444" }
-    ];
+
+    // const datosAsesores = [
+    //     { n: "Melany Camila Ramirez", llamadas: 422, turnos: 5.6, palabras: 21, efectivas: 21, exito: 85, calidad: 95, color: "#22c55e" },
+    //     { n: "Maria de Villadiego", llamadas: 412, turnos: 5.4, palabras: 14, efectivas: 14, exito: 70, calidad: 88, color: "#22c55e" },
+    //     { n: "Jenifer Andrea Rodriguez", llamadas: 651, turnos: 5.1, palabras: 11, efectivas: 11, exito: 45, calidad: 75, color: "#eab308" },
+    //     { n: "Dayana Alexandra Marulanda", llamadas: 593, turnos: 4.4, palabras: 8, efectivas: 8, exito: 30, calidad: 60, color: "#ef4444" }
+    // ];
+
+    const datosAsesores = rendimiento
 
     const [datosCalidad, setDatosCalidad] = useState([
         { name: 'Despedida', valor: 368, etiqueta: '368 (11.2%)' },
@@ -96,7 +110,7 @@ const Rendimiento = () => {
                     <tbody>
                         {asesoresFiltrados.map((agente, index) => (
                             <tr key={index} style={{ borderBottom: '1px solid #1e293b' }}>
-                                <td style={{ padding: '16px', color: '#64748b' }}>{index}</td>
+                                <td style={{ padding: '16px', color: '#64748b' }}>{index + 1}</td>
                                 <td style={{ padding: '16px', fontWeight: '500' }}>{agente.n}</td>
                                 <td style={{ padding: '16px' }}>{agente.llamadas}</td>
                                 <td style={{ padding: '16px' }}>{agente.turnos}</td>
