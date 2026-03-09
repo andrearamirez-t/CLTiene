@@ -22,8 +22,7 @@ const Dashboard = () => {
         'Análisis Detallado', 
         'Inteligencia Operativa', 
         'Transcripciones', 
-        'Agente IA PRO', 
-        'Esteban'
+        'Agente IA PRO'
     ];
 
     return (
@@ -120,7 +119,6 @@ const Dashboard = () => {
                     {tabActiva === "Inteligencia Operativa" && <Inteligencia />}
                     {tabActiva === "Transcripciones" && <Transcripciones />}
                     {tabActiva === "Agente IA PRO" && <Agente />}
-                    {tabActiva === "Esteban" && <div style={{padding: '20px', textAlign: 'center'}}>Panel de Control de Esteban</div>}
                 </div>
 
                 {/* FOOTER */}
