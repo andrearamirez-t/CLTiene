@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import Sidebar from '../layout/Sidebar.jsx'; 
-import { 
-    Phone, Download, CheckCircle, DollarSign, 
-    Clock, Calendar, Trophy, Star, Handshake 
+import Sidebar from '../layout/Sidebar.jsx';
+import {
+    Phone, Download, CheckCircle, DollarSign,
+    Clock, Calendar, Trophy, Star, Handshake
 } from 'lucide-react';
 
 
@@ -13,28 +13,49 @@ import Analisis from '../tabs/Analisis';
 import Inteligencia from '../tabs/Inteligencia';
 import Transcripciones from '../tabs/Transcripciones';
 import Agente from '../tabs/Agente';
+import { useFilters } from '../FiltersContext.jsx';
 
 const Dashboard = () => {
+    const { filters } = useFilters();
+
+    const [kpi, setKpi] = useState(null);
     const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
     const tabs = [
-        'Resumen Ejecutivo', 
-        'Rendimiento Asesores', 
-        'Análisis Detallado', 
-        'Inteligencia Operativa', 
-        'Transcripciones', 
+        'Resumen Ejecutivo',
+        'Rendimiento Asesores',
+        'Análisis Detallado',
+        'Inteligencia Operativa',
+        'Transcripciones',
         'Agente IA PRO'
     ];
 
+    useEffect(() => {
+        const fetchKpi = async () => {
+            try {
+
+                const res = await fetch("http://localhost:8000/api/kpi");
+                const [data] = await res.json();
+
+                setKpi(data);
+
+            } catch (err) {
+                console.error("Error cargando KPI:", err);
+            }
+        };
+
+        fetchKpi();
+    }, [filters]);
+
     return (
         <div className="dashboard-container" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-            
+
             <Sidebar />
 
-            
-            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto', marginLeft:"260px" }}>
-                
-                
-                <header className="header-banner" style={{ 
+
+            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto', marginLeft: "260px" }}>
+
+
+                <header className="header-banner" style={{
                     background: 'linear-gradient(90deg, #be123c 0%, #7e22ce 100%)',
                     padding: '30px',
                     borderRadius: '12px',
@@ -47,23 +68,23 @@ const Dashboard = () => {
                     <p style={{ margin: '5px 0 0', opacity: 0.9 }}>Validación y seguimiento de datos con IA</p>
                 </header>
 
-               
-                <section style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', 
-                    gap: '12px', 
-                    marginBottom: '20px' 
+
+                <section style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
+                    gap: '12px',
+                    marginBottom: '20px'
                 }}>
                     {[
-                        { icon: <Phone size={18} />, label: 'TOTAL', value: '3,299' },
-                        { icon: <Download size={18} />, label: 'CONTESTADAS', value: '3,298' },
-                        { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: '185' },
-                        { icon: <DollarSign size={18} />, label: 'VENTAS', value: '62' },
-                        { icon: <Clock size={18} />, label: 'HORA', value: '9:00' },
-                        { icon: <Calendar size={18} />, label: 'DÍA', value: 'Viernes' },
-                        { icon: <Trophy size={18} />, label: 'TOP', value: 'Jennifer' },
-                        { icon: <Star size={18} />, label: 'SALUDO', value: '7%' },
-                        { icon: <Handshake size={18} />, label: 'CALIDAD', value: '12/100' }
+                        { icon: <Phone size={18} />, label: 'TOTAL', value: kpi?.total ?? '-' },
+                        { icon: <Download size={18} />, label: 'CONTESTADAS', value: kpi?.contestadas ?? '-' },
+                        { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: kpi?.efectivas ?? '-' },
+                        { icon: <DollarSign size={18} />, label: 'VENTAS', value: kpi?.ventas ?? '-' },
+                        { icon: <Clock size={18} />, label: 'HORA', value: kpi?.hora_promedio ?? '-' },
+                        { icon: <Calendar size={18} />, label: 'DÍA', value: kpi?.dia_promedio ?? '-' },
+                        { icon: <Trophy size={18} />, label: 'TOP', value: kpi?.top_asesor ?? '-' },
+                        { icon: <Star size={18} />, label: 'SALUDO', value: kpi?.saludo ? `${kpi.saludo}%` : '-' },
+                        { icon: <Handshake size={18} />, label: 'CALIDAD', value: kpi?.calidad ? `${kpi.calidad}/100` : '-' }
                     ].map((item, index) => (
                         <div key={index} style={{
                             backgroundColor: 'white',
@@ -88,12 +109,12 @@ const Dashboard = () => {
                     ))}
                 </section>
 
-                
+
                 <nav className="tabs-container" style={{ marginBottom: '20px', borderBottom: '1px solid #e2e8f0' }}>
                     {tabs.map(tab => (
-                        <button 
-                            key={tab} 
-                            className={`tab-button ${tabActiva === tab ? 'active' : ''}`} 
+                        <button
+                            key={tab}
+                            className={`tab-button ${tabActiva === tab ? 'active' : ''}`}
                             onClick={() => setTabActiva(tab)}
                             style={{
                                 padding: '10px 15px',
@@ -111,7 +132,7 @@ const Dashboard = () => {
                     ))}
                 </nav>
 
-                
+
                 <div className="tab-content" style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                     {tabActiva === "Resumen Ejecutivo" && <Resumen />}
                     {tabActiva === "Rendimiento Asesores" && <Rendimiento />}

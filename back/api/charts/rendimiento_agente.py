@@ -23,6 +23,7 @@ def rendimiento_agente(filters: FilterModel):
                   
     FROM
         `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+                  WHERE {filters.get_query()}
     GROUP BY
         cuenta
     ORDER BY

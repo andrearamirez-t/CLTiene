@@ -33,6 +33,7 @@ from api.charts.distribucion_resultado import distribucion_resultado
 from api.charts.motivo_rechazo import motivo_rechazo
 from api.charts.duraccion_efectivo import duraccion_efectivo
 from api.charts.embudo_conversacion import embudo_conversacion
+from api.charts.kpi import kpi
 
 router = APIRouter()
 
@@ -152,6 +153,11 @@ def api_duraccion_efectivo(filters: FilterModel = Depends()):
 def api_embudo_conversacion(filters: FilterModel = Depends()):
     return embudo_conversacion(filters)
 
+
+@router.get("/api/kpi")
+def api_kpi(filters: FilterModel = Depends()):
+    return kpi(filters)
+
 # -------------------------------------------------- #
 # ----------------------- IA ----------------------- #
 # -------------------------------------------------- #
@@ -250,7 +256,8 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     job = client.query(query)
     df = job.to_dataframe()
 
-    df["ef"] = (df["ventas"] / df["t"] * 100).replace([float("inf"), -float("inf")], 0).fillna(0).round(1)
+    df["ef"] = (df["ventas"] / df["t"] *
+                100).replace([float("inf"), -float("inf")], 0).fillna(0).round(1)
 
     # orden = {
     #     "Monday": "Lunes",

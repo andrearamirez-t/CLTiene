@@ -11,6 +11,7 @@ def motivo_rechazo(filters: FilterModel):
         count(*) total
         from
         `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+                  WHERE {filters.get_query()}
         group by
         Motivo_Rechazo
     )
