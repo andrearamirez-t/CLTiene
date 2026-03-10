@@ -18,10 +18,10 @@ function Select({ endPoint, selected = null, defaultValue = { id: "", name: "Sel
         <select {...props}>
             <option value={defaultValue?.id}>{defaultValue?.name}</option>
             {Array.isArray(opciones) &&
-  opciones.map(opcion => (
-    <option key={opcion.id}>{opcion.nombre}</option>
-  ))
-}
+                opciones.map(opcion => (
+                    <option key={opcion.id}>{opcion.name}</option>
+                ))
+            }
         </select>
     );
 }
