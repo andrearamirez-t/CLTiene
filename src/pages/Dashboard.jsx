@@ -80,8 +80,8 @@ const Dashboard = () => {
                         { icon: <Download size={18} />, label: 'CONTESTADAS', value: kpi?.contestadas ?? '-' },
                         { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: kpi?.efectivas ?? '-' },
                         { icon: <DollarSign size={18} />, label: 'VENTAS', value: kpi?.ventas ?? '-' },
-                        { icon: <Clock size={18} />, label: 'HORA', value: kpi?.hora_promedio ?? '-' },
-                        { icon: <Calendar size={18} />, label: 'DÍA', value: kpi?.dia_promedio ?? '-' },
+                        { icon: <Clock size={18} />, label: 'MEJOR HORA', value: kpi?.hora_promedio ?? '-' },
+                        { icon: <Calendar size={18} />, label: 'MEJOR DÍA', value: kpi?.dia_promedio ?? '-' },
                         { icon: <Trophy size={18} />, label: 'TOP', value: kpi?.top_asesor ?? '-' },
                         { icon: <Star size={18} />, label: 'SALUDO', value: kpi?.saludo ? `${kpi.saludo}%` : '-' },
                         { icon: <Handshake size={18} />, label: 'CALIDAD', value: kpi?.calidad ? `${kpi.calidad}/100` : '-' }
@@ -144,8 +144,8 @@ const Dashboard = () => {
 
                 {/* FOOTER */}
                 <footer style={{ marginTop: '40px', padding: '20px 0', textAlign: 'center', borderTop: '1px solid #e2e8f0' }}>
-                    <h3 style={{ margin: 0, fontSize: '16px', color: '#41454d' }}>CL Tiene Soluciones - Analytics Dashboard</h3>
-                    <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#94a3b8' }}>© 2026 Todos los derechos reservados</p>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#41454d' }}>📊 CL Tiene Soluciones - Analytics Dashboard</h3>
+                    <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#94a3b8' }}>Desarrollado por DivergencyAI SAS | Contacto@divergencyai.com</p>
                 </footer>
             </main>
         </div>

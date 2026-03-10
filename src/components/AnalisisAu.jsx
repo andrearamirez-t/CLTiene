@@ -15,7 +15,7 @@ const AnalisisAu = () => {
     const [tipo, setTipo] = useState('Resumen Ejecutivo');
     const [mostrarComponente, setMostrarComponente] = useState(null);
     const [cargando, setCargando] = useState(false);
-    const [resultado, setResultado] = useState([]);
+    const [resultado, setResultado] = useState("");
 
     const params = buildQuery() || null
 
@@ -48,7 +48,7 @@ const AnalisisAu = () => {
 
         try {
             // tipo_analisis: mapTipos[tipo]
-            const response = await fetch("http://localhost:8000/ia/analisis_automatico" + (params ? `?${params}&tipo_analisis=${mapTipos[tipo]}` : "?tipo_analisis=" + mapTipos[tipo]));
+            const response = await fetch("http://localhost:8000/ia/analisis" + (params ? `?${params}&tipo_analisis=${mapTipos[tipo]}` : "?tipo_analisis=" + mapTipos[tipo]));
 
             const data = await response.json();
 

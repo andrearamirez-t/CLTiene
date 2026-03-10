@@ -14,14 +14,7 @@ const EmbudoChart = () => {
             .then(data => setEmbudo(Array.isArray(data) ? data : []));
     }, [filters]);
 
-    // const pasos = [
-    //     { nombre: "Total llamadas", valor: 3299, porcentaje: "100.0% del total" },
-    //     { nombre: "Contestadas", valor: 3298, porcentaje: "100.0% del total" },
-    //     { nombre: "Efectivas (contacto)", valor: 185, porcentaje: "5.6% del total" },
-    //     { nombre: "Conv > 30s", valor: 2056, porcentaje: "62.3% del total" },
-    //     { nombre: "Con Saludo", valor: 221, porcentaje: "6.7% del total" },
-    //     { nombre: "Ventas", valor: 62, porcentaje: "1.9% del total" },
-    // ];
+   
 
     const pasos = embudo
 

@@ -51,20 +51,24 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                             maxHeight: '180px',
                             overflowY: 'auto'
                         }}>
-                            {asesores.map((a, i) => (
-                                <div
-                                    key={i}
-                                    onClick={() => { onSeleccionar(a.n); setAbierto(false); }}
-                                    style={{
-                                        padding: '12px 15px',
-                                        color: seleccionado === a.n ? '#FC3276' : '#cbd5e1',
-                                        cursor: 'pointer',
-                                        borderBottom: '1px solid #1e293b'
-                                    }}
-                                >
-                                    {a.n}
-                                </div>
-                            ))}
+                            {asesores.map((a, i) => {
+                                const nombre = a.nombre || a.n || a.asesor;
+
+                                return (
+                                    <div
+                                        key={i}
+                                        onClick={() => { onSeleccionar(nombre); setAbierto(false); }}
+                                        style={{
+                                            padding: '12px 15px',
+                                            color: seleccionado === nombre ? '#FC3276' : '#cbd5e1',
+                                            cursor: 'pointer',
+                                            borderBottom: '1px solid #1e293b'
+                                        }}
+                                    >
+                                        {nombre}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

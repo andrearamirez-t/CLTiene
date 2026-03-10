@@ -346,15 +346,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     df["ef"] = (df["ventas"] / df["t"] *
                 100).replace([float("inf"), -float("inf")], 0).fillna(0).round(1)
 
-    # orden = {
-    #     "Monday": "Lunes",
-    #     "Tuesday": "Martes",
-    #     "Wednesday": "Miércoles",
-    #     "Thursday": "Jueves",
-    #     "Friday": "Viernes",
-    #     "Saturday": "Sábado",
-    #     "Sunday": "Domingo"
-    # }
+ 
 
     # Reemplazar inf y -inf
     df = df.replace([np.inf, -np.inf], None)

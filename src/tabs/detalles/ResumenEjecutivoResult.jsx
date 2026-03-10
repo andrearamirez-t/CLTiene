@@ -14,12 +14,11 @@ const ResumenEjecutivoResult = ({ resultado }) => {
                 fontSize: "14px",
                 lineHeight: "1.6",
                 maxHeight: "400px",
-                overflowY: "auto",
-                whiteSpace: "pre-wrap"
+                overflowY: "auto"
             }}
         >
             {resultado ? (
-                <div>{resultado}</div>
+                <div dangerouslySetInnerHTML={{ __html: resultado }} />
             ) : (
                 <p style={{ color: "#64748b" }}>
                     Genera un análisis para ver el resumen ejecutivo.
