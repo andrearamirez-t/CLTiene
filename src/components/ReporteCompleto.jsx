@@ -23,7 +23,7 @@ const ReporteCompleto = () => {
 
       const data = await response.json();
 
-      setReporte(data.resultado);
+      setReporte(data?.resultado || "No se pudo generar el reporte.");
 
     } catch (error) {
 
