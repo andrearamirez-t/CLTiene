@@ -77,10 +77,10 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"cuenta like '%{value}%'")
 
         if key == "modulo_atencion":
-            filtros_string.append(f"nombre_atencion = {value}")
+            filtros_string.append(f"nombre_atencion = '{value}'")
 
         if key == "tipo_llamada":
-            filtros_string.append(f"tipo = {value}")
+            filtros_string.append(f"tipo = '{value}'")
 
         if key == "transcripcion" and value == "true":
             filtros_string.append("transcripcion is not null")
