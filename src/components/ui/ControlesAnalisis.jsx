@@ -9,11 +9,11 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
             <span style={{ fontSize: '12px', color: '#64748b', display: 'block', marginBottom: '8px' }}>
                 Asesor para análisis IA:
             </span>
-            
+
             <div style={{ display: 'flex', gap: '12px' }}>
 
                 <div style={{ position: 'relative', flex: 1 }}>
-                    <div 
+                    <div
                         onClick={() => setAbierto(!abierto)}
                         style={{
                             background: 'linear-gradient(90deg, #FC3276, #FC3276)',
@@ -32,7 +32,7 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                             <User size={16} />
                             <span>{seleccionado || "Seleccionar Asesor"}</span>
                         </div>
-                        <ChevronDown size={18} style={{ 
+                        <ChevronDown size={18} style={{
                             transform: abierto ? 'rotate(180deg)' : 'none',
                             transition: '0.3s'
                         }} />
@@ -41,10 +41,10 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                     {abierto && (
                         <div style={{
                             position: 'absolute',
-                            top: '105%', 
+                            top: '105%',
                             left: 0,
                             right: 0,
-                            backgroundColor: '#0f172a', 
+                            backgroundColor: '#0f172a',
                             border: '1px solid #334155',
                             borderRadius: '8px',
                             zIndex: 10000,
@@ -52,8 +52,8 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                             overflowY: 'auto'
                         }}>
                             {asesores.map((a, i) => (
-                                <div 
-                                    key={i} 
+                                <div
+                                    key={i}
                                     onClick={() => { onSeleccionar(a.n); setAbierto(false); }}
                                     style={{
                                         padding: '12px 15px',
@@ -70,37 +70,37 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                 </div>
 
 
-                <button 
-    onClick={onAnalizar}
-    disabled={cargando}
-    style={{
-        flex: 1,
-        backgroundColor: analizado ? '#FD7751' : '#FC3276', 
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-        height: '40px',
-        transition: 'all 0.3s ease'
-    }}
->
-    {cargando ? (
-        "Procesando..."
-    ) : analizado ? (
-        <>
-            <Trash2 size={16} /> Limpiar Análisis
-        </>
-    ) : (
-        <>
-            <Search size={16} /> Analizar Asesor con IA
-        </>
-    )}
-</button>
+                <button
+                    onClick={onAnalizar}
+                    disabled={cargando}
+                    style={{
+                        flex: 1,
+                        backgroundColor: analizado ? '#FD7751' : '#FC3276',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        height: '40px',
+                        transition: 'all 0.3s ease'
+                    }}
+                >
+                    {cargando ? (
+                        "Procesando..."
+                    ) : analizado ? (
+                        <>
+                            <Trash2 size={16} /> Limpiar Análisis
+                        </>
+                    ) : (
+                        <>
+                            <Search size={16} /> Analizar Asesor con IA
+                        </>
+                    )}
+                </button>
             </div>
         </div>
     );
