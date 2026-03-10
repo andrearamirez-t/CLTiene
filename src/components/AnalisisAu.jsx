@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import ResumenEjecutivoResult from '../tabs/detalles/ResumenEjecutivoResult';
 import OportunidadesMejoraResult from '../tabs/detalles/OportunidadesMejoraResult';
-import AnalisisRechazosResult from '../tabs/detalles/AnalisisRechazosResult'; 
+import AnalisisRechazosResult from '../tabs/detalles/AnalisisRechazosResult';
 import MejoresPracticasResult from '../tabs/detalles/MejoresPracticasResult';
 import PatronesVentasResult from '../tabs/detalles/PatronesVentasResult';
 import PlanCoachingResult from '../tabs/detalles/PlanCoachingResult';
@@ -13,6 +13,8 @@ const AnalisisAu = () => {
     const [tipo, setTipo] = useState('Resumen Ejecutivo');
     const [mostrarComponente, setMostrarComponente] = useState(null);
     const [cargando, setCargando] = useState(false);
+    const [resultado, setResultado] = useState(null);
+
 
     const opciones = [
         "Resumen Ejecutivo",
@@ -25,31 +27,63 @@ const AnalisisAu = () => {
         "Predicción de Tendencias"
     ];
 
-    const handleGenerar = () => {
-        setCargando(true);
-        setMostrarComponente(null); 
+    const handleGenerar = async () => {
 
-        setTimeout(() => {
+        setCargando(true);
+        setMostrarComponente(null);
+
+        const mapTipos = {
+            "Resumen Ejecutivo": "resumen_ejecutivo",
+            "Oportunidades de Mejora": "oportunidades_mejora",
+            "Análisis de Rechazos": "analisis_rechazos",
+            "Mejores Prácticas": "mejores_practicas",
+            "Patrones de Ventas": "patrones_ventas",
+            "Plan de Coaching": "plan_coaching",
+            "Recomendaciones Semanales": "recomendaciones_semanales",
+            "Predicción de Tendencias": "prediccion_tendencias"
+        };
+
+        try {
+
+            const response = await fetch("http://localhost:8000/api/analisis_automatico", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    tipo_analisis: mapTipos[tipo]
+                })
+            });
+
+            const data = await response.json();
+
+            setResultado(data.resultado);
             setMostrarComponente(tipo);
-            setCargando(false);
-        }, 1000); 
+
+        } catch (error) {
+
+            console.error("Error llamando a la IA:", error);
+
+        }
+
+        setCargando(false);
     };
 
     return (
         <div style={{ padding: '20px', width: '100%' }}>
             {/*  SELECTOR Y BOTÓN */}
             <p style={{ fontSize: '14px', marginBottom: '10px', color: '#475569' }}>Tipo:</p>
-            
+
             <div style={{ position: 'relative', width: '100%', marginBottom: '20px' }}>
-                <select 
+                <select
                     value={tipo}
                     onChange={(e) => setTipo(e.target.value)}
                     style={{
                         width: '100%',
                         padding: '15px',
-                        backgroundColor: '#1e293b', 
+                        backgroundColor: '#1e293b',
                         color: 'white',
-                        border: '2px solid #FC3276', 
+                        border: '2px solid #FC3276',
                         borderRadius: '10px',
                         appearance: 'none',
                         cursor: 'pointer'
@@ -62,7 +96,7 @@ const AnalisisAu = () => {
                 <div style={{ position: 'absolute', right: '20px', top: '15px', color: 'white', pointerEvents: 'none' }}>▼</div>
             </div>
 
-            <button 
+            <button
                 onClick={handleGenerar}
                 style={{
                     width: '100%',
@@ -86,16 +120,16 @@ const AnalisisAu = () => {
                     </div>
                 )}
 
-               
+
                 {!cargando && mostrarComponente === 'Resumen Ejecutivo' && (
-                    <ResumenEjecutivoResult />
+                    <ResumenEjecutivoResult resultado={resultado} />
                 )}
 
                 {!cargando && mostrarComponente === 'Oportunidades de Mejora' && (
                     <OportunidadesMejoraResult />
                 )}
 
-                
+
                 {!cargando && mostrarComponente === 'Análisis de Rechazos' && (
                     <AnalisisRechazosResult />
                 )}
@@ -120,7 +154,7 @@ const AnalisisAu = () => {
                     <PredicciontendenciasResult />
                 )}
 
-                
+
 
                 {!cargando && mostrarComponente && !['Resumen Ejecutivo', 'Oportunidades de Mejora', 'Análisis de Rechazos', 'Mejores Prácticas', 'Patrones de Ventas', 'Plan de Coaching', 'Recomendaciones Semanales', 'Predicción de Tendencias'].includes(mostrarComponente) && (
                     <div style={{ padding: '20px', backgroundColor: '#f1f5f9', borderRadius: '10px', textAlign: 'center' }}>

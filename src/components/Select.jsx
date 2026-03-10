@@ -17,11 +17,11 @@ function Select({ endPoint, selected = null, defaultValue = { id: "", name: "Sel
     return (
         <select {...props}>
             <option value={defaultValue?.id}>{defaultValue?.name}</option>
-            {opciones.map((op) => (
-                <option key={op.id} value={op.id}>
-                    {op.name}
-                </option>
-            ))}
+            {Array.isArray(opciones) &&
+  opciones.map(opcion => (
+    <option key={opcion.id}>{opcion.nombre}</option>
+  ))
+}
         </select>
     );
 }
