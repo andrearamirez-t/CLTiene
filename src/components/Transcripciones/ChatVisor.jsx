@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ChatVisor = ({ chat, resaltar }) => {
     const destacarTexto = (texto, palabra) => {
         if (!palabra.trim()) return texto;
@@ -17,13 +15,14 @@ const ChatVisor = ({ chat, resaltar }) => {
             {chat.map((msg, index) => (
                 <div key={index} style={{
                     alignSelf: msg.role === 'cliente' ? 'flex-start' : 'flex-end',
-                    maxWidth: '80%',
                     padding: '15px 20px',
                     borderRadius: '15px',
                     backgroundColor: msg.role === 'cliente' ? '#FD7751' : '#999999',
                     color: msg.role === 'cliente' ? 'white' : '#ffffff',
                     fontSize: '14px',
-                    lineHeight: '1.5'
+                    lineHeight: '1.5',
+                    wordWrap: "break-word",
+                    maxWidth: "50rem"
                 }}>
                     <b style={{ display: 'block', marginBottom: '5px', fontSize: '11px', textTransform: 'uppercase' }}>
                         {msg.role}
