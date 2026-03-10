@@ -46,6 +46,12 @@ router = APIRouter()
 
 from api.chat import api_chat_logic, ChatRequest
 
+
+class AnalisisAutomaticoRequest(BaseModel):
+    tipo_analisis: str
+    filtros: dict | None = None
+
+
 @router.post("/api/chat")
 async def api_chat(request: ChatRequest):
     return await api_chat_logic(request)
@@ -125,3 +131,67 @@ def scorecard_asesores(filters: FilterModel = Depends()):
     """
     job = bq_client.query(query)
     return job.to_dataframe().to_dict(orient="records")
+
+
+
+@router.post("/api/analisis_automatico")
+async def analisis_automatico(request: AnalisisAutomaticoRequest):
+
+    
+    kpi_data = kpi(FilterModel())
+    resultados = distribucion_resultado(FilterModel())
+    asesores = scorecard_asesores(FilterModel())
+    
+
+    tipo = request.tipo_analisis
+
+    prompts = {
+        "resumen_ejecutivo": "Resumen ejecutivo profesional: KPIs, tendencias, fortalezas, debilidades y 5 recomendaciones priorizadas.",
+        "oportunidades_mejora": "Genera 10 oportunidades de mejora con impacto estimado y prioridad.",
+        "analisis_rechazos": "Analiza distribución de rechazos, patrones y estrategias para reducirlos.",
+        "mejores_practicas": "Identifica mejores prácticas de los asesores top performers.",
+        "patrones_ventas": "Analiza patrones de ventas exitosas vs fallidas.",
+        "plan_coaching": "Crea un plan de coaching de 4 semanas para mejorar desempeño.",
+        "recomendaciones_semanales": "Genera 3 prioridades semanales y métricas de seguimiento.",
+        "prediccion_tendencias": "Proyecta KPIs del próximo mes, riesgos y oportunidades."
+    }
+
+    if tipo not in prompts:
+        return {"error": "Tipo de análisis no válido"}
+
+    prompt = prompts[tipo]
+
+    
+    contexto = f"""
+Datos reales del Call Center:
+KPIs:
+{kpi_data}
+
+Distribución de resultados:
+{resultados}
+
+Rendimiento por asesor:
+{asesores}
+
+Usa exclusivamente estos datos para generar el análisis.
+Si algún dato falta, indícalo.
+"""
+
+
+    respuesta = await api_chat_logic(
+        ChatRequest(
+            message=f"{prompt}\n\n{contexto}"
+        )
+    )
+
+
+    print("KPIs:", kpi_data)
+    print("Resultados:", resultados)
+    print("Asesores:", asesores)
+    
+
+    return {
+        "tipo": tipo,
+        "resultado": respuesta
+    }
+
