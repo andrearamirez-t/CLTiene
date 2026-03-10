@@ -10,10 +10,14 @@ function Resumen() {
     const [results, setResults] = useState([])
 
     useEffect(() => {
-        const params = buildQuery() || null
-        fetch(`http://localhost:8000/api/distribucion_resultado${(params ? `?${params}` : "")}`)
+        const params = buildQuery() || null;
+
+        fetch(`http://localhost:8000/api/distribucion_resultado${params ? `?${params}` : ""}`)
             .then(res => res.json())
-            .then(data => setResults(data));
+            .then(data => {
+                setResults(Array.isArray(data) ? data : []);
+            })
+            .catch(() => setResults([]));
     }, [filters]);
 
     const resultados = results

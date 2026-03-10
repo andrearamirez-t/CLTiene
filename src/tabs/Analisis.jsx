@@ -27,10 +27,10 @@ const Analisis = () => {
         const vehiculos = await vehiculosRes.json();
         const motivor = await motivosRechazoRes.json();
 
-        setPlanes(planes);
-        setMascotas(mascotas);
-        setVehiculos(vehiculos);
-        setMotivosRechazo(motivor);
+        setPlanes(Array.isArray(planes) ? planes : []);
+        setMascotas(Array.isArray(mascotas) ? mascotas : []);
+        setVehiculos(Array.isArray(vehiculos) ? vehiculos : []);
+        setMotivosRechazo(Array.isArray(motivor) ? motivor : []);
       } catch (error) {
         console.error("Error cargando datos:", error);
       }

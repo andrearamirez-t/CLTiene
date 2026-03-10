@@ -11,7 +11,7 @@ const DuracionChart = () => {
 
         fetch("http://localhost:8000/duracion_llamadas" + (params ? `?${params}` : ""))
             .then(res => res.json())
-            .then(data => setDatos(data))
+            .then(data => setDatos(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));
     }, [filters]);
 

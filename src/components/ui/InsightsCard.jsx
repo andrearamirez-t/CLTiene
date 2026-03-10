@@ -17,7 +17,7 @@ const InsightsCard = () => {
             const response = await fetch("http://localhost:8000/ia/generar_insights");
             const data = await response.json();
 
-            setInsights(data.result[0]);
+            setInsights(data.result[0] || "");
             setEstado('completado');
         } catch (error) {
             console.error("Error cargando insights:", error);

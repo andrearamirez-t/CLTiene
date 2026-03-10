@@ -13,7 +13,7 @@ const Rendimiento = () => {
 
         fetch(`http://localhost:8000/api/rendimiento_agente?${(params ? `?${params}` : "")}`)
             .then(res => res.json())
-            .then(data => setRendiemiento(data));
+            .then(data => setRendiemiento(Array.isArray(data) ? data : []));
     }, [filters]);
 
     const [asesorSeleccionado, setAsesorSeleccionado] = useState("");

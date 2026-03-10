@@ -11,7 +11,7 @@ function Select({ endPoint, selected = null, defaultValue = { id: "", name: "Sel
     useEffect(() => {
         fetch("http://localhost:8000" + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
-            .then(data => setOpciones(data));
+            .then(data => setOpciones(Array.isArray(data) ? data : []));
     }, []);
 
     return (

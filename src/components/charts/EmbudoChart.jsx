@@ -11,7 +11,7 @@ const EmbudoChart = () => {
         const params = buildQuery() || null
         fetch(`http://localhost:8000/api/embudo_conversacion${(params ? `?${params}` : "")}`)
             .then(res => res.json())
-            .then(data => setEmbudo(data));
+            .then(data => setEmbudo(Array.isArray(data) ? data : []));
     }, [filters]);
 
     // const pasos = [

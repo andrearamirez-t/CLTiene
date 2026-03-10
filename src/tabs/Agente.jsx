@@ -55,7 +55,7 @@ const Agente = () => {
                 })
             });
 
-            if (response.status === 404) {
+            if (response?.status === 404) {
                 throw new Error("La ruta /chat no existe en el backend. Revisa api/routes.py");
             }
 

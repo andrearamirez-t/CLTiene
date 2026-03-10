@@ -34,9 +34,9 @@ const Dashboard = () => {
             try {
 
                 const res = await fetch("http://localhost:8000/api/kpi");
-                const [data] = await res.json();
+                const data = await res.json();
 
-                setKpi(data);
+                setKpi(data[0] || []);
 
             } catch (err) {
                 console.error("Error cargando KPI:", err);

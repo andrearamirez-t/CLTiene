@@ -4,7 +4,7 @@ import CuerpoLlamada from './CuerpoLlamada';
 const ResumirLlamadas = () => {
 
     const [isOpen, setIsOpen] = useState(false);
-    const [llamadaData, setLlamadaData] = useState(null);
+    const [llamadaData, setLlamadaData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const obtenerLlamada = async () => {
@@ -17,7 +17,7 @@ const ResumirLlamadas = () => {
 
             const data = await response.json();
 
-            setLlamadaData(data);
+            setLlamadaData(data || []);
 
         } catch (error) {
 

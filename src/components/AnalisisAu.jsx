@@ -15,7 +15,7 @@ const AnalisisAu = () => {
     const [tipo, setTipo] = useState('Resumen Ejecutivo');
     const [mostrarComponente, setMostrarComponente] = useState(null);
     const [cargando, setCargando] = useState(false);
-    const [resultado, setResultado] = useState(null);
+    const [resultado, setResultado] = useState([]);
 
     const params = buildQuery() || null
 
@@ -52,7 +52,7 @@ const AnalisisAu = () => {
 
             const data = await response.json();
 
-            setResultado(data.result);
+            setResultado(data.result || []);
             setMostrarComponente(tipo);
 
         } catch (error) {
