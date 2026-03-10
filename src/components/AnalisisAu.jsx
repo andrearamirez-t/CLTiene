@@ -8,13 +8,16 @@ import PatronesVentasResult from '../tabs/detalles/PatronesVentasResult';
 import PlanCoachingResult from '../tabs/detalles/PlanCoachingResult';
 import RecomendacionesSemanalesResult from '../tabs/detalles/RecomendacionesSemanalesResult';
 import PredicciontendenciasResult from '../tabs/detalles/PrediccionTendenciasResult';
+import { useFilters } from '../FiltersContext';
 
 const AnalisisAu = () => {
+    const { buildQuery } = useFilters();
     const [tipo, setTipo] = useState('Resumen Ejecutivo');
     const [mostrarComponente, setMostrarComponente] = useState(null);
     const [cargando, setCargando] = useState(false);
     const [resultado, setResultado] = useState(null);
 
+    const params = buildQuery() || null
 
     const opciones = [
         "Resumen Ejecutivo",
@@ -44,20 +47,12 @@ const AnalisisAu = () => {
         };
 
         try {
-
-            const response = await fetch("http://localhost:8000/api/analisis_automatico", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    tipo_analisis: mapTipos[tipo]
-                })
-            });
+            // tipo_analisis: mapTipos[tipo]
+            const response = await fetch("http://localhost:8000/ia/analisis_automatico" + (params ? `?${params}&tipo_analisis=${mapTipos[tipo]}` : "?tipo_analisis=" + mapTipos[tipo]));
 
             const data = await response.json();
 
-            setResultado(data.resultado);
+            setResultado(data.result);
             setMostrarComponente(tipo);
 
         } catch (error) {
