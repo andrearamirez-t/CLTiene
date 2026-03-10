@@ -11,8 +11,6 @@ def result(query: str, query_parameters: list = []):
 
     job = client.query(query, job)
 
-    print(f"Query-result: {query}")
-
     df = job.to_dataframe()
 
     if df.empty:
@@ -36,7 +34,3 @@ def option(query: str, column_id: str, column_name: str | None = None):
         return {}
 
     return df.to_dict(orient="records")
-
-
-if __name__ == "__main__":
-    print(client)

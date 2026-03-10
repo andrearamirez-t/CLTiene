@@ -26,3 +26,4 @@ async def api_chat_logic(request: ChatRequest):
         return {"respuesta": response.choices[0].message.content}
     except Exception as e:
         return {"respuesta": f"⚠️ Error en OpenAI: {str(e)}"}
+    
