@@ -53,22 +53,22 @@ export default function Inteligencia() {
 
   useEffect(() => {
 
-    const fetchData = () => {
+    const fetchData = async () => {
 
       try {
 
         const params = buildQuery()
         const query = params ? `?${params}` : ""
 
-        const hora = fetch(`http://localhost:8000/rendimiento-hora${query}`).then(r => r.json())
-        const dia = fetch(`http://localhost:8000/rendimiento-dia${query}`).then(r => r.json())
-        const ventas = fetch(`http://localhost:8000/ventas-vs-servicio${query}`).then(r => r.json())
-        const subjetividad = fetch(`http://localhost:8000/subjetividad-confianza-modulo${query}`).then(r => r.json())
-        const desempeno = fetch(`http://localhost:8000/desempeno-sentimiento-asesor${query}`).then(r => r.json())
-        const evolucion = fetch(`http://localhost:8000/evolucion-ventas${query}`).then(r => r.json())
-        const scorecard = fetch(`http://localhost:8000/scorecard-asesores${query}`).then(r => r.json())
-        const duracion = fetch(`http://localhost:8000/duracion-vs-efectividad${query}`).then(r => r.json())
-        const sentimiento = fetch(`http://localhost:8000/clasificacion-sentimiento${query}`).then(r => r.json())
+        const hora = await fetch(`http://localhost:8000/rendimiento-hora${query}`).then(r => r.json())
+        const dia = await fetch(`http://localhost:8000/rendimiento-dia${query}`).then(r => r.json())
+        const ventas = await fetch(`http://localhost:8000/ventas-vs-servicio${query}`).then(r => r.json())
+        const subjetividad = await fetch(`http://localhost:8000/subjetividad-confianza-modulo${query}`).then(r => r.json())
+        const desempeno = await fetch(`http://localhost:8000/desempeno-sentimiento-asesor${query}`).then(r => r.json())
+        const evolucion = await fetch(`http://localhost:8000/evolucion-ventas${query}`).then(r => r.json())
+        const scorecard = await fetch(`http://localhost:8000/scorecard-asesores${query}`).then(r => r.json())
+        const duracion = await fetch(`http://localhost:8000/duracion-vs-efectividad${query}`).then(r => r.json())
+        const sentimiento = await fetch(`http://localhost:8000/clasificacion-sentimiento${query}`).then(r => r.json())
 
         setDatosHoras(Array.isArray(hora) ? hora : [])
         setDatosDias(Array.isArray(dia) ? dia : [])
