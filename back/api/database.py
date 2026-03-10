@@ -9,6 +9,8 @@ def result(query: str, query_parameters: list = []):
         query_parameters=query_parameters
     )
 
+    print(f"Query-result: {query}")
+
     job = client.query(query, job)
 
     df = job.to_dataframe()

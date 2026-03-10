@@ -26,7 +26,6 @@ def filters(filters: dict) -> dict:
         filtros_object[key] = value
 
         if key == "fecha_desde":
-            # filtros_string.append(f"fecha >= {value}")
             filtros_string.append(f"""DATE(
                 PARSE_TIMESTAMP(
                     '%d/%m/%Y %H:%M:%S',
@@ -42,10 +41,9 @@ def filters(filters: dict) -> dict:
                     INTERVAL 12 HOUR,
                     INTERVAL 0 HOUR
                 )
-            ) >= {value}""")
+            ) >= '{value}'""")
 
         if key == "fecha_hasta":
-            # filtros_string.append(f"fecha <= {value}")
             filtros_string.append(f"""DATE(
                 PARSE_TIMESTAMP(
                     '%d/%m/%Y %H:%M:%S',
@@ -61,7 +59,7 @@ def filters(filters: dict) -> dict:
                     INTERVAL 12 HOUR,
                     INTERVAL 0 HOUR
                 )
-            ) <= {value}""")
+            ) <= '{value}'""")
 
         if key in ["resultado_llamada", "plan_mencionado", "Duracion_Estimada"]:
             filtros_string.append(f"{key} = '{value}'")
@@ -69,21 +67,26 @@ def filters(filters: dict) -> dict:
         if key == "duracion_llamada":
             filtros_string.append(f"Duracion_Estimada = '{value}'")
 
-        # Pendiente: ya tengo el calculo, pero se complejo sacarlo a una consulta
-        # if key == "saludo_asesor":
-        #     filtros_string.append("")
+        if key == "saludo_asesor":
+            filtros_string.append(f"Saludo_Completo = '{value}'")
 
         if key == "nombre_asesor":
             filtros_string.append(f"cuenta like '%{value}%'")
 
         if key == "modulo_atencion":
-            filtros_string.append(f"nombre_atencion = '{value}'")
+            filtros_string.append(f"Nombre_del_Modulo = '{value}'")
 
         if key == "tipo_llamada":
             filtros_string.append(f"tipo = '{value}'")
 
         if key == "transcripcion" and value == "true":
             filtros_string.append("transcripcion is not null")
+
+        if key == "clasificacion_sentimiento":
+            filtros_string.append(f"clasificacion = '{value}'")
+
+        if key == "asistencia_mencionada":
+            filtros_string.append(f"Asistencia = '{value}'")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",

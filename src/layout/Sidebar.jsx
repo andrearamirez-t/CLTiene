@@ -116,9 +116,9 @@ function Sidebar() {
                 }}>
                     <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
                     <label style={labelMargin}>Desde</label>
-                    <input type="date" defaultValue="2025-01-11" style={customInput} />
+                    <input type="date" onChange={handleChange} name='fecha_desde' style={customInput} />
                     <label style={labelMargin}>Hasta</label>
-                    <input type="date" defaultValue="2026-02-08" style={customInput} />
+                    <input type="date" onChange={handleChange} name='fecha_hasta' style={customInput} />
 
                     <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
 
