@@ -1,19 +1,10 @@
 from fastapi import FastAPI
 from api.routes import router
 from fastapi.middleware.cors import CORSMiddleware
-
-
 import dotenv
 
 dotenv.load_dotenv()
-
-
 app = FastAPI(title="Dashboard API")
-
-# origins = [
-#     os.getenv("ORIGINS_BACK"),
-#     os.getenv("ORIGINS_FRONT")
-# ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,7 +15,3 @@ app.add_middleware(
 )
 
 app.include_router(router)
-
-if __name__ == "__main__":
-import uvicorn
-uvicorn.run(app, host="0.0.0.0", port=8000)

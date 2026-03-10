@@ -76,6 +76,40 @@ def api_rendimiento_hora(filters: FilterModel = Depends()):
 def api_kpi(filters: FilterModel = Depends()):
     return kpi(filters)
 
+@router.get("/api/duracion_llamada")
+def api_duracion_llamada(filters: FilterModel = Depends()):
+    return duracion_llamada(filters)
+
+@router.get("/api/saludo_asesor")
+def api_saludo_asesor(filters: FilterModel = Depends()):
+    return saludo_asesor(filters)
+
+@router.get("/api/nombre_asesor")
+def api_nombre_asesor(filters: FilterModel = Depends()):
+    return nombre_asesor(filters)
+
+@router.get("/api/modulo_atencion")
+def api_modulo_atencion(filters: FilterModel = Depends()):
+    return modulo_atencion(filters)
+
+@router.get("/api/tipo_llamada")
+def api_tipo_llamada(filters: FilterModel = Depends()):
+    return tipo_llamada(filters)
+
+@router.get("/api/asistencia_mencionada")
+def api_asistencia_mencionada(filters: FilterModel = Depends()):
+    return asistencia_mencionada(filters)
+
+@router.get("/api/clasificacion_sentimiento")
+def api_clasificacion_sentimiento(filters: FilterModel = Depends()):
+    return clasificacion_sentimiento(filters)
+
+
+
+@router.get("/api/distribucion_resultado")
+def api_distribucion_resultado(filters: FilterModel = Depends()):
+    return distribucion_resultado(filters)
+
 # ------------------------------------------------------ #
 # ------------- Consultas Directas BigQuery ------------- #
 # ------------------------------------------------------ #
@@ -89,5 +123,5 @@ def scorecard_asesores(filters: FilterModel = Depends()):
     FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where} GROUP BY Cuenta ORDER BY total DESC
     """
-    job = client.query(query)
+    job = bq_client.query(query)
     return job.to_dataframe().to_dict(orient="records")
