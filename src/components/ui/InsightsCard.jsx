@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
 
 const InsightsCard = () => {
-    const [estado, setEstado] = useState('reposo'); 
+    const [estado, setEstado] = useState('reposo');
+    const [insights, setInsights] = useState('');
 
-    const manejarClicIA = () => {
+    const manejarClicIA = async () => {
         if (estado === 'completado') {
-            
             setEstado('reposo');
-        } else {
-           
-            setEstado('cargando');
-            setTimeout(() => {
-                setEstado('completado');
-            }, 1500);
+            setInsights('');
+            return;
+        }
+
+        setEstado('cargando');
+
+        try {
+            const response = await fetch("http://localhost:8000/ia/generar_insights");
+            const data = await response.json();
+
+            setInsights(data.result[0]);
+            setEstado('completado');
+        } catch (error) {
+            console.error("Error cargando insights:", error);
+            setEstado('reposo');
         }
     };
 
@@ -22,11 +31,10 @@ const InsightsCard = () => {
                 Insights
             </div>
 
-            {/* RECUADRO SUPERIOR */}
-            <div style={{ 
-                background: '#f8f9fa', 
-                border: '2px solid #FC3276', 
-                borderRadius: '16px', 
+            {/* <div style={{
+                background: '#f8f9fa',
+                border: '2px solid #FC3276',
+                borderRadius: '16px',
                 padding: '20px',
                 marginBottom: '20px'
             }}>
@@ -39,16 +47,15 @@ const InsightsCard = () => {
                     <li style={{ marginBottom: '8px' }}>• 62 ventas cerradas (1.9%)</li>
                     <li>• Calidad promedio: <strong>12/100</strong></li>
                 </ul>
-            </div>
+            </div> */}
 
-            {/*  BOTÓN DINÁMICO */}
-            <button 
+            <button
                 onClick={manejarClicIA}
                 disabled={estado === 'cargando'}
                 style={{
                     width: '100%',
                     padding: '14px',
-                    background: estado === 'completado' ? '#FD7751' : '#FC3276', 
+                    background: estado === 'completado' ? '#FD7751' : '#FC3276',
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
@@ -57,7 +64,7 @@ const InsightsCard = () => {
                     cursor: estado === 'cargando' ? 'not-allowed' : 'pointer',
                     marginBottom: '20px',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1>'
                 }}
             >
                 {estado === 'reposo' && "Generar Insights con IA"}
@@ -65,23 +72,17 @@ const InsightsCard = () => {
                 {estado === 'completado' && "Limpiar Análisis"}
             </button>
 
-            {/* RECUADRO INFERIOR */}
             {estado === 'completado' && (
-                <div style={{ 
-                    background: 'white', 
-                    border: '1px solid #e2e8f0', 
-                    borderRadius: '16px', 
+                <div style={{
+                    background: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '16px',
                     padding: '25px',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
                     animation: 'fadeIn 0.5s ease-out'
                 }}>
                     <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#334155' }}>
-                        <p><strong>1. Optimización del Tiempo de Llamada ⏰:</strong> Duración media de 1017s.</p>
-                        <p><strong>2. Aumento de Asignaciones 💡:</strong> 2118 planes no identificados (64%).</p>
-                        <p><strong>3. Sistemas Automáticos 📞:</strong> 205 casos de buzón de voz detectados.</p>
-                        <p style={{ marginTop: '15px', fontWeight: 'bold', color: '#1e293b' }}>
-                            Análisis completado para CALL CENTER CL TIENE SOLUCIONES.
-                        </p>
+                        <div dangerouslySetInnerHTML={{ __html: insights.replace(/\n/g, "<br/>") }} />
                     </div>
                 </div>
             )}

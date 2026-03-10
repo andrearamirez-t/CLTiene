@@ -44,10 +44,11 @@ function Sidebar() {
     }
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
+
         setFilters((prev) => ({
             ...prev,
-            [name]: value
+            [name]: type === "checkbox" ? checked : value
         }));
     };
 
@@ -171,6 +172,7 @@ function Sidebar() {
                             name='transcripcion'
                             type="checkbox"
                             id="transcription-filter"
+                            value={true}
                             style={{
                                 cursor: 'pointer',
                                 width: '18px',
