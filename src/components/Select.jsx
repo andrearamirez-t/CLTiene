@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useFilters } from '../FiltersContext';
 
-function Select({ endPoint, selected = null, defaultValue = { id: "", name: "Seleccione" }, ...props }) {
+function Select({ endPoint, depsUseEffect = [], selected = null, defaultValue = { id: "", name: "Seleccione" }, ...props }) {
     const [opciones, setOpciones] = useState([]);
 
     // Todos los campos tienen los filtros del "Sidebar" -> todo filtra todo
@@ -12,7 +12,7 @@ function Select({ endPoint, selected = null, defaultValue = { id: "", name: "Sel
         fetch("http://localhost:8000" + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setOpciones(Array.isArray(data) ? data : []));
-    }, []);
+    }, depsUseEffect);
 
     return (
         <select {...props}>

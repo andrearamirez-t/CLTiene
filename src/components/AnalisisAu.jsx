@@ -41,7 +41,7 @@ const AnalisisAu = () => {
         try {
 
             const response = await fetch(
-                "http://localhost:8000/ia/analisis" +
+                "http://localhost:8000/ia/analisis_automatico" +
                 (params
                     ? `?${params}&tipo_analisis=${mapTipos[tipo]}`
                     : `?tipo_analisis=${mapTipos[tipo]}`)
@@ -49,7 +49,7 @@ const AnalisisAu = () => {
 
             const data = await response.json();
 
-            setResultado(data.result || "No se recibió respuesta de la IA.");
+            setResultado(data.result[0] || "No se recibió respuesta de la IA.");
 
         } catch (error) {
 
@@ -155,7 +155,8 @@ const AnalisisAu = () => {
                             Análisis IA
                         </h3>
 
-                        <p>{resultado}</p>
+                        {/* <p>{resultado}</p> */}
+                        <div dangerouslySetInnerHTML={{ __html: resultado }} />
 
                     </div>
 

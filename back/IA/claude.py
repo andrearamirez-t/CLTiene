@@ -40,13 +40,62 @@ def prompt_html(system_prompt: str) -> str:
     - NO incluyas <html>, <head>, <body>
     - NO incluyas <!DOCTYPE>
     - NO devuelvas una página completa
-    - Usa únicamente etiquetas: <p>, <strong>, <ul>, <ol>, <li>
     - No uses markdown
     - No incluyas ``` ni bloques de código
     - El HTML debe ser válido y cerrar todas las etiquetas
     - La respuesta debe poder insertarse directamente dentro de un <div>
     - Usa español claro y profesional
     - Puedes usar emojis moderadamente
+
+    CONDICIÓN PARA TABLAS:
+    - SOLO usa <table> cuando la información requiera comparaciones, listados estructurados o datos tabulares
+    - Si el contenido puede explicarse en texto o listas, NO uses tablas
+    - No generes tablas innecesarias
+
+    CONTENEDOR OBLIGATORIO PARA TABLAS:
+    - Si generas una tabla, SIEMPRE debe estar dentro de un contenedor <div>
+    - Estructura obligatoria: div > table > thead/tbody
+    - El div debe tener EXACTAMENTE este estilo:
+
+    <div style="background-color: rgb(15, 23, 42); border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+
+    ESTILO DE TABLAS (SOLO SI SE USA <table>):
+    - No inventes estilos nuevos
+    - No agregues <style>, clases CSS o CSS externo
+    - Usa únicamente estilos inline
+    - Respeta exactamente los estilos siguientes
+
+    table
+    style="width:100%; border-collapse:collapse; color:rgb(203,213,225); font-size:13px;"
+
+    thead > tr
+    style="border-bottom:1px solid rgb(30,41,59); text-align:left;"
+
+    thead > tr > th
+    style="padding:12px 16px;"
+
+    tbody > tr
+    style="border-bottom:1px solid rgb(30,41,59);"
+
+    tbody > tr > td
+    style="padding:16px;"
+
+    ESTRUCTURA DE REFERENCIA:
+
+    <div style="background-color: rgb(15, 23, 42); border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+        <table style="width:100%; border-collapse:collapse; color:rgb(203,213,225); font-size:13px;">
+            <thead>
+                <tr style="border-bottom:1px solid rgb(30,41,59); text-align:left;">
+                    <th style="padding:12px 16px;">Columna</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid rgb(30,41,59);">
+                    <td style="padding:16px;">Valor</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     """
 
     return f"""
