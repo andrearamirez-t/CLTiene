@@ -6,8 +6,10 @@ from fastapi import APIRouter
 from fastapi import APIRouter, Depends
 
 from api.models import FilterModel
+from pydantic import BaseModel
 
 from api.filters.test import test
+from api.database import option
 
 from api.database import client
 
@@ -115,6 +117,22 @@ def api_distribucion_resultado(filters: FilterModel = Depends()):
 @router.get("/api/asistencia_mencionada")
 def api_asistencia_mencionada(filters: FilterModel = Depends()):
     return asistencia_mencionada(filters)
+
+# -------------------------------------------------- #
+# ----------------------- IA ----------------------- #
+# -------------------------------------------------- #
+
+from api.chat import api_chat_logic, ChatRequest
+
+
+class AnalisisAutomaticoRequest(BaseModel):
+    tipo_analisis: str
+    filtros: dict | None = None
+
+
+@router.post("/api/chat")
+async def api_chat(request: ChatRequest):
+    return await api_chat_logic(request)
 
 
 # ------------------------------------------------------ #
@@ -628,3 +646,21 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
         })
 
     return data
+
+@router.get("/api/lista_llamadas")
+def api_lista_llamadas(filters: FilterModel = Depends()):
+
+    where = filters.get_query()
+
+    return option(f"""
+    SELECT 
+        ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
+        Resultado_Llamada,
+        Num_Turnos_V4,
+        Telefono,
+        Cuenta
+    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    WHERE {where}
+    AND transcripcion IS NOT NULL
+    ORDER BY fecha DESC
+    """, "id", "concat('#', id, ' | ', Resultado_Llamada, ' | ', Num_Turnos_V4, ' | ', Telefono, ' | ', Cuenta)")
