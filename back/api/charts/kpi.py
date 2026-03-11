@@ -41,6 +41,7 @@ def kpi(filters: FilterModel):
         SELECT FORMAT_DATE('%A', DATE(ts)) dia
         FROM base
         GROUP BY dia
+        HAVING dia IS NOT NULL
         ORDER BY COUNT(*) DESC
         LIMIT 1
     )
@@ -55,8 +56,16 @@ def kpi(filters: FilterModel):
         '%H:%M',
         TIMESTAMP_SECONDS(CAST(AVG(UNIX_SECONDS(ts)) AS INT64))
     ) hora_promedio,
-
-        (SELECT dia FROM top_dia) dia_promedio,
+        CASE
+            WHEN (SELECT dia FROM top_dia) = 'Monday' THEN 'Lunes'
+            WHEN (SELECT dia FROM top_dia) = 'Tuesday' THEN 'Martes'
+            WHEN (SELECT dia FROM top_dia) = 'Wednesday' THEN 'Miércoles'
+            WHEN (SELECT dia FROM top_dia) = 'Thursday' THEN 'Jueves'
+            WHEN (SELECT dia FROM top_dia) = 'Friday' THEN 'Viernes'
+            WHEN (SELECT dia FROM top_dia) = 'Saturday' THEN 'Sábado'
+            WHEN (SELECT dia FROM top_dia) = 'Sunday' THEN 'Domingo'
+            ELSE (SELECT dia FROM top_dia)
+        END AS dia_promedio,
         (SELECT Cuenta FROM top_asesor) top_asesor,
 
         ROUND(AVG(saludo_inicial) * 100,1) saludo,
