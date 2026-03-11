@@ -16,7 +16,8 @@ import Agente from '../tabs/Agente';
 import { useFilters } from '../FiltersContext.jsx';
 
 const Dashboard = () => {
-    const { filters } = useFilters();
+    const { filters, buildQuery } = useFilters();
+    const params = buildQuery() || null
 
     const [kpi, setKpi] = useState(null);
     const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
@@ -33,7 +34,7 @@ const Dashboard = () => {
         const fetchKpi = async () => {
             try {
 
-                const res = await fetch("http://localhost:8000/api/kpi");
+                const res = await fetch("http://localhost:8000/api/kpi" + (params ? `?${params}` : ""));
                 const data = await res.json();
 
                 setKpi(data[0] || []);
