@@ -7,7 +7,7 @@ def tipo_vehiculo(filters: FilterModel):
     with
         resultado as (
             SELECT
-                Tipo_Vehiculo,
+                Tipo_Vehiculo tipo,
                 count(*) value
             from
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
@@ -15,7 +15,7 @@ def tipo_vehiculo(filters: FilterModel):
                 Tipo_Vehiculo != "N/A" AND
                 {filters.get_query()}
             group by
-                Tipo_Vehiculo
+                tipo
         )
     SELECT
         *,

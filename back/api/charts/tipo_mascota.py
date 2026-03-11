@@ -7,7 +7,7 @@ def tipo_mascota(filters: FilterModel):
     with
         resultado as (
             select
-                Tipo_Mascota,
+                Tipo_Mascota tipo,
                 count(*) value
             from
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
@@ -15,7 +15,7 @@ def tipo_mascota(filters: FilterModel):
                 Tipo_Mascota != "N/A" AND
                 {filters.get_query()}
             group by
-                Tipo_Mascota
+                tipo
         )
     select
         *,

@@ -29,6 +29,7 @@ const GraficaPastelAnalisis = ({ titulo, datos, colores }) => {
             innerRadius={0} 
             outerRadius={80}
             dataKey="value"
+            nameKey="tipo"
             label={renderLabel}
           >
             {datos.map((entry, index) => (

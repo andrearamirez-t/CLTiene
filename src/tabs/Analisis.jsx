@@ -52,9 +52,6 @@ const Analisis = () => {
     fetchData();
 
   }, [filters]);
-
-
-
   const obtenerAnalisisIA = async () => {
 
     try {
@@ -66,14 +63,20 @@ const Analisis = () => {
       const query = params ? `?${params}` : "";
 
       const response = await fetch(`http://localhost:8000/analisis-patrones${query}`);
-      const data = await response.json();
 
-      setAnalisisIA(data.analisis || "No se recibió análisis.");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const texto = data?.analisis || data?.result || "No se recibio analisis.";
+
+      setAnalisisIA(texto);
 
     } catch (error) {
 
-      console.error("Error obteniendo análisis IA:", error);
-      setAnalisisIA("No fue posible generar el análisis.");
+      console.error("Error obteniendo analisis IA:", error);
+      setAnalisisIA("No fue posible generar el analisis.");
 
     } finally {
 
@@ -81,7 +84,7 @@ const Analisis = () => {
 
     }
 
-  };
+  }
 
 
   const datosPlanes = planes;
@@ -123,7 +126,7 @@ const Analisis = () => {
         />
 
         <GraficaPastelAnalisis
-          titulo="Tipo de Vehículo"
+          titulo="Tipo de Vehiculo"
           datos={datosVehiculo}
           colores={['#db2777', '#f472b6', '#fbcfe8']}
         />
@@ -160,7 +163,7 @@ const Analisis = () => {
         }}
       >
 
-        {mostrarAnalisis ? 'Ocultar Análisis' : 'Análisis Profundo IA - Patrones de Ventas'}
+        {mostrarAnalisis ? 'Ocultar Analisis' : 'Analisis Profundo IA - Patrones de Ventas'}
 
       </button>
 
@@ -180,13 +183,13 @@ const Analisis = () => {
           {cargandoAnalisis ? (
 
             <p style={{ color: '#64748b', fontSize: '14px' }}>
-              Generando análisis con IA...
+              Generando Analisis con IA...
             </p>
 
           ) : (
 
             <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6' }}>
-              {analisisIA || "Aquí aparecerá el análisis generado por IA."}
+              {analisisIA || "Aqui aparecera el Analisis generado por IA."}
             </p>
 
           )}
@@ -202,3 +205,5 @@ const Analisis = () => {
 };
 
 export default Analisis;
+
+

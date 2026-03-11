@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from api.routes import router
 from fastapi.middleware.cors import CORSMiddleware
-import dotenv
+from dotenv import load_dotenv
+import os
 
-dotenv.load_dotenv()
+# cargar variables del .env
+load_dotenv()
+
+print("OPENAI_API_KEY:", os.getenv("OPENAI_API_KEY"))
+
 app = FastAPI(title="Dashboard API")
 
 app.add_middleware(
@@ -15,3 +20,4 @@ app.add_middleware(
 )
 
 app.include_router(router)
+

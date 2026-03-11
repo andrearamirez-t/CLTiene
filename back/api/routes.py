@@ -10,8 +10,13 @@ from pydantic import BaseModel
 
 from api.filters.test import test
 from api.database import option
-
 from api.database import client
+
+
+
+
+
+from api.ia.analizar_patrones_dashboard import analizar_patrones_dashboard
 
 
 from api.filters.resultado_llamada import resultado_llamada
@@ -206,9 +211,6 @@ def api_analizar_asesor(
     return analizar_asesor(filters, asesor)
 
 
-@router.get("/ia/patrones_ventas")
-def api_patrones_ventas(filters: FilterModel = Depends()):
-    return analizar_patrones_ventas(filters)
 
 
 @router.get("/ia/inteligencia_operativa")
@@ -273,7 +275,7 @@ def api_reporte_completo(filters: FilterModel = Depends()):
 @router.get("/rendimiento-hora")
 def x_rendimiento_hora(filters: FilterModel = Depends()):
 
-    where = filters.get_query()
+    where = filters.get_query() or "1=1"
 
     query = f"""
     SELECT
@@ -646,6 +648,10 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
         })
 
     return data
+
+@router.get("/analisis-patrones")
+def analisis_patrones(filters: FilterModel = Depends()):
+    return analizar_patrones_dashboard(filters)
 
 @router.get("/api/lista_llamadas")
 def api_lista_llamadas(filters: FilterModel = Depends()):
