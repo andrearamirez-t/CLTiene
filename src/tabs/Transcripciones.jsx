@@ -8,12 +8,7 @@ const Transcripciones = () => {
     const [clasificacion, setClasificacion] = useState('venta');
     const [filtroPalabra, setFiltroPalabra] = useState('');
 
-    const chatData = [
-        { role: 'cliente', text: 'Hola, ¿qué precio tiene el plan médico?' },
-        { role: 'asesor', text: 'Claro, el costo es de 50 mil pesos. Puede usar varios medios de pago o le puedo enviar la info por whatsapp.' },
-        { role: 'cliente', text: 'Me parece bien, pero ¿qué planes incluyen cirugía?' },
-        { role: 'asesor', text: 'El plan premium lo cubre. ¿Le gustaría cerrar la afiliación ahora?' },
-    ];
+    const [chatData] = useState([]);
 
  const metricas = [
     { label: 'Resultado', val: 'Contactado' },
@@ -55,6 +50,7 @@ const Transcripciones = () => {
             </div>
         </div>
     );
+   
 };
 
 export default Transcripciones;

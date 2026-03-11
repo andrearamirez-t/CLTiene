@@ -145,7 +145,7 @@ const Dashboard = () => {
                 {/* FOOTER */}
                 <footer style={{ marginTop: '40px', padding: '20px 0', textAlign: 'center', borderTop: '1px solid #e2e8f0' }}>
                     <h3 style={{ margin: 0, fontSize: '16px', color: '#41454d' }}>📊 CL Tiene Soluciones - Analytics Dashboard</h3>
-                    <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#94a3b8' }}>Desarrollado por DivergencyAI SAS | Contacto@divergencyai.com</p>
+                    <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#94a3b8' }}>Desarrollado por DivergencyAI SAS | contacto@divergencyai.com</p>
                 </footer>
             </main>
         </div>
