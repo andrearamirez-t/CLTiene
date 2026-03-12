@@ -13,9 +13,6 @@ from api.database import option
 from api.database import client
 
 
-
-
-
 from api.ia.analizar_patrones_dashboard import analizar_patrones_dashboard
 
 
@@ -59,6 +56,29 @@ import dotenv
 dotenv.load_dotenv()
 
 router = APIRouter()
+
+# ------------------------------------------------------- #
+# -------------------- Transcripcion -------------------- #
+# ------------------------------------------------------- #
+
+from api.filters.transcripcion.llamada import llamada
+from api.filters.transcripcion.llamadas import llamadas
+from api.filters.transcripcion.metricas import metricas
+
+
+@router.get("/api/transcripcion/llamadas")
+def api_llamadas(filters: FilterModel = Depends()):
+    return llamadas(filters)
+
+
+@router.get("/api/transcripcion/llamada/{id}")
+def api_llamada(id):
+    return llamada(id)
+
+
+@router.get("/api/transcripcion/metricas/{id}")
+def api_metricas(id):
+    return metricas(id)
 
 
 # ------------------------------------------------------- #
@@ -122,6 +142,7 @@ def api_distribucion_resultado(filters: FilterModel = Depends()):
 @router.get("/api/asistencia_mencionada")
 def api_asistencia_mencionada(filters: FilterModel = Depends()):
     return asistencia_mencionada(filters)
+
 
 # -------------------------------------------------- #
 # ----------------------- IA ----------------------- #
@@ -204,13 +225,8 @@ def api_generar_insights(filters: FilterModel = Depends()):
 
 
 @router.get("/ia/analizar_asesor")
-def api_analizar_asesor(
-    asesor: str,
-    filters: FilterModel = Depends()
-):
+def api_analizar_asesor(asesor: str, filters: FilterModel = Depends()):
     return analizar_asesor(filters, asesor)
-
-
 
 
 @router.get("/ia/inteligencia_operativa")
@@ -219,42 +235,27 @@ def api_inteligencia_operativa(filters: FilterModel = Depends()):
 
 
 @router.get("/ia/analizar_llamada")
-def api_analizar_llamada(
-    llamada_id: str,
-    filters: FilterModel = Depends()
-):
+def api_analizar_llamada(llamada_id: str, filters: FilterModel = Depends()):
     return analizar_llamada(filters, llamada_id)
 
 
 @router.post("/ia/chat_inteligente")
-def api_chat_inteligente(
-    messages_history: list,
-    filters: FilterModel = Depends()
-):
+def api_chat_inteligente(messages_history: list, filters: FilterModel = Depends()):
     return chat_inteligente(filters, messages_history)
 
 
 @router.get("/ia/analisis_automatico")
-def api_analisis_automatico(
-    tipo_analisis: str,
-    filters: FilterModel = Depends()
-):
+def api_analisis_automatico(tipo_analisis: str, filters: FilterModel = Depends()):
     return analisis_automatico(filters, tipo_analisis)
 
 
 @router.get("/ia/busqueda_transcripciones")
-def api_busqueda_transcripciones(
-    search_query: str,
-    filters: FilterModel = Depends()
-):
+def api_busqueda_transcripciones(search_query: str, filters: FilterModel = Depends()):
     return analizar_busqueda_transcripciones(filters, search_query)
 
 
 @router.get("/ia/resumir_llamada")
-def api_resumir_llamada(
-    asesor: str,
-    filters: FilterModel = Depends()
-):
+def api_resumir_llamada(asesor: str, filters: FilterModel = Depends()):
     return resumir_llamada(filters, asesor)
 
 
@@ -266,6 +267,7 @@ def api_analisis_ranking(filters: FilterModel = Depends()):
 @router.get("/ia/reporte_completo")
 def api_reporte_completo(filters: FilterModel = Depends()):
     return generar_reporte_completo(filters)
+
 
 # -------------------------------------------------- #
 # ----------------------- IA ----------------------- #
@@ -324,6 +326,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
 
     return df[["name", "t", "ef"]].to_dict(orient="records")
 
+
 # api/routes/inteligencia.py
 
 
@@ -363,10 +366,12 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     job = client.query(query)
     df = job.to_dataframe()
 
-    df["ef"] = (df["ventas"] / df["t"] *
-                100).replace([float("inf"), -float("inf")], 0).fillna(0).round(1)
-
- 
+    df["ef"] = (
+        (df["ventas"] / df["t"] * 100)
+        .replace([float("inf"), -float("inf")], 0)
+        .fillna(0)
+        .round(1)
+    )
 
     # Reemplazar inf y -inf
     df = df.replace([np.inf, -np.inf], None)
@@ -421,10 +426,7 @@ def subjetividad_confianza_modulo(filters: FilterModel = Depends()):
     job = client.query(query)
     df = job.to_dataframe()
 
-    colores = {
-        "CRM": "#10b981",
-        "ASISTENCIA": "#e11d48"
-    }
+    colores = {"CRM": "#10b981", "ASISTENCIA": "#e11d48"}
 
     df["color"] = df["name"].map(colores).fillna("#94a3b8")
 
@@ -625,14 +627,14 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
     """
 
     job = client.query(query)
-    rows = list(job.result())   # ← solución
+    rows = list(job.result())  # ← solución
 
     colores = {
         "Buzón": "#EE7553",
         "Muy Corta": "#EC635F",
         "Corta": "#EB526A",
         "Media": "#E94176",
-        "Larga": "#E83081"
+        "Larga": "#E83081",
     }
 
     total = sum(r.valor for r in rows)
@@ -640,25 +642,30 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
     data = []
 
     for r in rows:
-        data.append({
-            "label": r.label,
-            "valor": r.valor,
-            "porcentaje": f"{(r.valor/total)*100:.1f}%",
-            "color": colores.get(r.label, "#8884d8")
-        })
+        data.append(
+            {
+                "label": r.label,
+                "valor": r.valor,
+                "porcentaje": f"{(r.valor/total)*100:.1f}%",
+                "color": colores.get(r.label, "#8884d8"),
+            }
+        )
 
     return data
+
 
 @router.get("/analisis-patrones")
 def analisis_patrones(filters: FilterModel = Depends()):
     return analizar_patrones_dashboard(filters)
+
 
 @router.get("/api/lista_llamadas")
 def api_lista_llamadas(filters: FilterModel = Depends()):
 
     where = filters.get_query()
 
-    return option(f"""
+    return option(
+        f"""
     SELECT 
         ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
         Resultado_Llamada,
@@ -669,4 +676,7 @@ def api_lista_llamadas(filters: FilterModel = Depends()):
     WHERE {where}
     AND transcripcion IS NOT NULL
     ORDER BY fecha DESC
-    """, "id", "concat('#', id, ' | ', Resultado_Llamada, ' | ', Num_Turnos_V4, ' | ', Telefono, ' | ', Cuenta)")
+    """,
+        "id",
+        "concat('#', id, ' | ', Resultado_Llamada, ' | ', Num_Turnos_V4, ' | ', Telefono, ' | ', Cuenta)",
+    )

@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
-import { useFilters } from '../FiltersContext';
+import { useEffect, useState, useMemo } from "react";
+import { useFilters } from "../FiltersContext";
 
-function Select({ endPoint, depsUseEffect = [], selected = null, defaultValue = { id: "", name: "Seleccione" }, ...props }) {
+function Select({ endPoint, depsUseEffect = [], selected = "", defaultValue = { id: "", name: "Seleccione" }, ...props }) {
     const [opciones, setOpciones] = useState([]);
-
-    // Todos los campos tienen los filtros del "Sidebar" -> todo filtra todo
     const { buildQuery } = useFilters();
-    const params = buildQuery() || null
+    const params = useMemo(() => buildQuery() || null, [buildQuery]);
 
     useEffect(() => {
         fetch("http://localhost:8000" + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
-            .then(data => setOpciones(Array.isArray(data) ? data : []));
+            .then(data => setOpciones(Array.isArray(data) ? data : []))
+            .catch(err => console.error(err));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, depsUseEffect);
 
     return (
-        <select {...props}>
+        <select value={selected} {...props}>
             <option value={defaultValue?.id}>{defaultValue?.name}</option>
-            {Array.isArray(opciones) &&
-                opciones.map(opcion => (
-                    <option key={opcion.id}>{opcion.name}</option>
-                ))
-            }
+            {opciones.map(opcion => (
+                <option key={opcion.id} value={opcion.id}>
+                    {opcion.name}
+                </option>
+            ))}
         </select>
     );
 }

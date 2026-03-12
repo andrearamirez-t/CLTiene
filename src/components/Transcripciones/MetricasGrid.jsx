@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 const MetricasGrid = ({ data }) => {
+    console.log(data)
     const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
 
     const getStatusColor = (val) => {
@@ -11,16 +12,16 @@ const MetricasGrid = ({ data }) => {
     };
 
     const obtenerAnalisisIA = async () => {
-  try {
-    const response = await fetch("http://localhost:8000/analisis-llamada");
-    const data = await response.json();
+        try {
+            const response = await fetch("http://localhost:8000/analisis-llamada");
+            const result = await response.json();
 
-    console.log("Respuesta IA:", data);
+            console.log("Respuesta IA:", result);
 
-  } catch (error) {
-    console.error("Error consultando IA:", error);
-  }
-};
+        } catch (error) {
+            console.error("Error consultando IA:", error);
+        }
+    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
