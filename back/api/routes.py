@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from fastapi import APIRouter
-
 from fastapi import APIRouter, Depends
 
 from api.models import FilterModel
@@ -211,6 +209,9 @@ def api_analizar_asesor(
     return analizar_asesor(filters, asesor)
 
 
+@router.get("/ia/analisis_patrones_ventas")
+def api_analizar_patrones_ventas(filters: FilterModel = Depends()):
+    return analizar_patrones_ventas(filters)
 
 
 @router.get("/ia/inteligencia_operativa")
