@@ -13,9 +13,12 @@ const MetricasGrid = ({ data }) => {
 
     const obtenerAnalisisIA = async () => {
         try {
-            const response = await fetch("http://localhost:8000/analisis-llamada");
+            const response = await fetch("http://localhost:8000/ia/inteligencia_operativa");
             const result = await response.json();
 
+            const data = result.result[0] || "No se obtuvo un análisis válido";
+
+            setMostrarAnalisis(data)
             console.log("Respuesta IA:", result);
 
         } catch (error) {
@@ -72,10 +75,7 @@ const MetricasGrid = ({ data }) => {
                     padding: '25px',
                     marginTop: '10px',
                     boxShadow: '0 4px 12px rgba(252, 52, 116, 0.05)'
-                }}>
-
-
-                </div>
+                }} dangerouslySetInnerHTML={{ __html: mostrarAnalisis }} />
             )}
         </div>
     );

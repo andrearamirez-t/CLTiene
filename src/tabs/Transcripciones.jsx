@@ -13,21 +13,24 @@ const Transcripciones = () => {
     const [filtroPalabra, setFiltroPalabra] = useState('');
 
     const [agentID, setAgent] = useState(0)
-    const [registroAsesor, setRegistroAsesor] = useState("")
+    const [inputValue, setInputValue] = useState("");
 
-    const [chatData] = useState([]);
+    const [chatData, setChatData] = useState([]);
 
     const [metricas, setMetricas] = useState([])
-    const [llamadas, setLlamadas] = useState([])
+    const [llamada, setLlamada] = useState([])
 
     useEffect(() => {
         fetch(`http://localhost:8000/api/transcripcion/metricas/${agentID}`)
             .then(res => res.json())
             .then(data => setMetricas(Array.isArray(data) ? data : []))
 
-        fetch(`http://localhost:8000/api/transcripcion/llamada/${agentID}`)
+        fetch(`http://localhost:8000/api/transcripcion/llamada/${agentID}/${inputValue}`)
             .then(res => res.json())
-            .then(data => setLlamadas(Array.isArray(data) ? data : []))
+            .then(data => {
+                setLlamada(Array.isArray(data) ? data : [])
+                setChatData(Array.isArray(data?.mensajes) ? data.mensajes : [])
+            })
     }, [agentID]);
 
     // const metricas = [
@@ -69,6 +72,8 @@ const Transcripciones = () => {
                     score={score}
                     clasificacion={clasificacion}
                     changeAgent={setAgent}
+                    inputValue={inputValue}
+                    changeFilter={setInputValue}
                     setClasificacion={setClasificacion}
                     setFiltroPalabra={setFiltroPalabra}
                 />

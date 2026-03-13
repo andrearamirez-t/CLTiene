@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Select from "../Select";
 
 // const FiltrosLateral = ({ score, clasificacion, setClasificacion, setFiltroPalabra, chatData }) => {
-const FiltrosLateral = ({ asesorCargado, handleChangeAgent: changeAgent, setFiltroPalabra, chatData }) => {
-    const [inputValue, setInputValue] = useState("");
+const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, setFiltroPalabra, chatData }) => {
+// const [inputValue, setInputValue] = useState("");
     const [temaBusqueda, setTemaBusqueda] = useState("");
     const [coincidencias, setCoincidencias] = useState(0);
     // const [mostrarLlamadas, setMostrarLlamadas] = useState(false);
@@ -60,7 +60,11 @@ const FiltrosLateral = ({ asesorCargado, handleChangeAgent: changeAgent, setFilt
                         type="text"
                         // placeholder="Escribe edwin..."
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value
+                            changeFilter(value)
+                            changeAgent(value)
+                        }}
                         style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#1e293b', color: 'white', fontSize: '13px' }}
                     />
                     {/* <button onClick={ejecutarBusquedaAsesor} style={{ padding: '0 15px', backgroundColor: '#626947', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
@@ -81,7 +85,7 @@ const FiltrosLateral = ({ asesorCargado, handleChangeAgent: changeAgent, setFilt
                     #617 | Contactado | {asesorCargado?.nombre || "-".split(' ')[0]}
                     <span>{mostrarLlamadas ? "▲" : "▼"}</span>
                 </div> */}
-                <Select onChange={e => changeAgent(e.target.value)} endPoint="/api/transcripcion/llamadas" name="select-calls" id="select-calls" style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} />
+                <Select selected={e => e.target.value} onChange={e => changeAgent(e.target.value)} endPoint="/api/transcripcion/llamadas" name="select-calls" id="select-calls" style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} />
             </div>
 
             {/* RESALTAR TEMAS */}
