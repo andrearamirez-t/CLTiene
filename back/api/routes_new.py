@@ -1,3 +1,6 @@
+from IA.Open_AI import call
+from helpers.utils import get_history
+
 from fastapi import APIRouter, Body, Query
 import json
 import os
@@ -13,8 +16,10 @@ router = APIRouter()
 client = bigquery.Client()
 client_openai = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+
 def fetch_bigquery_data(query: str):
     return client.query(query).to_dataframe()
+
 
 @router.post("/analisis_automatico")
 async def generar_reporte_ia(payload: dict = Body(...)):
@@ -26,7 +31,7 @@ async def generar_reporte_ia(payload: dict = Body(...)):
             LIMIT 10
         """
         df = fetch_bigquery_data(query)
-        
+
         texto_contexto = ""
         for _, row in df.iterrows():
             texto_contexto += f"Asesor: {row['cuenta']} | Resultado: {row['Resultado_Llamada']} | Transcripción: {row['transcripcion'][:300]}...\n\n"
@@ -35,37 +40,70 @@ async def generar_reporte_ia(payload: dict = Body(...)):
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Eres un Consultor de Calidad en Call Center. Responde únicamente en JSON."},
-                {"role": "user", "content": f"Analiza estas llamadas y genera un JSON con llaves: 'resumen', 'hallazgos' (array), 'recomendaciones' (array). Datos: {texto_contexto}"}
+                {"role": "user",
+                    "content": f"Analiza estas llamadas y genera un JSON con llaves: 'resumen', 'hallazgos' (array), 'recomendaciones' (array). Datos: {texto_contexto}"}
             ],
-            response_format={ "type": "json_object" }
+            response_format={"type": "json_object"}
         )
-        
+
         return {"resultado": json.loads(response.choices[0].message.content)}
     except Exception as e:
         return {"resultado": None, "error": str(e)}
 
-@router.post("/resumir_llamada")
-async def resumir_llamada(payload: dict = Body(...)):
-    cuenta = payload.get("cuenta")
+
+@router.get("/resumir_llamada/{id}")
+async def resumir_llamada(id: str):
+
+    llamada_data = get_history(f"id='{id}'")
+
+    system_prompt = """
+    Eres un analista experto en calidad de llamadas de servicio al cliente.
+    Analiza conversaciones y genera evaluaciones claras y estructuradas.
+    """
+
+    user_prompt = f"""
+    Analiza la siguiente transcripción de llamada de servicio al cliente:
+
+    {llamada_data}
+
+    Responde ESTRICTAMENTE en formato JSON con esta estructura:
+
+    {{
+        "info": {{
+            "resultado": "Breve resumen de la llamada",
+            "aciertos": ["Punto positivo 1", "Punto positivo 2"],
+            "errores": ["Punto a mejorar 1", "Punto a mejorar 2"],
+            "scorecard": {{
+                "Saludo": 100,
+                "Empatía": 80,
+                "Resolución": 90,
+                "Cierre": 70
+            }}
+        }},
+        "chat": [
+            {{"role": "Asesor", "text": "texto"}},
+            {{"role": "Cliente", "text": "texto"}}
+        ]
+    }}
+
+    No incluyas explicaciones adicionales.
+    No uses markdown.
+    Devuelve solo JSON válido.
+    """
+
+    respuesta, error = call(system_prompt, user_prompt)
+
+    if error:
+        return {"error": error}
+
     try:
-        query = f"""
-            SELECT transcripcion FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas` 
-            WHERE cuenta = '{cuenta}' LIMIT 1
-        """
-        df = fetch_bigquery_data(query)
-        texto = df['transcripcion'].iloc[0] if not df.empty else "No se encontró transcripción."
+        return json.loads(respuesta)
+    except Exception:
+        return {
+            "error": "La IA devolvió un JSON inválido",
+            "raw": respuesta
+        }
 
-        response = client_openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Resume la llamada en 3 puntos clave. Formato JSON: {'resumen': '...', 'puntos_clave': []}"},
-                {"role": "user", "content": texto}
-            ],
-            response_format={ "type": "json_object" }
-        )
-        return {"resultado": json.loads(response.choices[0].message.content)}
-    except Exception as e:
-        return {"resultado": None, "error": str(e)}
 
 @router.get("/ranking_ia")
 async def obtener_ranking():
@@ -85,6 +123,7 @@ async def obtener_ranking():
     except Exception as e:
         return {"resultado": None, "error": str(e)}
 
+
 @router.post("/chat_asistente")
 async def chat_asistente(payload: dict = Body(...)):
     pregunta = payload.get("pregunta")
@@ -100,28 +139,27 @@ async def chat_asistente(payload: dict = Body(...)):
     except Exception as e:
         return {"error": str(e)}
 
-
         @router.post("/analisis_ranking_ia")
         async def analizar_ranking(payload: dict = Body(...)):
-         asesores = payload.get("asesores", [])
+            asesores = payload.get("asesores", [])
     try:
         # Convertimos la lista de asesores a texto para que la IA la entienda
-        contexto = "\n".join([f"#{a['posicion']} {a['nombre']}: {a['puntos']} pts, {a['ventas']} ventas" for a in asesores])
+        contexto = "\n".join(
+            [f"#{a['posicion']} {a['nombre']}: {a['puntos']} pts, {a['ventas']} ventas" for a in asesores])
 
         response = client_openai.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Eres un experto en gestión de equipos. Responde solo en JSON con llaves: 'analisis_top' (string), 'mejoras' (lista), 'mentoria' (string)."},
+                {"role": "system",
+                    "content": "Eres un experto en gestión de equipos. Responde solo en JSON con llaves: 'analisis_top' (string), 'mejoras' (lista), 'mentoria' (string)."},
                 {"role": "user", "content": f"Analiza este ranking y dime quiénes son los mejores y qué debe mejorar el resto:\n{contexto}"}
             ],
-            response_format={ "type": "json_object" }
+            response_format={"type": "json_object"}
         )
         return {"resultado": json.loads(response.choices[0].message.content)}
     except Exception as e:
         return {"error": str(e)}
-    
 
-   
 
 @router.get("/ranking_asesores")
 async def obtener_ranking():
@@ -139,7 +177,7 @@ async def obtener_ranking():
             LIMIT 10
         """
         df = fetch_bigquery_data(query)
-        
+
         ranking = []
         for index, row in df.iterrows():
             ranking.append({
@@ -149,10 +187,11 @@ async def obtener_ranking():
                 "ventas": int(row['ventas']),
                 "puntos": int(row['puntos'])
             })
-        return ranking 
+        return ranking
     except Exception as e:
         print(f"Error en ranking_asesores: {e}")
         return []
+
 
 @router.post("/analisis_ranking_ia")
 async def analizar_ranking(payload: dict = Body(...)):
@@ -163,7 +202,7 @@ async def analizar_ranking(payload: dict = Body(...)):
             return {"resultado": {"analisis_top": "", "mejoras": [], "mentoria": ""}}
 
         contexto = "\n".join([
-            f"Asesor: {a['nombre']} | Posición: #{a['posicion']} | Puntos: {a['puntos']} | Ventas: {a['ventas']} | Llamadas: {a['llamadas']}" 
+            f"Asesor: {a['nombre']} | Posición: #{a['posicion']} | Puntos: {a['puntos']} | Ventas: {a['ventas']} | Llamadas: {a['llamadas']}"
             for a in asesores
         ])
 
@@ -171,7 +210,7 @@ async def analizar_ranking(payload: dict = Body(...)):
             model="gpt-4o",
             messages=[
                 {
-                    "role": "system", 
+                    "role": "system",
                     "content": (
                         "Eres un experto en Call Center. Tu respuesta DEBE ser un JSON con 3 llaves estrictas:\n"
                         "1. 'analisis_top': Un string con el Informe del TOP 3, justificaciones y '¿Qué hacen bien?'.\n"
@@ -182,11 +221,11 @@ async def analizar_ranking(payload: dict = Body(...)):
                 },
                 {"role": "user", "content": f"Genera el informe detallado para estos datos:\n{contexto}"}
             ],
-            response_format={ "type": "json_object" }
+            response_format={"type": "json_object"}
         )
-        
+
         data = json.loads(response.choices[0].message.content)
-        
+
         if not isinstance(data.get("mejoras"), list):
             data["mejoras"] = [str(data.get("mejoras", ""))]
 

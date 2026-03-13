@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useFilters } from '../../FiltersContext';
 
 const BusquedaInteligente = () => {
+    const { buildQuery } = useFilters();
+    const params = buildQuery() || null
 
     const [inputValue, setInputValue] = useState('');
     const [palabraEnAlerta, setPalabraEnAlerta] = useState('');
@@ -22,7 +25,7 @@ const BusquedaInteligente = () => {
 
         try {
 
-            const response = await fetch("http://localhost:8000/api/busqueda_inteligente", {
+            const response = await fetch("http://localhost:8000/api/busqueda_inteligente" + (params ? `?${params}` : ""), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -12,9 +12,7 @@ function Chat({ messages }) {
                     maxWidth: '85%' ,
                     boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
                     whiteSpace: 'pre-line'
-                }}>
-                    {msg.content}
-                </div>
+                }} dangerouslySetInnerHTML={{ __html: msg.content }} />
             ))}
         </div>
     )

@@ -26,10 +26,12 @@ def filters(filters: dict) -> dict:
         filtros_object[key] = value
 
         if key == "fecha_desde":
-            filtros_string.append(f"""{calculo_fecha()} >= DATETIME('{value}')""")
+            filtros_string.append(
+                f"""{calculo_fecha()} >= DATETIME('{value}')""")
 
         if key == "fecha_hasta":
-            filtros_string.append(f"""{calculo_fecha()} <= DATETIME('{value}')""")
+            filtros_string.append(
+                f"""{calculo_fecha()} <= DATETIME('{value}')""")
 
         if key in ["resultado_llamada", "plan_mencionado", "Duracion_Estimada"]:
             filtros_string.append(f"{key} = '{value}'")
@@ -56,7 +58,8 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"clasificacion = '{value}'")
 
         if key == "asistencia_mencionada":
-            filtros_string.append(f"(Asistencia = '{value}' or transcripcion like '%{value}%')")
+            filtros_string.append(
+                f"(Asistencia = '{value}' or transcripcion like '%{value}%')")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",
@@ -549,19 +552,20 @@ def get_llamada_context(where="1=1", asesor=None):
 
     return ctx
 
+
 def get_raw_calls_data(where="1=1", search_query=""):
     TABLE_REF = "desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas"
-    
+
     query = f"""
-    SELECT 
-        CAST(ROW_NUMBER() OVER() AS STRING) as id, 
-        Resultado_Llamada, 
-        Cuenta as cuenta 
-    FROM `{TABLE_REF}` 
-    WHERE {where}
-    LIMIT 20
+    with resultado as (
+        SELECT
+            CAST(ROW_NUMBER() OVER() AS STRING) as id, 
+            *
+        FROM `{TABLE_REF}`
+        LIMIT 20
+    ) select * from resultado WHERE {where}
     """
-    
+
     try:
         query_job = client.query(query)
         results = query_job.result()
@@ -569,3 +573,24 @@ def get_raw_calls_data(where="1=1", search_query=""):
     except Exception as e:
         print(f"Error en BigQuery raw: {e}")
         return []
+
+
+def get_history(where):
+    query = f"""
+    with resultado as (
+        SELECT
+        CAST(ROW_NUMBER() OVER() AS STRING) as id, transcripcion
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    ) select * from resultado WHERE {where}
+    """
+
+    job = client.query(query)
+    results = job.result()
+
+    transcripciones = [
+        row.transcripcion
+        for row in results
+        if row.transcripcion is not None
+    ]
+
+    return transcripciones

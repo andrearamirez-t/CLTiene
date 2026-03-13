@@ -1,3 +1,8 @@
+from api.database import calculo_fecha
+from api.chat import api_chat_logic, ChatRequest
+from api.filters.transcripcion.metricas import metricas
+from api.filters.transcripcion.llamadas import llamadas
+from api.filters.transcripcion.llamada import llamada
 import pandas as pd
 import numpy as np
 
@@ -60,10 +65,6 @@ router = APIRouter()
 # ------------------------------------------------------- #
 # -------------------- Transcripcion -------------------- #
 # ------------------------------------------------------- #
-
-from api.filters.transcripcion.llamada import llamada
-from api.filters.transcripcion.llamadas import llamadas
-from api.filters.transcripcion.metricas import metricas
 
 
 @router.get("/api/transcripcion/llamadas")
@@ -148,8 +149,6 @@ def api_asistencia_mencionada(filters: FilterModel = Depends()):
 # ----------------------- IA ----------------------- #
 # -------------------------------------------------- #
 
-from api.chat import api_chat_logic, ChatRequest
-
 
 class AnalisisAutomaticoRequest(BaseModel):
     tipo_analisis: str
@@ -157,8 +156,13 @@ class AnalisisAutomaticoRequest(BaseModel):
 
 
 @router.post("/api/chat")
-async def api_chat(request: ChatRequest):
-    return await api_chat_logic(request)
+async def api_chat(request: ChatRequest, filters: FilterModel = Depends()):
+    return await api_chat_logic(request, filters)
+
+
+@router.post("/api/busqueda_inteligente")
+async def api_busqueda_inteligente(query: str | None = None, filters: FilterModel = Depends()):
+    return chat_inteligente(query, filters)
 
 
 # ------------------------------------------------------ #
@@ -239,9 +243,9 @@ def api_analizar_llamada(llamada_id: str, filters: FilterModel = Depends()):
     return analizar_llamada(filters, llamada_id)
 
 
-@router.post("/ia/chat_inteligente")
-def api_chat_inteligente(messages_history: list, filters: FilterModel = Depends()):
-    return chat_inteligente(filters, messages_history)
+# @router.post("/ia/chat_inteligente")
+# def api_chat_inteligente(pregunta: str | None = None, filters: FilterModel = Depends()):
+#     return chat_inteligente(pregunta, filters)
 
 
 @router.get("/ia/analisis_automatico")
@@ -273,7 +277,6 @@ def api_reporte_completo(filters: FilterModel = Depends()):
 # ----------------------- IA ----------------------- #
 # -------------------------------------------------- #
 
-from api.database import calculo_fecha
 
 @router.get("/rendimiento-hora")
 def x_rendimiento_hora(filters: FilterModel = Depends()):

@@ -23,7 +23,7 @@ const Agente = () => {
     const herramientas = [
         { title: 'Chat Inteligente', description: "Conversa sobre datos, pide análisis, genera reportes." },
         { title: "Análisis Automáticos", description: "8 tipos de análisis profundos disponibles." },
-        { title: "Búsqueda Inteligente", description: "Localiza momentos clave en miles de transcripciones." },
+        // { title: "Búsqueda Inteligente", description: "Localiza momentos clave en miles de transcripciones." },
         { title: "Resumir Llamadas", description: "Síntesis automáticas de compromisos y próximos pasos." },
         { title: "Ranking IA", description: "Evaluación de asesores por calidad y éxito en ventas." },
         { title: "Reporte Completo", description: "Consolidado integral de métricas listo para descargar." },
@@ -143,18 +143,18 @@ const Agente = () => {
 
                 {tabActiva === 'Análisis Automáticos' && <AnalisisAu />}
 
-                {tabActiva === 'Búsqueda Inteligente' && (
+                {/* {tabActiva === 'Búsqueda Inteligente' && (
                     <div style={{ backgroundColor: '#ffffff', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                         <BusquedaInteligente />
                     </div>
-                )}
+                )} */}
 
                 {tabActiva === 'Resumir Llamadas' && (
                     <>
                         <ResumirLlamadas />
-                        <div style={{ padding: "20px" }}>
+                        {/* <div style={{ padding: "20px" }}>
                             <BotonAnalisis onAnalizar={() => alert('Analizando...')} />
-                        </div>
+                        </div> */}
                     </>
                 )}
 
