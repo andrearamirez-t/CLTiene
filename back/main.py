@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from api.routes import router
+from api.routes_new import router as routes_ia
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-# cargar variables del .env
+
 load_dotenv()
 
 print("OPENAI_API_KEY:", os.getenv("OPENAI_API_KEY"))
@@ -20,4 +21,6 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(routes_ia, prefix="/api")
+
 

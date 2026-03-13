@@ -548,3 +548,24 @@ def get_llamada_context(where="1=1", asesor=None):
     """
 
     return ctx
+
+def get_raw_calls_data(where="1=1", search_query=""):
+    TABLE_REF = "desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas"
+    
+    query = f"""
+    SELECT 
+        CAST(ROW_NUMBER() OVER() AS STRING) as id, 
+        Resultado_Llamada, 
+        Cuenta as cuenta 
+    FROM `{TABLE_REF}` 
+    WHERE {where}
+    LIMIT 20
+    """
+    
+    try:
+        query_job = client.query(query)
+        results = query_job.result()
+        return [dict(row) for row in results]
+    except Exception as e:
+        print(f"Error en BigQuery raw: {e}")
+        return []
