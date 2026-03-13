@@ -1,62 +1,45 @@
-import React from 'react';
+import React from "react";
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LabelList
-} from 'recharts';
+  Legend,
+} from "recharts";
 
 const Desempeño = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data}
-        
-        margin={{ top: 20, right: 30, left: 10, bottom: 100 }}
+        margin={{ top: 20, right: 30, left: 10, bottom: 120 }}
       >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-        
-        <XAxis 
-          dataKey="n" 
-          fontSize={10}
-          tick={{ fill: '#64748b' }}
-          axisLine={{ stroke: '#cbd5e1' }}
-          interval={0} 
-          angle={-45}  
-          textAnchor="end"
-          dy={35}
-          dx={-10}
-          height={120} 
-        />
-        
-        <YAxis 
-          domain={[0, 100]} 
-          fontSize={12}
-          tick={{ fill: '#94a3b8' }}
-          axisLine={false}
-          tickLine={false}
-        />
-        
-        <Tooltip cursor={{ fill: '#f8fafc' }} />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
 
-        <Bar 
-          dataKey="s" 
-          fill="#f59e0b" 
-          barSize={40}
-          radius={[4, 4, 0, 0]}
-        >
-          <LabelList 
-            dataKey="s" 
-            position="center" 
-            fill="white" 
-            style={{ fontWeight: 'bold', fontSize: '11px' }}
-            formatter={(v) => `${v}%`}
-          />
-        </Bar>
+        <XAxis
+          dataKey="n"
+          interval={0}
+          angle={-45}
+          textAnchor="end"
+          dy={40}
+          height={120}
+          fontSize={11}
+        />
+
+        <YAxis domain={[0, 100]} />
+
+        <Tooltip />
+
+        <Legend />
+
+        <Bar dataKey="negativo" fill="#ef4444" barSize={20} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="neutro" fill="#f59e0b" barSize={20} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="positivo" fill="#22c55e" barSize={20} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
