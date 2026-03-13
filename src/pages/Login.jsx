@@ -7,8 +7,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
-import { ShieldCheck, User, IdCard, Lock, ChevronLeft } from "lucide-react";
+import { ShieldCheck, User, Mail, Lock, ChevronLeft } from "lucide-react";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -17,8 +18,16 @@ const Login = () => {
   const [esRegistro, setEsRegistro] = useState(false);
 
   const [nombre, setNombre] = useState("");
-  const [cedula, setCedula] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmarPassword, setConfirmarPassword] = useState("");
+
+  const validacion = {
+    longitud: password.length >= 6,
+    mayuscula: /[A-Z]/.test(password),
+    numero: /[0-9]/.test(password),
+    coincide: password === confirmarPassword && confirmarPassword !== "",
+  };
 
   const loginConGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -38,29 +47,47 @@ const Login = () => {
     }
   };
 
+  const recuperarContrasena = async () => {
+    if (!email) {
+      setError("Escribe tu correo primero para recuperar la contraseña.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMensajeExito("Te enviamos un correo para restablecer tu contraseña.");
+      setError("");
+    } catch {
+      setError("No encontramos una cuenta con ese correo.");
+    }
+  };
+
   const manejarAuthManual = async (e) => {
     e.preventDefault();
     setError("");
     setMensajeExito("");
 
-    const emailFalso = `${cedula}@cltiene.com`;
+    if (esRegistro && !Object.values(validacion).every(Boolean)) {
+      setError("Corrige los errores de la contraseña antes de continuar.");
+      return;
+    }
 
     try {
       if (esRegistro) {
-        const userCredential = await createUserWithEmailAndPassword(auth, emailFalso, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: nombre });
         await signOut(auth);
         setMensajeExito("¡Cuenta creada con éxito! Ya puedes ingresar.");
         setEsRegistro(false);
         setNombre("");
-        setCedula("");
+        setEmail("");
         setPassword("");
+        setConfirmarPassword("");
       } else {
-        await signInWithEmailAndPassword(auth, emailFalso, password);
+        await signInWithEmailAndPassword(auth, email, password);
       }
     } catch (err) {
       if (err.code === "auth/email-already-in-use") {
-        setError("Esta cédula ya está registrada.");
+        setError("Este correo ya está registrado.");
       } else {
         setError("Error en los datos o contraseña muy corta (mín. 6).");
       }
@@ -96,7 +123,7 @@ const Login = () => {
               Entrar con Google
             </button>
             <button onClick={() => setModoManual(true)} style={{ width: "100%", padding: "12px", background: "transparent", color: "white", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", fontWeight: "500" }}>
-              Entrar con Cédula
+              Entrar con Correo
             </button>
           </>
         ) : (
@@ -115,14 +142,38 @@ const Login = () => {
             )}
 
             <div style={containerInputStyle}>
-              <IdCard size={18} style={iconStyle} />
-              <input type="number" placeholder="Número de Cédula" style={inputStyle} required onChange={(e) => setCedula(e.target.value)} />
+              <Mail size={18} style={iconStyle} />
+              <input type="email" placeholder="Correo electrónico" style={inputStyle} required onChange={(e) => setEmail(e.target.value)} />
             </div>
 
             <div style={containerInputStyle}>
               <Lock size={18} style={iconStyle} />
-              <input type="password" placeholder="Contraseña (mín. 6 caracteres)" style={inputStyle} required onChange={(e) => setPassword(e.target.value)} />
+              <input type="password" placeholder="Contraseña" style={inputStyle} required onChange={(e) => setPassword(e.target.value)} />
             </div>
+
+            {esRegistro && (
+              <>
+                <div style={containerInputStyle}>
+                  <Lock size={18} style={iconStyle} />
+                  <input type="password" placeholder="Confirmar contraseña" style={inputStyle} required onChange={(e) => setConfirmarPassword(e.target.value)} />
+                </div>
+
+                {password.length > 0 && (
+                  <div style={{ textAlign: "left", marginBottom: "15px", background: "#0f172a", borderRadius: "8px", padding: "10px 14px" }}>
+                    {[
+                      { ok: validacion.longitud, texto: "Mínimo 6 caracteres" },
+                      { ok: validacion.mayuscula, texto: "Al menos una mayúscula" },
+                      { ok: validacion.numero,   texto: "Al menos un número" },
+                      { ok: validacion.coincide, texto: "Las contraseñas coinciden" },
+                    ].map(({ ok, texto }) => (
+                      <p key={texto} style={{ margin: "4px 0", fontSize: "12px", color: ok ? "#10b981" : "#94a3b8" }}>
+                        {ok ? "✓" : "○"} {texto}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
 
             {mensajeExito && (
               <p style={{ color: "#10b981", fontSize: "13px", marginTop: "15px", background: "rgba(16, 185, 129, 0.1)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
@@ -134,7 +185,13 @@ const Login = () => {
               {esRegistro ? "Registrarse ahora" : "Ingresar"}
             </button>
 
-            <p onClick={() => { setEsRegistro(!esRegistro); setError(""); }} style={{ color: "#FC3276", fontSize: "13px", marginTop: "20px", cursor: "pointer", textDecoration: "underline" }}>
+            {!esRegistro && (
+              <p onClick={recuperarContrasena} style={{ color: "#94a3b8", fontSize: "12px", marginTop: "10px", cursor: "pointer", textDecoration: "underline" }}>
+                ¿Olvidaste tu contraseña?
+              </p>
+            )}
+
+            <p onClick={() => { setEsRegistro(!esRegistro); setError(""); }} style={{ color: "#FC3276", fontSize: "13px", marginTop: "10px", cursor: "pointer", textDecoration: "underline" }}>
               {esRegistro ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate aquí"}
             </p>
           </form>
