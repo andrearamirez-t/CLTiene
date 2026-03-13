@@ -107,15 +107,17 @@ export default function Inteligencia() {
       const params = buildQuery();
       const query = params ? `?${params}` : '';
 
-      const response = await fetch(`http://localhost:8000/analisis-ia${query}`);
-      const data = await response.json();
+      // const response = await fetch(`http://localhost:8000/analisis-ia${query}`);
+      const response = await fetch(`http://localhost:8000/ia/inteligencia_operativa`);
+      const result = await response.json();
+      const data = result.result
 
       if (!response.ok) {
-        setAnalisisIA(data?.detail || 'No fue posible cargar el análisis de IA.');
+        setAnalisisIA('No fue posible cargar el análisis de IA.');
         return;
       }
 
-      setAnalisisIA(data?.analisis || 'No se recibió análisis.');
+      setAnalisisIA(data[0] || 'No se recibió análisis.');
     } catch (error) {
       console.error('Error obteniendo análisis IA:', error);
       setAnalisisIA('No fue posible cargar el análisis de IA.');
@@ -239,7 +241,7 @@ export default function Inteligencia() {
               {cargandoAnalisis ? (
                 <p>Generando análisis con IA...</p>
               ) : (
-                <p>{analisisIA || 'No hay análisis disponible.'}</p>
+                <div dangerouslySetInnerHTML={{ __html: analisisIA }} />
               )}
             </div>
           </div>

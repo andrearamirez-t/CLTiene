@@ -17,8 +17,8 @@ const Rendimiento = () => {
     const [mostrarIA, setMostrarIA] = useState(false);
     const [cargandoIA, setCargandoIA] = useState(false);
 
-    const [datosCalidad, setDatosCalidad] = useState([]);
-    const [datosDistribucion, setDatosDistribucion] = useState([]);
+    // const [datosCalidad, setDatosCalidad] = useState([]);
+    // const [datosDistribucion, setDatosDistribucion] = useState([]);
     const [diagnosticoIA, setDiagnosticoIA] = useState("");
 
 
@@ -73,21 +73,14 @@ const Rendimiento = () => {
 
         try {
 
-            const response = await fetch("http://localhost:8000/api/analisis_asesor", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    asesor: asesorSeleccionado
-                })
-            });
+            const response = await fetch(`http://localhost:8000/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
 
-            const data = await response.json();
+            const result = await response.json();
+            const data = result.result
 
-            setDatosCalidad(data.calidad || []);
-            setDatosDistribucion(data.distribucion || []);
-            setDiagnosticoIA(data.diagnostico || "");
+            // setDatosCalidad(data.calidad || []);
+            // setDatosDistribucion(data.distribucion || []);
+            setDiagnosticoIA(data[0] || "");
 
             setMostrarIA(true);
 
@@ -284,9 +277,7 @@ const Rendimiento = () => {
                     marginBottom: '24px'
                 }}>
 
-                    <div style={{ whiteSpace: "pre-wrap" }}>
-                        {diagnosticoIA}
-                    </div>
+                    <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: diagnosticoIA.replace(/\n/g, "<br/>") }} />
 
                 </div>
 
@@ -317,8 +308,8 @@ const Rendimiento = () => {
                 paddingBottom: '40px'
             }}>
 
-                <GraficaCalidadIA datos={datosCalidad} />
-                <GraficaDistribucion datos={datosDistribucion} />
+                {/* <GraficaCalidadIA datos={datosCalidad} /> */}
+                {/* <GraficaDistribucion datos={datosDistribucion} /> */}
 
             </div>
 

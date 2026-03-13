@@ -1,4 +1,4 @@
-from api.database import client
+from api.database import client, calculo_fecha
 
 
 def filters(filters: dict) -> dict:
@@ -26,40 +26,10 @@ def filters(filters: dict) -> dict:
         filtros_object[key] = value
 
         if key == "fecha_desde":
-            filtros_string.append(f"""DATE(
-                PARSE_TIMESTAMP(
-                    '%d/%m/%Y %H:%M:%S',
-                    CONCAT(
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                        ' ',
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                    )
-                )
-                +
-                IF(
-                    REGEXP_CONTAINS(fecha, r'(?i)p'),
-                    INTERVAL 12 HOUR,
-                    INTERVAL 0 HOUR
-                )
-            ) >= '{value}'""")
+            filtros_string.append(f"""{calculo_fecha()} >= DATETIME('{value}')""")
 
         if key == "fecha_hasta":
-            filtros_string.append(f"""DATE(
-                PARSE_TIMESTAMP(
-                    '%d/%m/%Y %H:%M:%S',
-                    CONCAT(
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                        ' ',
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                    )
-                )
-                +
-                IF(
-                    REGEXP_CONTAINS(fecha, r'(?i)p'),
-                    INTERVAL 12 HOUR,
-                    INTERVAL 0 HOUR
-                )
-            ) <= '{value}'""")
+            filtros_string.append(f"""{calculo_fecha()} <= DATETIME('{value}')""")
 
         if key in ["resultado_llamada", "plan_mencionado", "Duracion_Estimada"]:
             filtros_string.append(f"{key} = '{value}'")
@@ -86,7 +56,7 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"clasificacion = '{value}'")
 
         if key == "asistencia_mencionada":
-            filtros_string.append(f"Asistencia = '{value}'")
+            filtros_string.append(f"(Asistencia = '{value}' or transcripcion like '%{value}%')")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",

@@ -1,4 +1,4 @@
-from IA.claude import call
+from IA.Open_AI import call
 from api.models import FilterModel
 from helpers.utils import get_data_context
 

@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from api.database import calculo_fecha
 
 
 def kpi(filters: FilterModel):
@@ -16,15 +17,7 @@ def kpi(filters: FilterModel):
             manejo_inquietudes,
             cierre_servicio,
             proximo_paso,
-            PARSE_TIMESTAMP(
-                '%d/%m/%Y %H:%M:%S',
-                CONCAT(
-                    REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                    ' ',
-                    REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                )
-            ) +
-            IF(REGEXP_CONTAINS(fecha, r'(?i)p'), INTERVAL 12 HOUR, INTERVAL 0 HOUR) ts
+            {calculo_fecha()} ts
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {filters.get_query()}
     ),
@@ -49,12 +42,12 @@ def kpi(filters: FilterModel):
     SELECT
         COUNT(*) total,
         COUNT(*) contestadas,
-        SUM(CAST(efectiva AS FLOAT64)) efectivas,
+        COALESCE(SUM(CAST(efectiva AS FLOAT64)), 0) efectivas,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
 
         FORMAT_TIMESTAMP(
         '%H:%M',
-        TIMESTAMP_SECONDS(CAST(AVG(UNIX_SECONDS(ts)) AS INT64))
+        TIMESTAMP_SECONDS(CAST(AVG(UNIX_SECONDS(TIMESTAMP(ts))) AS INT64))
     ) hora_promedio,
         CASE
             WHEN (SELECT dia FROM top_dia) = 'Monday' THEN 'Lunes'
@@ -68,9 +61,9 @@ def kpi(filters: FilterModel):
         END AS dia_promedio,
         (SELECT Cuenta FROM top_asesor) top_asesor,
 
-        ROUND(AVG(saludo_inicial) * 100,1) saludo,
+        COALESCE(ROUND(AVG(saludo_inicial) * 100,1), 0) saludo,
 
-        ROUND((
+        COALESCE(ROUND((
             AVG(saludo_inicial) +
             AVG(identificacion_cliente) +
             AVG(comprension_problema) +
@@ -78,7 +71,7 @@ def kpi(filters: FilterModel):
             AVG(manejo_inquietudes) +
             AVG(cierre_servicio) +
             AVG(proximo_paso)
-        ) / 7 * 100,1) calidad
+        ) / 7 * 100,1), 0) calidad
 
     FROM base
     """)

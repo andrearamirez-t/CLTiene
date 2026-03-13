@@ -273,6 +273,7 @@ def api_reporte_completo(filters: FilterModel = Depends()):
 # ----------------------- IA ----------------------- #
 # -------------------------------------------------- #
 
+from api.database import calculo_fecha
 
 @router.get("/rendimiento-hora")
 def x_rendimiento_hora(filters: FilterModel = Depends()):
@@ -286,18 +287,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
         EXTRACT(
             HOUR
             FROM
-            PARSE_TIMESTAMP (
-                '%d/%m/%Y %H:%M:%S',
-                CONCAT (
-                REGEXP_EXTRACT (fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                ' ',
-                REGEXP_EXTRACT (fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                )
-            ) + IF (
-                REGEXP_CONTAINS (fecha, r'(?i)p'),
-                INTERVAL 12 HOUR,
-                INTERVAL 0 HOUR
-            )
+            {calculo_fecha()}
         ) AS STRING
         ),
         2,
@@ -339,22 +329,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     SELECT
         FORMAT_DATE(
             '%A',
-            DATE(
-                PARSE_TIMESTAMP(
-                    '%d/%m/%Y %H:%M:%S',
-                    CONCAT(
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                        ' ',
-                        REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                    )
-                )
-                +
-                IF(
-                    REGEXP_CONTAINS(fecha, r'(?i)p'),
-                    INTERVAL 12 HOUR,
-                    INTERVAL 0 HOUR
-                )
-            )
+            {calculo_fecha()}
         ) name,
         COUNT(*) t,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas
@@ -482,22 +457,7 @@ def evolucion_ventas(filters: FilterModel = Depends()):
     WITH base AS (
         SELECT
             DATE_TRUNC(
-                DATE(
-                    PARSE_TIMESTAMP(
-                        '%d/%m/%Y %H:%M:%S',
-                        CONCAT(
-                            REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}/\\d{{1,2}}/\\d{{4}})'),
-                            ' ',
-                            REGEXP_EXTRACT(fecha, r'(\\d{{1,2}}:\\d{{2}}:\\d{{2}})')
-                        )
-                    )
-                    +
-                    IF(
-                        REGEXP_CONTAINS(fecha, r'(?i)p'),
-                        INTERVAL 12 HOUR,
-                        INTERVAL 0 HOUR
-                    )
-                ),
+                {calculo_fecha()},
                 WEEK(MONDAY)
             ) semana,
             CAST(efectiva AS FLOAT64) efectiva

@@ -62,14 +62,16 @@ const Analisis = () => {
       const params = buildQuery();
       const query = params ? `?${params}` : "";
 
-      const response = await fetch(`http://localhost:8000/analisis-patrones${query}`);
+      // const response = await fetch(`http://localhost:8000/analisis-patrones${query}`);
+      const response = await fetch(`http://localhost:8000/ia/analisis_ranking`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const data = await response.json();
-      const texto = data?.analisis || data?.result || "No se recibio analisis.";
+      const result = await response.json();
+      const data = result.result
+      const texto = data[0] || "No se recibio analisis.";
 
       setAnalisisIA(texto);
 
@@ -188,9 +190,7 @@ const Analisis = () => {
 
           ) : (
 
-            <p style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6' }}>
-              {analisisIA || "Aqui aparecera el Analisis generado por IA."}
-            </p>
+            <div style={{ color: '#475569', fontSize: '13px', lineHeight: '1.6' }} dangerouslySetInnerHTML={{ __html: analisisIA }} />
 
           )}
 

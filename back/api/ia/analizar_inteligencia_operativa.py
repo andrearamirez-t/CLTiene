@@ -1,4 +1,4 @@
-from IA.claude import call, prompt_html
+from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
 from helpers.utils import get_data_context
 

@@ -1,13 +1,12 @@
-from IA.claude import call
+from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
 from helpers.utils import get_ranking_context
-
 
 
 def analisis_comparativo_ranking(filters: FilterModel):
     return {
         "result": call(
-            """Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
+            prompt_html("""Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
 
             ESTRUCTURA OBLIGATORIA:
             1. 🏆 TOP 3 ASESORES - Por qué son los mejores, qué hacen bien
@@ -24,7 +23,7 @@ def analisis_comparativo_ranking(filters: FilterModel):
             7. 🎯 PERFIL GANADOR (Caracteristicas de los asesores que más venden o tienen mejor rendimiento)
 
             Usa datos específicos, porcentajes, comparaciones. Español, emojis, formato claro.
-            """,
+            """),
             get_ranking_context(filters.get_query())
         )
     }

@@ -44,7 +44,7 @@ def option(query: str, column_id: str, column_name: str | None = None):
 
 
 def calculo_fecha() -> str:
-    return """
+    return f"""
     DATETIME (
 		PARSE_TIMESTAMP (
 			'%Y-%m-%d %H:%M:%S',
@@ -53,6 +53,7 @@ def calculo_fecha() -> str:
 				WHEN REGEXP_CONTAINS (fecha, r'^\\d{{4}}-\\d{{2}}-\\d{{2}}') THEN REGEXP_EXTRACT (fecha, r'(\\d{{4}}-\\d{{2}}-\\d{{2}} \\d{{2}}:\\d{{2}}:\\d{{2}})')
 
 				-- formato: 1/11/2025 2:42:44 p. m. (Formato en español dia-mes-año hora-minuto-segundo)
+                -- ni idea de porque quedo asi entonces toca ajustarlo a las malas
 				ELSE FORMAT_TIMESTAMP (
 					'%Y-%m-%d %H:%M:%S',
 					PARSE_TIMESTAMP (
