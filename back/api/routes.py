@@ -14,7 +14,7 @@ from api.models import FilterModel
 from pydantic import BaseModel
 
 from api.filters.test import test
-from api.database import option
+from api.database import option, result
 from api.database import client
 
 
@@ -620,6 +620,18 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
 @router.get("/analisis-patrones")
 def analisis_patrones(filters: FilterModel = Depends()):
     return analizar_patrones_dashboard(filters)
+
+
+@router.get("/limite-fecha")
+def limite_fecha():
+    return result(
+        f"""
+        SELECT 
+        date(min({calculo_fecha()})) primera_fecha,
+        date(max({calculo_fecha()})) ultima_fecha,
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        """
+    )
 
 
 @router.get("/api/lista_llamadas")
