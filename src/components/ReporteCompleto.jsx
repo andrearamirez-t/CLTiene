@@ -9,7 +9,7 @@ const ReporteCompleto = () => {
     setLoading(true);
     setReporte(null);
     try {
-      const response = await fetch("http://localhost:8000/api/analisis_automatico", {
+      const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/analisis_automatico", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tipo_analisis: "ejecutivo" })

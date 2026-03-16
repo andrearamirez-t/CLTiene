@@ -21,11 +21,11 @@ const Transcripciones = () => {
     const [llamada, setLlamada] = useState([])
 
     useEffect(() => {
-        fetch(`http://localhost:8000/api/transcripcion/metricas/${agentID}`)
+        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/metricas/${agentID}`)
             .then(res => res.json())
             .then(data => setMetricas(Array.isArray(data) ? data : []))
 
-        fetch(`http://localhost:8000/api/transcripcion/llamada/${agentID}/${inputValue}`)
+        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/llamada/${agentID}/${inputValue}`)
             .then(res => res.json())
             .then(data => {
                 setLlamada(Array.isArray(data) ? data : [])

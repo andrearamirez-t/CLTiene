@@ -46,7 +46,7 @@ const Agente = () => {
 
         try {
 
-            const response = await fetch('http://localhost:8000/api/chat', {
+            const response = await fetch('https://cltiene-backend-293865702055.us-central1.run.app/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

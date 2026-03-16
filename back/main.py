@@ -8,8 +8,6 @@ import os
 
 load_dotenv()
 
-print("OPENAI_API_KEY:", os.getenv("OPENAI_API_KEY"))
-
 app = FastAPI(title="Dashboard API")
 
 app.add_middleware(

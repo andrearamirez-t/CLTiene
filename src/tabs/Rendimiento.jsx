@@ -28,7 +28,7 @@ const Rendimiento = () => {
 
         const params = buildQuery() || "";
 
-        fetch(`http://localhost:8000/api/rendimiento_agente${params ? `?${params}` : ""}`)
+        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/rendimiento_agente${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 console.log("API rendimiento:", data);
@@ -73,7 +73,7 @@ const Rendimiento = () => {
 
         try {
 
-            const response = await fetch(`http://localhost:8000/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
+            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
 
             const result = await response.json();
             const data = result.result

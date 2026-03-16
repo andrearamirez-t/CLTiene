@@ -26,10 +26,10 @@ const Analisis = () => {
         const params = buildQuery();
         const query = params ? `?${params}` : "";
 
-        const planesRes = await fetch(`http://localhost:8000/api/planes_mencionados${query}`);
-        const mascotasRes = await fetch(`http://localhost:8000/api/tipo_mascota${query}`);
-        const vehiculosRes = await fetch(`http://localhost:8000/api/tipo_vehiculo${query}`);
-        const motivosRechazoRes = await fetch(`http://localhost:8000/api/motivo_rechazo${query}`);
+        const planesRes = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/planes_mencionados${query}`);
+        const mascotasRes = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/tipo_mascota${query}`);
+        const vehiculosRes = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/tipo_vehiculo${query}`);
+        const motivosRechazoRes = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/motivo_rechazo${query}`);
 
         const planes = await planesRes.json();
         const mascotas = await mascotasRes.json();
@@ -62,8 +62,8 @@ const Analisis = () => {
       const params = buildQuery();
       const query = params ? `?${params}` : "";
 
-      // const response = await fetch(`http://localhost:8000/analisis-patrones${query}`);
-      const response = await fetch(`http://localhost:8000/ia/analisis_ranking`);
+      // const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/analisis-patrones${query}`);
+      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/analisis_ranking`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);

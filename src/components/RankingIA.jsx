@@ -10,7 +10,7 @@ const RankingIA = () => {
     const obtenerRanking = async () => {
         setLoading(true);
         try {
-            const response = await fetch("http://localhost:8000/api/ranking_asesores");
+            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/ranking_asesores");
             const data = await response.json();
             setAsesores(data || []);
         } catch (error) {
@@ -28,7 +28,7 @@ const RankingIA = () => {
 
         setLoadingIA(true);
         try {
-            const response = await fetch("http://localhost:8000/api/analisis_ranking_ia", {
+            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/analisis_ranking_ia", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ asesores: asesores })

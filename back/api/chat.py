@@ -9,8 +9,11 @@ from IA.Open_AI import prompt_html
 dotenv.load_dotenv()
 
 
-ai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+def get_ai_client():
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY no está configurada")
+    return OpenAI(api_key=api_key)
 
 class ChatRequest(BaseModel):
     user_message: str
@@ -20,6 +23,7 @@ class ChatRequest(BaseModel):
 async def api_chat_logic(request: ChatRequest, filters: FilterModel):
     prompt_base = """Eres un analista experto de Call Centers en Colombia..."""
     try:
+        ai_client = get_ai_client()
         response = ai_client.chat.completions.create(
             model="gpt-4o",
             messages=[

@@ -72,15 +72,15 @@ export default function Inteligencia() {
         const params = buildQuery();
         const query = params ? `?${params}` : '';
 
-        const hora = await fetch(`http://localhost:8000/rendimiento-hora${query}`).then((r) => r.json());
-        const dia = await fetch(`http://localhost:8000/rendimiento-dia${query}`).then((r) => r.json());
-        const ventas = await fetch(`http://localhost:8000/ventas-vs-servicio${query}`).then((r) => r.json());
-        const subjetividad = await fetch(`http://localhost:8000/subjetividad-confianza-modulo${query}`).then((r) => r.json());
-        const desempeno = await fetch(`http://localhost:8000/desempeno-sentimiento-asesor${query}`).then((r) => r.json());
-        const evolucion = await fetch(`http://localhost:8000/evolucion-ventas${query}`).then((r) => r.json());
-        const scorecard = await fetch(`http://localhost:8000/scorecard-asesores${query}`).then((r) => r.json());
-        const duracion = await fetch(`http://localhost:8000/duracion-vs-efectividad${query}`).then((r) => r.json());
-        const sentimiento = await fetch(`http://localhost:8000/clasificacion-sentimiento${query}`).then((r) => r.json());
+        const hora = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/rendimiento-hora${query}`).then((r) => r.json());
+        const dia = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/rendimiento-dia${query}`).then((r) => r.json());
+        const ventas = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ventas-vs-servicio${query}`).then((r) => r.json());
+        const subjetividad = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/subjetividad-confianza-modulo${query}`).then((r) => r.json());
+        const desempeno = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/desempeno-sentimiento-asesor${query}`).then((r) => r.json());
+        const evolucion = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/evolucion-ventas${query}`).then((r) => r.json());
+        const scorecard = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/scorecard-asesores${query}`).then((r) => r.json());
+        const duracion = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/duracion-vs-efectividad${query}`).then((r) => r.json());
+        const sentimiento = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/clasificacion-sentimiento${query}`).then((r) => r.json());
 
         setDatosHoras(Array.isArray(hora) ? hora : []);
         setDatosDias(Array.isArray(dia) ? dia : []);
@@ -107,8 +107,8 @@ export default function Inteligencia() {
       const params = buildQuery();
       const query = params ? `?${params}` : '';
 
-      // const response = await fetch(`http://localhost:8000/analisis-ia${query}`);
-      const response = await fetch(`http://localhost:8000/ia/inteligencia_operativa`);
+      // const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/analisis-ia${query}`);
+      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa`);
       const result = await response.json();
       const data = result.result
 

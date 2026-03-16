@@ -12,7 +12,7 @@ const ResumirLlamadas = () => {
     useEffect(() => {
         const cargarLista = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/obtener_lista_llamadas`);
+                const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/obtener_lista_llamadas`);
                 const data = await response.json();
                 setLlamadasLista(data);
             } catch (error) {
@@ -31,7 +31,7 @@ const ResumirLlamadas = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:8000/api/resumir_llamada/${idSeleccionado}`);
+            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/resumir_llamada/${idSeleccionado}`);
             const data = await response.json();
             setLlamadaAnalizada(data);
         } catch (error) {

@@ -7,7 +7,7 @@ function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "
     const params = useMemo(() => buildQuery() || null, [buildQuery]);
 
     useEffect(() => {
-        fetch("http://localhost:8000" + endPoint + (params ? `?${params}` : ""))
+        fetch("https://cltiene-backend-293865702055.us-central1.run.app" + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setOpciones(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

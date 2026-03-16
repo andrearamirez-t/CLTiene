@@ -12,7 +12,7 @@ function Resumen() {
     useEffect(() => {
         const params = buildQuery() || null;
 
-        fetch(`http://localhost:8000/api/distribucion_resultado${params ? `?${params}` : ""}`)
+        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/distribucion_resultado${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 setResults(Array.isArray(data) ? data : []);

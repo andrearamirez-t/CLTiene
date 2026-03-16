@@ -41,7 +41,7 @@ const AnalisisAu = () => {
         try {
 
             const response = await fetch(
-                "http://localhost:8000/ia/analisis_automatico" +
+                "https://cltiene-backend-293865702055.us-central1.run.app/ia/analisis_automatico" +
                 (params
                     ? `?${params}&tipo_analisis=${mapTipos[tipo]}`
                     : `?tipo_analisis=${mapTipos[tipo]}`)

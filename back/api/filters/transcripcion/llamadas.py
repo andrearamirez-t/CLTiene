@@ -2,7 +2,11 @@ from api.database import option
 from api.models import FilterModel
 
 
+
 def llamadas(filters: FilterModel):
+
+    concat_fields = ', " | ", '.join(['"#"', 'id', 'Resultado_Llamada', 'cuenta'])
+
     return option(
         f"""
         WITH id_provicional AS (
@@ -11,7 +15,9 @@ def llamadas(filters: FilterModel):
             cuenta
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             ORDER BY fecha DESC
-        ) SELECT id, concat({", \" | \", ".join(["\"#\", id", "Resultado_Llamada", "cuenta"])}) text FROM id_provicional
+        ) 
+        SELECT id, concat({concat_fields}) text 
+        FROM id_provicional
         """,
         "id",
         "text",

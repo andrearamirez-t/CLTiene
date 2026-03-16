@@ -34,7 +34,7 @@ const Dashboard = () => {
         const fetchKpi = async () => {
             try {
 
-                const res = await fetch("http://localhost:8000/api/kpi" + (params ? `?${params}` : ""));
+                const res = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/kpi" + (params ? `?${params}` : ""));
                 const data = await res.json();
 
                 setKpi(data[0] || []);

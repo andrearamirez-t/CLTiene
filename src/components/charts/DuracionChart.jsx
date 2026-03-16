@@ -9,7 +9,7 @@ const DuracionChart = () => {
 
     useEffect(() => {
 
-        fetch("http://localhost:8000/duracion_llamadas" + (params ? `?${params}` : ""))
+        fetch("https://cltiene-backend-293865702055.us-central1.run.app/duracion_llamadas" + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setDatos(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

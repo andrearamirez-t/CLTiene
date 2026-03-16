@@ -25,7 +25,7 @@ const BusquedaInteligente = () => {
 
         try {
 
-            const response = await fetch("http://localhost:8000/api/busqueda_inteligente" + (params ? `?${params}` : ""), {
+            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/busqueda_inteligente" + (params ? `?${params}` : ""), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

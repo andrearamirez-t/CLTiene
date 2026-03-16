@@ -14,7 +14,7 @@ const InsightsCard = () => {
         setEstado('cargando');
 
         try {
-            const response = await fetch("http://localhost:8000/ia/generar_insights");
+            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/ia/generar_insights");
             const data = await response.json();
 
             setInsights(data.result[0] || "");

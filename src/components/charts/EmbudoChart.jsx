@@ -9,7 +9,7 @@ const EmbudoChart = () => {
 
     useEffect(() => {
         const params = buildQuery() || null
-        fetch(`http://localhost:8000/api/embudo_conversacion${(params ? `?${params}` : "")}`)
+        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/embudo_conversacion${(params ? `?${params}` : "")}`)
             .then(res => res.json())
             .then(data => setEmbudo(Array.isArray(data) ? data : []));
     }, [filters]);
