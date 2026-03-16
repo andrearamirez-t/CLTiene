@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,26 @@ function Sidebar() {
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
     };
+
+    const [fechas, setFechas] = useState({ primera_fecha: "", ultima_fecha: "" })
+    useEffect(() => {
+        // Fetch a tu endpoint
+        fetch("http://localhost:8000/limite-fecha")
+            .then((res) => res.json())
+            .then((data) => {
+                setFechas({
+                    primera_fecha: data.primera_fecha,
+                    ultima_fecha: data.ultima_fecha,
+                })
+
+                // Opcional: inicializar los inputs con los valores límite
+                setFormData({
+                    fecha_desde: data.primera_fecha,
+                    fecha_hasta: data.ultima_fecha,
+                });
+            })
+            .catch((err) => console.error("Error al cargar fechas:", err));
+    }, [])
 
     const customInput = {
         width: '100%',
@@ -116,9 +136,9 @@ function Sidebar() {
                 }}>
                     <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
                     <label style={labelMargin}>Desde</label>
-                    <input type="date" onChange={handleChange} name='fecha_desde' style={customInput} />
+                    <input min={fechas.primera_fecha} type="date" onChange={handleChange} name='fecha_desde' style={customInput} />
                     <label style={labelMargin}>Hasta</label>
-                    <input type="date" onChange={handleChange} name='fecha_hasta' style={customInput} />
+                    <input max={fechas.ultima_fecha} type="date" onChange={handleChange} name='fecha_hasta' style={customInput} />
 
                     <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
 

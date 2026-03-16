@@ -5,6 +5,8 @@ def filters(filters: dict) -> dict:
     filtros_object = {}
     filtros_string = []
 
+    print(f"\n\nFilter: {filters}", end="\n\n")
+
     for key, value in filters.items():
 
         # Ignorar None
@@ -58,8 +60,9 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"clasificacion = '{value}'")
 
         if key == "asistencia_mencionada":
+            asistencia = value.replace("...", "")
             filtros_string.append(
-                f"(Asistencia = '{value}' or transcripcion like '%{value}%')")
+                f"(Asistencia like '{asistencia}%' or transcripcion like '%{asistencia}%')")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",

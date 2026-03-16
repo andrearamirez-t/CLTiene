@@ -5,8 +5,9 @@ import MetricasGrid from '../components/Transcripciones/MetricasGrid';
 import { useFilters } from '../FiltersContext';
 
 const Transcripciones = () => {
-    const { buildQuery } = useFilters();
+    const { filters, buildQuery } = useFilters();
     const params = buildQuery() || null;
+    const query = params ? `?${params}` : "";
 
     const [score] = useState(87);
     const [clasificacion, setClasificacion] = useState('venta');
@@ -21,17 +22,17 @@ const Transcripciones = () => {
     const [llamada, setLlamada] = useState([])
 
     useEffect(() => {
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/metricas/${agentID}`)
+        fetch(`http://localhost:8000/api/transcripcion/metricas/${agentID}${query}`)
             .then(res => res.json())
             .then(data => setMetricas(Array.isArray(data) ? data : []))
 
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/llamada/${agentID}/${inputValue}`)
+        fetch(`http://localhost:8000/api/transcripcion/llamada/${agentID}${query}`)
             .then(res => res.json())
             .then(data => {
                 setLlamada(Array.isArray(data) ? data : [])
                 setChatData(Array.isArray(data?.mensajes) ? data.mensajes : [])
             })
-    }, [agentID]);
+    }, [agentID, filters]);
 
     // const metricas = [
     //     // { label: 'Resultado', val: 'Contactado' },

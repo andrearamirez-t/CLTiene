@@ -14,6 +14,7 @@ def llamadas(filters: FilterModel):
             Resultado_Llamada,
             cuenta
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            WHERE {filters.get_query()}
             ORDER BY fecha DESC
         ) 
         SELECT id, concat({concat_fields}) text 

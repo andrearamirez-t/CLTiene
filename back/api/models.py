@@ -16,6 +16,7 @@ class FilterModel(BaseModel):
     clasificacion_sentimiento: Optional[str] = Query(None)
     tipo_llamada: Optional[str] = Query(None)
     transcripcion: Optional[str] = Query(None)
+    asistencia_mencionada: Optional[str] = Query(None)
 
     def get_query(self) -> str:
         return filters(self.model_dump())["filter_string"]

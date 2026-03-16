@@ -1,8 +1,9 @@
 import re
 from api.database import result
+from api.models import FilterModel
 
 
-def llamada(id=None, buscar=None):
+def llamada(id=None, buscar="", filters=FilterModel):
 
     filtro = ""
 
@@ -24,7 +25,7 @@ def llamada(id=None, buscar=None):
                 cuenta
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             WHERE Transcripcion_V4 IS NOT NULL
-            {filtro}
+            {filtro} and {filters.get_query()}
             ORDER BY fecha DESC
         ) 
         SELECT * FROM id_provicional
