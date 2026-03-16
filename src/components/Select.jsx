@@ -3,8 +3,12 @@ import { useFilters } from "../FiltersContext";
 
 function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "Seleccione" }, ...props }) {
     const [opciones, setOpciones] = useState([]);
-    const { buildQuery } = useFilters();
+    const { filters, buildQuery } = useFilters();
     const params = useMemo(() => buildQuery() || null, [buildQuery]);
+
+    // if (!depsUseEffect.length) {
+    //     depsUseEffect
+    // }
 
     useEffect(() => {
         fetch("http://localhost:8000" + endPoint + (params ? `?${params}` : ""))
@@ -12,7 +16,7 @@ function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "
             .then(data => setOpciones(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, depsUseEffect);
+    }, [filters]);
 
     return (
         <select {...props}>

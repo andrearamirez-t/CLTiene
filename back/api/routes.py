@@ -73,8 +73,8 @@ def api_llamadas(filters: FilterModel = Depends()):
 
 
 @router.get("/api/transcripcion/llamada/{id}")
-def api_llamada(id: int, buscar: str | None = None):
-    return llamada(id, buscar)
+def api_llamada(id: int, buscar: str | None = None, filters: FilterModel = Depends()):
+    return llamada(id, buscar, filters)
 
 
 @router.get("/api/transcripcion/metricas/{id}")

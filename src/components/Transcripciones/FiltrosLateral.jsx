@@ -85,7 +85,7 @@ const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, 
                     #617 | Contactado | {asesorCargado?.nombre || "-".split(' ')[0]}
                     <span>{mostrarLlamadas ? "▲" : "▼"}</span>
                 </div> */}
-                <Select selected={e => e.target.value} onChange={e => changeAgent(e.target.value)} endPoint="/api/transcripcion/llamadas" name="select-calls" id="select-calls" style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} />
+                <Select depsUseEffect={[]} selected={e => e.target.value} onChange={e => changeAgent(e.target.value)} endPoint="/api/transcripcion/llamadas" name="select-calls" id="select-calls" style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#fc3474', color: 'white', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} />
             </div>
 
             {/* RESALTAR TEMAS */}
