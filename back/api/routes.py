@@ -290,7 +290,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
         EXTRACT(
             HOUR
             FROM
-            {calculo_fecha()}
+            fecha
         ) AS STRING
         ),
         2,
@@ -332,7 +332,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     SELECT
         FORMAT_DATE(
             '%A',
-            {calculo_fecha()}
+            fecha
         ) name,
         COUNT(*) t,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas
@@ -460,7 +460,7 @@ def evolucion_ventas(filters: FilterModel = Depends()):
     WITH base AS (
         SELECT
             DATE_TRUNC(
-                {calculo_fecha()},
+                fecha,
                 WEEK(MONDAY)
             ) semana,
             CAST(efectiva AS FLOAT64) efectiva
@@ -627,8 +627,8 @@ def limite_fecha():
     return result(
         f"""
         SELECT 
-        date(min({calculo_fecha()})) primera_fecha,
-        date(max({calculo_fecha()})) ultima_fecha,
+        date(min(fecha)) primera_fecha,
+        date(max(fecha)) ultima_fecha,
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         """
     )
