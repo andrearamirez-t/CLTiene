@@ -4,6 +4,8 @@ import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../FiltersContext';
 import Select from '../components/Select';
+import logo from "../assets/logo_cl_tiene.png";
+
 
 function Sidebar() {
     const { filters, setFilters } = useFilters();
@@ -18,7 +20,7 @@ function Sidebar() {
     const [fechas, setFechas] = useState({ primera_fecha: "", ultima_fecha: "" })
     useEffect(() => {
         // Fetch a tu endpoint
-        fetch("http://localhost:8000/limite-fecha")
+        fetch("https://cltiene-backend-293865702055.us-central1.run.app/limite-fecha")
             .then((res) => res.json())
             .then((data) => {
                 setFechas({
@@ -123,7 +125,7 @@ function Sidebar() {
                     alignItems: "center",
                     flexShrink: 0
                 }}>
-                    <img style={{ width: "10rem" }} src="src/assets/logo_cl_tiene.png" alt="Logo cl tiene" />
+                   <img style={{ width: "10rem" }} src={logo} alt="Logo cl tiene" />
                 </div>
 
 
