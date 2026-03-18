@@ -19,14 +19,19 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args: [
-      'run', 'deploy', 'cltiene-backend',
-      '--image', 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend',
-      '--region', 'us-central1',
-      '--platform', 'managed',
-      '--allow-unauthenticated',
-      '--traffic', 'latest'
+        'run', 'deploy', 'cltiene-backend',
+        '--image', 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend',
+        '--region', 'us-central1',
+        '--platform', 'managed',
+        '--allow-unauthenticated'
     ]
-
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'services', 'update-traffic', 'cltiene-backend',
+      '--to-latest',
+      '--region', 'us-central1'
+    ]
 images:
   - 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend'
 
