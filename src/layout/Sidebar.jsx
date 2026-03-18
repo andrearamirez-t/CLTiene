@@ -29,10 +29,10 @@ function Sidebar() {
                 })
 
                 // Opcional: inicializar los inputs con los valores límite
-                setFormData({
-                    fecha_desde: data.primera_fecha,
-                    fecha_hasta: data.ultima_fecha,
-                });
+                // setFormData({
+                //     fecha_desde: data.primera_fecha,
+                //     fecha_hasta: data.ultima_fecha,
+                // });
             })
             .catch((err) => console.error("Error al cargar fechas:", err));
     }, [])
@@ -138,9 +138,9 @@ function Sidebar() {
                 }}>
                     <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#64748b', fontSize: '12px', letterSpacing: '1px' }}>PERIODO</p>
                     <label style={labelMargin}>Desde</label>
-                    <input min={fechas.primera_fecha} type="date" onChange={handleChange} name='fecha_desde' style={customInput} />
+                    <input min={fechas.primera_fecha} max={fechas.ultima_fecha} type="date" onChange={handleChange} name='fecha_desde' style={customInput} />
                     <label style={labelMargin}>Hasta</label>
-                    <input max={fechas.ultima_fecha} type="date" onChange={handleChange} name='fecha_hasta' style={customInput} />
+                    <input min={fechas.primera_fecha} max={fechas.ultima_fecha} type="date" onChange={handleChange} name='fecha_hasta' style={customInput} />
 
                     <hr style={{ border: 'none', height: '1px', background: '#1e293b', margin: '20px 0' }} />
 
