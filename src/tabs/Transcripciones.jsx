@@ -22,16 +22,18 @@ const Transcripciones = () => {
     const [llamada, setLlamada] = useState([])
 
     useEffect(() => {
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/metricas/${agentID}${query}`)
-            .then(res => res.json())
-            .then(data => setMetricas(Array.isArray(data) ? data : []))
+        if (agentID != 0) {
+            fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/metricas/${agentID}${query}`)
+                .then(res => res.json())
+                .then(data => setMetricas(Array.isArray(data) ? data : []))
 
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/llamada/${agentID}${query}`)
-            .then(res => res.json())
-            .then(data => {
-                setLlamada(Array.isArray(data) ? data : [])
-                setChatData(Array.isArray(data?.mensajes) ? data.mensajes : [])
-            })
+            fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/transcripcion/llamada/${agentID}${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    setLlamada(Array.isArray(data) ? data : [])
+                    setChatData(Array.isArray(data?.mensajes) ? data.mensajes : [])
+                })
+        }
     }, [agentID, filters]);
 
     // const metricas = [
