@@ -11,7 +11,7 @@ dotenv.load_dotenv()
 def call(system_prompt, user_message):
     api_key = os.getenv("OPENAI_API_KEY")
     max_tokens = int(os.getenv("MAX_TOKENS") or 1000)  # cast a int
-    model = os.getenv("MODEL")
+    model = os.getenv("MODEL") or "gpt-4o-mini"
     
     if not api_key or len(api_key) < 20:
         return None, "⚠️ Configura el API Key"
