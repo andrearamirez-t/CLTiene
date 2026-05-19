@@ -4,9 +4,8 @@ from helpers.utils import get_ranking_context
 
 
 def analisis_comparativo_ranking(filters: FilterModel):
-    return {
-        "result": call(
-            prompt_html("""Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
+    content, error = call(
+        prompt_html("""Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
 
             ESTRUCTURA OBLIGATORIA:
             1. 🏆 TOP 3 ASESORES - Por qué son los mejores, qué hacen bien
@@ -24,6 +23,6 @@ def analisis_comparativo_ranking(filters: FilterModel):
 
             Usa datos específicos, porcentajes, comparaciones. Español, emojis, formato claro.
             """),
-            get_ranking_context(filters.get_query())
-        )
-    }
+        get_ranking_context(filters.get_query())
+    )
+    return {"result": content, "error": error}

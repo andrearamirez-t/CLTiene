@@ -4,11 +4,10 @@ from helpers.utils import get_search_results_context
 
 
 def analizar_busqueda_transcripciones(filters: FilterModel, search_query: str):
-    return {
-        "result": call(
-            "Analiza resultados de búsqueda en transcripciones. Patrones e insights.",
-            get_search_results_context(
-                filters=filters, search_query=search_query
-            )
+    content, error = call(
+        "Analiza resultados de búsqueda en transcripciones. Patrones e insights.",
+        get_search_results_context(
+            filters=filters, search_query=search_query
         )
-    }
+    )
+    return {"result": content, "error": error}

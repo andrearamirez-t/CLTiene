@@ -15,10 +15,9 @@ def analisis_automatico(filters: FilterModel, tipo_analisis: str):
         "prediccion_tendencias": "Proyección próximo mes: KPIs esperados, riesgos, oportunidades, 5 acciones preventivas."
     }
 
-    return {
-        "result": call(
-            prompt_html(
-                "Consultor senior de call centers en Colombia. Analiza los datos y genera un informe profesional."),
-            f"{prompts[tipo_analisis]}\n\nDATOS:\n{get_data_context(filters.get_query())}"
-        )
-    }
+    content, error = call(
+        prompt_html(
+            "Consultor senior de call centers en Colombia. Analiza los datos y genera un informe profesional."),
+        f"{prompts[tipo_analisis]}\n\nDATOS:\n{get_data_context(filters.get_query())}"
+    )
+    return {"result": content, "error": error}
