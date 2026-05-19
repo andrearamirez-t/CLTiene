@@ -1,21 +1,18 @@
 steps:
-  # Build imagen
+  # --- BACKEND ---
   - name: 'gcr.io/cloud-builders/docker'
     args: [
-      'build',
-      '-t',
+      'build', '-t',
       'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend',
       './back'
     ]
 
-  # Push imagen
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'push',
       'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend'
     ]
 
-  # Deploy a Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args: [
@@ -31,12 +28,43 @@ steps:
     entrypoint: gcloud
     args: [
       'run', 'services', 'update-traffic', 'cltiene-backend',
-      '--to-latest',
-      '--region', 'us-central1'
+      '--to-latest', '--region', 'us-central1'
+    ]
+
+  # --- DASHBOARD (frontend) ---
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build', '-t',
+      'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-dashboard',
+      '.'
+    ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-dashboard'
+    ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', 'cltiene-dashboard',
+      '--image', 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-dashboard',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--allow-unauthenticated'
+    ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'services', 'update-traffic', 'cltiene-dashboard',
+      '--to-latest', '--region', 'us-central1'
     ]
 
 images:
   - 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-backend'
+  - 'us-central1-docker.pkg.dev/desarrollo-investigaciones/backend-repo/cltiene-dashboard'
 
 options:
   logging: CLOUD_LOGGING_ONLY
