@@ -117,7 +117,7 @@ export default function Inteligencia() {
         return;
       }
 
-      setAnalisisIA(data[0] || 'No se recibió análisis.');
+      setAnalisisIA(data || 'No se recibió análisis.');
     } catch (error) {
       console.error('Error obteniendo análisis IA:', error);
       setAnalisisIA('No fue posible cargar el análisis de IA.');

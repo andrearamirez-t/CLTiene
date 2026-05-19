@@ -71,7 +71,7 @@ const Analisis = () => {
 
       const result = await response.json();
       const data = result.result
-      const texto = data[0] || "No se recibio analisis.";
+      const texto = data || "No se recibio analisis.";
 
       setAnalisisIA(texto);
 

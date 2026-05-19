@@ -80,7 +80,7 @@ const Rendimiento = () => {
 
             // setDatosCalidad(data.calidad || []);
             // setDatosDistribucion(data.distribucion || []);
-            setDiagnosticoIA(data[0] || "");
+            setDiagnosticoIA(data || "");
 
             setMostrarIA(true);
 
