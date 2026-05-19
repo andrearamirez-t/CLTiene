@@ -16,7 +16,7 @@ const MetricasGrid = ({ data }) => {
             const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa");
             const result = await response.json();
 
-            const data = result.result[0] || "No se obtuvo un análisis válido";
+            const data = result.result || "No se obtuvo un análisis válido";
 
             setMostrarAnalisis(data)
             console.log("Respuesta IA:", result);

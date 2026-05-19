@@ -49,7 +49,7 @@ const AnalisisAu = () => {
 
             const data = await response.json();
 
-            setResultado(data.result[0] || "No se recibió respuesta de la IA.");
+            setResultado(data.result || "No se recibió respuesta de la IA.");
 
         } catch (error) {
 
