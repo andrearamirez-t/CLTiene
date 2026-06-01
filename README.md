@@ -14,8 +14,16 @@ Dashboard web que procesa, analiza y visualiza el rendimiento de los asesores de
 | Backend | Python 3.11 + FastAPI |
 | Base de datos | Google BigQuery |
 | IA / LLM | OpenAI (gpt-4o-mini) |
-| Despliegue | Google Cloud Run + Cloud Build |
+| Despliegue backend | Google Cloud Run + Cloud Build |
+| Despliegue frontend | Firebase Hosting |
 | Fuente de datos | SQL Server (CUN) → BigQuery |
+
+## URLs de producción
+
+| Servicio | URL |
+|---------|-----|
+| Frontend | https://cltiene-dashboard.web.app |
+| Backend | https://cltiene-backend-293865702055.us-central1.run.app |
 
 ## Estructura del proyecto
 
@@ -32,27 +40,28 @@ CLTiene/
 │   │   └── Agente.jsx
 │   ├── components/             # Gráficas, IA, UI reutilizable
 │   ├── FiltersContext.jsx      # Contexto global de filtros
-│   └── layout/Sidebar.jsx     # Barra lateral de filtros
+│   └── layout/Sidebar.jsx      # Barra lateral de filtros
 │
 ├── back/                       # Backend FastAPI
 │   ├── main.py                 # App principal
 │   ├── api/
 │   │   ├── routes.py           # Endpoints de charts, filtros e IA
+│   │   ├── routes_new.py       # Endpoints adicionales de IA y rankings
 │   │   ├── charts/             # Queries BigQuery por gráfica
 │   │   ├── ia/                 # Módulos de IA (insights, análisis, chat)
 │   │   ├── filters/            # Lógica de filtros
-│   │   └── upload/             # Pipeline SQL Server → BigQuery
-│   └── helpers/utils.py        # Filtros y contexto para IA
+│   │   └── upload/             # Pipeline SQL Server → BigQuery (solo local)
+│   ├── helpers/utils.py        # Filtros y contexto para IA
+│   ├── subir_datos.py          # Script autónomo de carga de datos
+│   └── registrar_tarea.ps1     # Registra tarea automática en Windows
 │
-├── back/subir_datos.py         # Script autónomo de carga de datos
-├── back/registrar_tarea.ps1    # Registra tarea automática en Windows
-├── cloudbuild.yaml             # Pipeline CI/CD Cloud Build
-└── Dockerfile                  # Imagen del frontend
+├── cloudbuild.yaml             # Pipeline CI/CD — solo despliega el backend
+└── firebase.json               # Configuración Firebase Hosting
 ```
 
 ## Pestañas del dashboard
 
-1. **Resumen Ejecutivo** — KPIs generales, distribución de resultados y duraciones
+1. **Resumen Ejecutivo** — KPIs generales, distribución de resultados, duraciones e insights con IA
 2. **Rendimiento Asesores** — Scorecard individual, ranking y métricas de calidad
 3. **Análisis Detallado** — Gráficas de sentimiento, planes, horas y días de mayor efectividad
 4. **Inteligencia Operativa** — Análisis automático con IA sobre patrones y tendencias
@@ -69,8 +78,8 @@ subir_datos.py  ←  Programador de Tareas Windows (diario 7:00 AM)
 Procesamiento: categorización, plan mencionado, duración, calidad del asesor
         ↓
 BigQuery: desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas
-        ↓
-Backend FastAPI (Cloud Run) → Frontend React (Cloud Run)
+        ↓  (columna Fecha: INTEGER Unix timestamp en segundos)
+Backend FastAPI (Cloud Run) → Frontend React (Firebase Hosting)
 ```
 
 ### Categorías de duración (basadas en longitud de transcripción)
@@ -85,10 +94,27 @@ Backend FastAPI (Cloud Run) → Frontend React (Cloud Run)
 
 ## Despliegue
 
+### Backend (Cloud Run)
+
 ```bash
-# Backend + Frontend en Cloud Run (desde la raíz del proyecto)
+# Desde la raíz del proyecto
 gcloud builds submit --config cloudbuild.yaml --project desarrollo-investigaciones
 ```
+
+### Frontend (Firebase Hosting)
+
+```bash
+# Construir y publicar
+npm run build
+firebase deploy --only hosting:cltiene-dashboard
+```
+
+## Variables de entorno en Cloud Run
+
+| Variable | Descripción |
+|----------|-------------|
+| `OPENAI_API_MUNDIAL` | API key de OpenAI (configurada como secret) |
+| `GOOGLE_CLOUD_PROJECT` | ID del proyecto GCP |
 
 ## Automatización de carga de datos
 
