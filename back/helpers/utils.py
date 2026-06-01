@@ -580,18 +580,22 @@ def get_raw_calls_data(where="1=1", search_query=""):
 
 def get_history(where):
     query = f"""
-    with resultado as (
+    WITH resultado AS (
         SELECT
-        CAST(ROW_NUMBER() OVER() AS STRING) as id, transcripcion
+            CAST(ROW_NUMBER() OVER() AS STRING) AS id,
+            transcripcion
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
-    ) select * from resultado WHERE {where}
+        WHERE transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50
+    )
+    SELECT * FROM resultado WHERE {where}
+    LIMIT 40
     """
 
     job = client.query(query)
     results = job.result()
 
     transcripciones = [
-        row.transcripcion
+        row.transcripcion[:600]
         for row in results
         if row.transcripcion is not None
     ]
