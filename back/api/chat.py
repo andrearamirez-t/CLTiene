@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 
 
 def get_ai_client():
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("OPENAI_API_MUNDIAL") or os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY no está configurada")
     return OpenAI(api_key=api_key)
@@ -25,7 +25,7 @@ async def api_chat_logic(request: ChatRequest, filters: FilterModel):
     try:
         ai_client = get_ai_client()
         response = ai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": prompt_html(prompt_base)},
                 {"role": "user", "content": f"""
