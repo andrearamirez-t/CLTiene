@@ -1,4 +1,4 @@
-from IA.Open_AI import call
+﻿from IA.Open_AI import call
 from helpers.utils import get_history
 
 from fastapi import APIRouter, Body, Query
@@ -14,7 +14,15 @@ load_dotenv()
 router = APIRouter()
 
 client = bigquery.Client()
-client_openai = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_openai_client = None
+
+
+def _get_openai() -> OpenAI:
+    global _openai_client
+    if _openai_client is None:
+        api_key = os.getenv("OPENAI_API_MUNDIAL") or os.getenv("OPENAI_API_KEY")
+        _openai_client = OpenAI(api_key=api_key)
+    return _openai_client
 
 
 def fetch_bigquery_data(query: str):
@@ -36,7 +44,7 @@ async def generar_reporte_ia(payload: dict = Body(...)):
         for _, row in df.iterrows():
             texto_contexto += f"Asesor: {row['cuenta']} | Resultado: {row['Resultado_Llamada']} | Transcripción: {row['transcripcion'][:300]}...\n\n"
 
-        response = client_openai.chat.completions.create(
+        response = _get_openai().chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Eres un Consultor de Calidad en Call Center. Responde únicamente en JSON."},
@@ -128,7 +136,7 @@ async def obtener_ranking():
 async def chat_asistente(payload: dict = Body(...)):
     pregunta = payload.get("pregunta")
     try:
-        response = client_openai.chat.completions.create(
+        response = _get_openai().chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Eres un asistente de soporte para el dashboard de Call Center."},
@@ -147,7 +155,7 @@ async def chat_asistente(payload: dict = Body(...)):
         contexto = "\n".join(
             [f"#{a['posicion']} {a['nombre']}: {a['puntos']} pts, {a['ventas']} ventas" for a in asesores])
 
-        response = client_openai.chat.completions.create(
+        response = _get_openai().chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system",
@@ -206,7 +214,7 @@ async def analizar_ranking(payload: dict = Body(...)):
             for a in asesores
         ])
 
-        response = client_openai.chat.completions.create(
+        response = _get_openai().chat.completions.create(
             model="gpt-4o",
             messages=[
                 {
@@ -234,3 +242,4 @@ async def analizar_ranking(payload: dict = Body(...)):
     except Exception as e:
         print(f"Error crítico: {e}")
         return {"resultado": {"analisis_top": "Error", "mejoras": ["Error al procesar"], "mentoria": str(e)}}
+
