@@ -44,5 +44,5 @@ def option(query: str, column_id: str, column_name: str | None = None):
 
 
 def calculo_fecha() -> str:
-    # Fecha es INTEGER (Unix timestamp en segundos)
-    return "DATETIME(TIMESTAMP_SECONDS(Fecha))"
+    # Fecha es INTEGER en nanosegundos → dividir por 1000 para microsegundos
+    return "DATETIME(TIMESTAMP_MICROS(DIV(Fecha, 1000)))"
