@@ -3,24 +3,33 @@
 const InsightsCard = () => {
     const [estado, setEstado] = useState('reposo');
     const [insights, setInsights] = useState('');
+    const [error, setError] = useState('');
 
     const manejarClicIA = async () => {
         if (estado === 'completado') {
             setEstado('reposo');
             setInsights('');
+            setError('');
             return;
         }
 
         setEstado('cargando');
+        setError('');
 
         try {
             const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/ia/generar_insights");
             const data = await response.json();
 
-            setInsights(data.result || "");
+            if (!response.ok || !data.result) {
+                setError('No fue posible generar el análisis. Intenta de nuevo.');
+                setEstado('reposo');
+                return;
+            }
+
+            setInsights(data.result);
             setEstado('completado');
-        } catch (error) {
-            console.error("Error cargando insights:", error);
+        } catch (err) {
+            setError('Error de conexión con el servidor. Intenta de nuevo.');
             setEstado('reposo');
         }
     };
@@ -71,6 +80,23 @@ const InsightsCard = () => {
                 {estado === 'cargando' && "Analizando datos..."}
                 {estado === 'completado' && "Limpiar Análisis"}
             </button>
+
+            {error && (
+                <div style={{
+                    background: '#fff1f2',
+                    border: '1px solid #fecdd3',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    fontSize: '13px',
+                    color: '#be123c',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    ⚠️ {error}
+                </div>
+            )}
 
             {estado === 'completado' && (
                 <div style={{
