@@ -290,7 +290,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
         EXTRACT(
             HOUR
             FROM
-            fecha
+            {calculo_fecha()}
         ) AS STRING
         ),
         2,
@@ -332,7 +332,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     SELECT
         FORMAT_DATE(
             '%A',
-            fecha
+            DATE({calculo_fecha()})
         ) name,
         COUNT(*) t,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas
@@ -460,7 +460,7 @@ def evolucion_ventas(filters: FilterModel = Depends()):
     WITH base AS (
         SELECT
             DATE_TRUNC(
-                fecha,
+                DATE({calculo_fecha()}),
                 WEEK(MONDAY)
             ) semana,
             CAST(efectiva AS FLOAT64) efectiva
