@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 
 import Sidebar from '../layout/Sidebar.jsx';
 import {
@@ -77,7 +77,7 @@ const Dashboard = () => {
                     marginBottom: '20px'
                 }}>
                     {[
-                        { icon: <Phone size={18} />, label: 'TOTAL', value: kpi?.total ?? '-' },
+                        { icon: <Phone size={18} />, label: 'TOTAL LLAMADAS', value: kpi?.total ?? '-' },
                         { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: kpi?.efectivas ?? '-' },
                         { icon: <DollarSign size={18} />, label: 'VENTAS', value: kpi?.ventas ?? '-' },
                         { icon: <Clock size={18} />, label: 'MEJOR HORA', value: kpi?.hora_promedio ?? '-' },
