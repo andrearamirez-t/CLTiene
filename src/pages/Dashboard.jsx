@@ -78,7 +78,6 @@ const Dashboard = () => {
                 }}>
                     {[
                         { icon: <Phone size={18} />, label: 'TOTAL', value: kpi?.total ?? '-' },
-                        { icon: <Download size={18} />, label: 'CONTESTADAS', value: kpi?.contestadas ?? '-' },
                         { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: kpi?.efectivas ?? '-' },
                         { icon: <DollarSign size={18} />, label: 'VENTAS', value: kpi?.ventas ?? '-' },
                         { icon: <Clock size={18} />, label: 'MEJOR HORA', value: kpi?.hora_promedio ?? '-' },

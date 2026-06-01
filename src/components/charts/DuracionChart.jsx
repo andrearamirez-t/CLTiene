@@ -26,7 +26,29 @@ const DuracionChart = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 'bold' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                    <Tooltip cursor={{ fill: '#f8fafc' }} />
+                    <Tooltip
+                        cursor={{ fill: '#f8fafc' }}
+                        content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null;
+                            const d = payload[0].payload;
+                            const rangos = {
+                                'Buzón':     '< 30 seg',
+                                'Muy Corta': '30 seg – 1 min',
+                                'Corta':     '1 – 2 min',
+                                'Media':     '2 – 5 min',
+                                'Larga':     '5+ min',
+                                'Sin Datos': 'Sin transcripción',
+                            };
+                            const tiempo = d.tiempo_promedio || rangos[d.label];
+                            return (
+                                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', fontSize: 12 }}>
+                                    <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.label}</div>
+                                    <div>Llamadas: <b>{d.valor}</b> ({d.porcentaje})</div>
+                                    {tiempo && <div style={{ color: '#be123c', marginTop: 2 }}>⏱ {d.tiempo_promedio ? 'Promedio real' : 'Duración'}: <b>{tiempo}</b></div>}
+                                </div>
+                            );
+                        }}
+                    />
 
                     <Bar dataKey="valor" radius={[6, 6, 0, 0]} barSize={120}>
                         {datos.map((entry, index) => (

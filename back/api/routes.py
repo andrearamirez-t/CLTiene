@@ -583,14 +583,21 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
     query = f"""
     SELECT
         Duracion_Estimada as label,
-        COUNT(*) as valor
+        COUNT(*) as valor,
+        CAST(AVG(
+            SAFE.TIME_DIFF(
+                SAFE.PARSE_TIME('%H:%M:%S', REGEXP_EXTRACT(Tiempo__de_Llamada, r'\\d+:\\d+:\\d+')),
+                TIME '00:00:00',
+                SECOND
+            )
+        ) AS INT64) as segundos_promedio
     FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
     GROUP BY Duracion_Estimada
     """
 
     job = client.query(query)
-    rows = list(job.result())  # ← solución
+    rows = list(job.result())
 
     colores = {
         "Buzón": "#EE7553",
@@ -602,6 +609,12 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
 
     total = sum(r.valor for r in rows)
 
+    def fmt_segundos(seg):
+        if seg is None:
+            return None
+        m, s = divmod(int(seg), 60)
+        return f"{m}m {s:02d}s" if m else f"{s}s"
+
     data = []
 
     for r in rows:
@@ -611,6 +624,7 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
                 "valor": r.valor,
                 "porcentaje": f"{(r.valor/total)*100:.1f}%",
                 "color": colores.get(r.label, "#8884d8"),
+                "tiempo_promedio": fmt_segundos(r.segundos_promedio),
             }
         )
 
