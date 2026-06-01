@@ -17,7 +17,7 @@ def kpi(filters: FilterModel):
             manejo_inquietudes,
             cierre_servicio,
             proximo_paso,
-            fecha ts
+            {calculo_fecha()} ts
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {filters.get_query()}
     ),
