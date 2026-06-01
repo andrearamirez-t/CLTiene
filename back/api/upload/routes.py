@@ -1,5 +1,4 @@
 from fastapi import APIRouter, BackgroundTasks
-from api.upload.procesador import ejecutar_pipeline
 import threading
 
 router = APIRouter(prefix="/api/upload")
@@ -11,6 +10,7 @@ _lock = threading.Lock()
 
 def _run(log_fn):
     try:
+        from api.upload.procesador import ejecutar_pipeline
         ejecutar_pipeline(log=log_fn)
     except Exception as e:
         with _lock:

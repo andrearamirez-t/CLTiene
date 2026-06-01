@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from api.routes import router
 from api.routes_new import router as routes_ia
-from api.upload.routes import router as router_upload
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
+try:
+    from api.upload.routes import router as router_upload
+    _upload_ok = True
+except Exception:
+    router_upload = None
+    _upload_ok = False
 
 load_dotenv()
 
@@ -21,6 +26,5 @@ app.add_middleware(
 
 app.include_router(router)
 app.include_router(routes_ia, prefix="/api")
-app.include_router(router_upload)
-
-
+if _upload_ok and router_upload:
+    app.include_router(router_upload)
