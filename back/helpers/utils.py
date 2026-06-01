@@ -29,11 +29,11 @@ def filters(filters: dict) -> dict:
 
         if key == "fecha_desde":
             filtros_string.append(
-                f"""fecha >= DATETIME('{value}')""")
+                f"""Fecha >= UNIX_SECONDS(TIMESTAMP('{value}'))""")
 
         if key == "fecha_hasta":
             filtros_string.append(
-                f"""fecha <= DATETIME('{value}')""")
+                f"""Fecha <= UNIX_SECONDS(TIMESTAMP('{value} 23:59:59'))""")
 
         if key in ["resultado_llamada", "plan_mencionado", "Duracion_Estimada"]:
             filtros_string.append(f"{key} = '{value}'")
