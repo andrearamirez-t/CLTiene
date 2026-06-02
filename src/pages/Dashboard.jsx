@@ -21,6 +21,7 @@ const Dashboard = () => {
 
     const [kpi, setKpi] = useState(null);
     const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const tabs = [
         'Resumen Ejecutivo',
         'Rendimiento Asesores',
@@ -50,10 +51,10 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
 
-            <Sidebar />
+            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
 
 
-            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto', marginLeft: "260px" }}>
+            <main className="main" style={{ flex: 1, padding: '20px', overflowY: 'auto', marginLeft: sidebarOpen ? "260px" : "0px", transition: "margin-left 0.3s ease" }}>
 
 
                 <header className="header-banner" style={{
@@ -153,5 +154,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -7,15 +7,9 @@ import Select from '../components/Select';
 import logo from "../assets/logo_cl_tiene.png";
 
 
-function Sidebar() {
+function Sidebar({ isOpen, onToggle }) {
     const { filters, setFilters } = useFilters();
     const navigate = useNavigate();
-
-    const [isOpen, setIsOpen] = useState(true);
-
-    const toggleSidebar = () => {
-        setIsOpen(!isOpen);
-    };
 
     const [fechas, setFechas] = useState({ primera_fecha: "", ultima_fecha: "" })
     useEffect(() => {
@@ -77,7 +71,7 @@ function Sidebar() {
     return (
         <>
             <button
-                onClick={toggleSidebar}
+                onClick={onToggle}
                 style={{
                     position: 'fixed',
                     left: isOpen ? '260px' : '0px',
