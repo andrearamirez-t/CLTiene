@@ -13,6 +13,7 @@ def distribucion_resultado(filters: FilterModel):
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             WHERE
                 {filters.get_query()}
+                AND Resultado_Llamada != 'Sin Clasificar'
             GROUP BY
                 Resultado_Llamada
         )
