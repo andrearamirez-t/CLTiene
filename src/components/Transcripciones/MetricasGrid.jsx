@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 const MetricasGrid = ({ data }) => {
-    console.log(data)
     const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
 
     const getStatusColor = (val) => {
@@ -19,8 +18,6 @@ const MetricasGrid = ({ data }) => {
             const data = result.result || "No se obtuvo un análisis válido";
 
             setMostrarAnalisis(data)
-            console.log("Respuesta IA:", result);
-
         } catch (error) {
             console.error("Error consultando IA:", error);
         }

@@ -3,8 +3,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 
 const GraficaPastelAnalisis = ({ titulo, datos, colores }) => {
 
-  console.log("Resultado grafica pastel analisis:", datos)
-
   const renderLabel = ({ cx, cy, midAngle, outerRadius, percent }) => {
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 25;

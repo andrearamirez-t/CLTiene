@@ -31,7 +31,6 @@ const Rendimiento = () => {
         fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/rendimiento_agente${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
-                console.log("API rendimiento:", data);
                 setRendimiento(data || []);
             });
 

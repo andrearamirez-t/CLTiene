@@ -3,8 +3,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, 
 
 const GraficaBarrasAnalisis = ({ titulo, datos, colorBarra, icono }) => {
 
-  console.log("Resultado grafica barras analisis:", datos)
-
   return (
     <div style={{
       backgroundColor: 'white',
