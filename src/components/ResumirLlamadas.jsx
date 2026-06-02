@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CuerpoLlamada from './CuerpoLlamada';
 import BotonAnalisis from './ui/BotonAnalisis';
 import Select from './Select';
 
 const ResumirLlamadas = () => {
-    const [llamadasLista, setLlamadasLista] = useState([]);
     const [loading, setLoading] = useState(false);
     const [idSeleccionado, setIdSeleccionado] = useState("");
     const [llamadaAnalizada, setLlamadaAnalizada] = useState(null);
-
-    useEffect(() => {
-        const cargarLista = async () => {
-            try {
-                const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/obtener_lista_llamadas`);
-                const data = await response.json();
-                setLlamadasLista(data);
-            } catch (error) {
-                console.error("Error cargando lista:", error);
-            }
-        };
-        cargarLista();
-    }, []);
+    const [error, setError] = useState('');
 
     const manejarAnalisis = async () => {
         if (!idSeleccionado) {
@@ -29,13 +16,19 @@ const ResumirLlamadas = () => {
         }
 
         setLoading(true);
+        setError('');
+        setLlamadaAnalizada(null);
 
         try {
             const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/resumir_llamada/${idSeleccionado}`);
             const data = await response.json();
-            setLlamadaAnalizada(data);
-        } catch (error) {
-            console.error("Error al analizar:", error);
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setLlamadaAnalizada(data);
+            }
+        } catch (err) {
+            setError('Error al analizar la llamada. Intenta de nuevo.');
         }
 
         setLoading(false);
@@ -62,16 +55,20 @@ const ResumirLlamadas = () => {
                 <BotonAnalisis onAnalizar={manejarAnalisis} />
             </div>
 
-            {loading && <p style={{ color: '#FC3276' }}>🤖 Analizando con IA...</p>}
+            {loading && <p style={{ color: '#FC3276', marginTop: '15px' }}>🤖 Analizando con IA...</p>}
 
-            {
-                llamadaAnalizada && !loading && (
-                    <CuerpoLlamada
-                        datos={llamadaAnalizada.info}
-                        transcripcion={llamadaAnalizada.chat}
-                    />
-                )
-            }
+            {error && (
+                <div style={{ marginTop: '15px', padding: '12px', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '10px', color: '#be123c', fontSize: '13px' }}>
+                    ⚠️ {error}
+                </div>
+            )}
+
+            {llamadaAnalizada && !loading && (
+                <CuerpoLlamada
+                    datos={llamadaAnalizada.info}
+                    transcripcion={llamadaAnalizada.chat}
+                />
+            )}
 
         </div>
     );
