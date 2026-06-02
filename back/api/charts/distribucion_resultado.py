@@ -7,7 +7,11 @@ def distribucion_resultado(filters: FilterModel):
     WITH
         estado_llamadas as (
             SELECT
-                Resultado_Llamada nombre,
+                CASE
+                    WHEN Resultado_Llamada IN ('No Disponible', 'Buzón de Voz', 'Número Equivocado', 'Sin Contacto')
+                    THEN 'Sin Contacto'
+                    ELSE Resultado_Llamada
+                END nombre,
                 COUNT(*) valor
             FROM
                 `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
@@ -15,7 +19,7 @@ def distribucion_resultado(filters: FilterModel):
                 {filters.get_query()}
                 AND Resultado_Llamada != 'Sin Clasificar'
             GROUP BY
-                Resultado_Llamada
+                nombre
         )
     SELECT
         nombre,
