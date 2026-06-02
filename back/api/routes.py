@@ -273,6 +273,19 @@ def api_reporte_completo(filters: FilterModel = Depends()):
     return generar_reporte_completo(filters)
 
 
+@router.get("/limite-fecha")
+def limite_fecha():
+    job = client.query(f"""
+        SELECT
+            FORMAT_DATE('%Y-%m-%d', DATE(MIN({calculo_fecha()}))) AS primera_fecha,
+            FORMAT_DATE('%Y-%m-%d', DATE(MAX({calculo_fecha()}))) AS ultima_fecha
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        WHERE Fecha IS NOT NULL
+    """)
+    row = list(job.result())[0]
+    return {"primera_fecha": row.primera_fecha, "ultima_fecha": row.ultima_fecha}
+
+
 # -------------------------------------------------- #
 # ----------------------- IA ----------------------- #
 # -------------------------------------------------- #
