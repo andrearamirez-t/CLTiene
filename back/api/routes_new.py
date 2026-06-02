@@ -49,7 +49,7 @@ async def generar_reporte_ia(payload: dict = Body(...)):
             messages=[
                 {"role": "system", "content": "Eres un Consultor de Calidad en Call Center. Responde únicamente en JSON."},
                 {"role": "user",
-                    "content": f"Analiza estas llamadas y genera un JSON con llaves: 'resumen', 'hallazgos' (array), 'recomendaciones' (array). Datos: {texto_contexto}"}
+                    "content": f"Analiza estas llamadas y genera un JSON con exactamente estas 3 llaves: 'resumen' (string), 'hallazgos' (array de strings, cada elemento es una frase), 'recomendaciones' (array de strings, cada elemento es una frase). NO uses objetos dentro de los arrays, solo strings. Datos: {texto_contexto}"}
             ],
             response_format={"type": "json_object"}
         )

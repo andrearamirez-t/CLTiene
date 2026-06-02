@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 
 const ReporteCompleto = () => {
@@ -124,11 +124,11 @@ const ReporteCompleto = () => {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }}>
             <div style={{ backgroundColor: "#f7fafc", padding: "20px", borderRadius: "15px" }}>
               <h4>🔍 Hallazgos Clave</h4>
-              <ul>{reporte.hallazgos?.map((h, i) => <li key={i}>{h}</li>)}</ul>
+              <ul>{reporte.hallazgos?.map((h, i) => <li key={i}>{typeof h === "object" ? (h.comentario || h.hallazgo || JSON.stringify(h)) : h}</li>)}</ul>
             </div>
             <div style={{ backgroundColor: "#fff5f5", padding: "20px", borderRadius: "15px" }}>
               <h4>🚀 Recomendaciones</h4>
-              <ul>{reporte.recomendaciones?.map((r, i) => <li key={i}>{r}</li>)}</ul>
+              <ul>{reporte.recomendaciones?.map((r, i) => <li key={i}>{typeof r === "object" ? (r.recomendacion || JSON.stringify(r)) : r}</li>)}</ul>
             </div>
           </div>
 
