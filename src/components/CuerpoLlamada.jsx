@@ -41,17 +41,23 @@ const CuerpoLlamada = ({ datos, transcripcion }) => {
                 </div>
 
                 {/* Transcripción */}
-                <div style={{ flex: 1, borderLeft: '1px solid #e2e8f0', paddingLeft: '30px', maxHeight: '300px', overflowY: 'auto' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: '#ffffff', padding: '15px', borderRadius: '15px', border: '1px solid #e2e8f0', maxHeight: '320px', overflowY: 'auto' }}>
                     {chat.length > 0 ? chat.map((msg, i) => (
-                        <div key={i} style={{ marginBottom: '10px' }}>
-                            <span style={{
-                                fontWeight: 'bold',
-                                color: msg.role === 'Cliente' ? '#FC3276' : '#1e293b',
-                                fontSize: '12px'
-                            }}>
-                                [{msg.role}]:
-                            </span>
-                            <span style={{ color: '#64748b', fontSize: '13px', marginLeft: '6px' }}>{msg.text}</span>
+                        <div key={i} style={{
+                            alignSelf: msg.role === 'Cliente' ? 'flex-start' : 'flex-end',
+                            padding: '12px 18px',
+                            borderRadius: '15px',
+                            backgroundColor: msg.role === 'Cliente' ? '#FD7751' : '#999999',
+                            color: 'white',
+                            fontSize: '13px',
+                            lineHeight: '1.5',
+                            wordWrap: 'break-word',
+                            maxWidth: '80%'
+                        }}>
+                            <b style={{ display: 'block', marginBottom: '4px', fontSize: '10px', textTransform: 'uppercase' }}>
+                                {msg.role}
+                            </b>
+                            {msg.text}
                         </div>
                     )) : (
                         <p style={{ color: '#94a3b8', fontSize: '13px' }}>Sin transcripción disponible.</p>
