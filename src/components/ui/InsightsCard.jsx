@@ -103,17 +103,22 @@ const InsightsCard = () => {
             )}
 
             {estado === 'completado' && (
-                <div style={{
-                    background: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '16px',
-                    padding: '25px',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                    animation: 'fadeIn 0.5s ease-out'
-                }}>
-                    <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#334155' }}>
-                        <div dangerouslySetInnerHTML={{ __html: insights.replace(/\n/g, "<br/>") }} />
-                    </div>
+                <div
+                    key={insights.length}
+                    style={{
+                        background: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '25px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+                        animation: 'fadeIn 0.5s ease-out'
+                    }}
+                >
+                    <div
+                        key={`html-${insights.length}`}
+                        style={{ fontSize: '13px', lineHeight: '1.6', color: '#334155' }}
+                        dangerouslySetInnerHTML={{ __html: insights.replace(/\n/g, "<br/>") }}
+                    />
                 </div>
             )}
 
