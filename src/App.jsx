@@ -8,6 +8,23 @@ import Dashboard from './pages/Dashboard';
 import "./css/style.css";
 import { FiltersProvider } from './FiltersContext';
 
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { error: false };
+    }
+    static getDerivedStateFromError() {
+        return { error: true };
+    }
+    componentDidCatch() {
+        this.setState({ error: false });
+    }
+    render() {
+        if (this.state.error) return null;
+        return this.props.children;
+    }
+}
+
 function App() {
     const [usuario, setUsuario] = useState(null);
     const [cargando, setCargando] = useState(true);
@@ -27,7 +44,7 @@ function App() {
             <Routes>
                 <Route path="/login" element={!usuario ? <Login /> : <Navigate to="/" />} />
                 <Route path="/" element={usuario ? <FiltersProvider>
-                    <Dashboard />
+                    <ErrorBoundary><Dashboard /></ErrorBoundary>
                 </FiltersProvider> : <Navigate to="/login" />} />
             </Routes>
         </Router>

@@ -46,7 +46,7 @@ const InsightsCard = () => {
     };
 
     return (
-        <div className="card-container" style={{ marginTop: '20px' }}>
+        <div className="card-container" translate="no" style={{ marginTop: '20px' }}>
             <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '15px' }}>
                 Insights
             </div>
