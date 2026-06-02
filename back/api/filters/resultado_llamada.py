@@ -11,11 +11,16 @@ def resultado_llamada(filters):
 
     query = f"""
     SELECT
-        Resultado_Llamada name,
+        CASE
+            WHEN Resultado_Llamada IN ('No Disponible', 'Buzón de Voz', 'Número Equivocado', 'Sin Contacto')
+            THEN 'Sin Contacto'
+            ELSE Resultado_Llamada
+        END name,
         COUNT(*) value
     FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
-    GROUP BY Resultado_Llamada
+        AND Resultado_Llamada != 'Sin Clasificar'
+    GROUP BY name
     """
 
     print(query)
