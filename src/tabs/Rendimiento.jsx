@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import ControlesAnalisis from '../components/ui/ControlesAnalisis';
 import GraficaCalidadIA from '../components/ui/GraficaCalidadIA';
 import GraficaDistribucion from '../components/ui/GraficaDistribucion';
@@ -20,6 +20,13 @@ const Rendimiento = () => {
     // const [datosCalidad, setDatosCalidad] = useState([]);
     // const [datosDistribucion, setDatosDistribucion] = useState([]);
     const [diagnosticoIA, setDiagnosticoIA] = useState("");
+    const iaRef = useRef(null);
+
+    useEffect(() => {
+        if (iaRef.current) {
+            iaRef.current.innerHTML = mostrarIA ? diagnosticoIA.replace(/\n/g, "<br/>") : '';
+        }
+    }, [mostrarIA, diagnosticoIA]);
 
 
 
