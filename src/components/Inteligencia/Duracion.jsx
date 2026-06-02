@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Duracion = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={380}>
       <ComposedChart data={data} margin={{ top: 10, right: 10, bottom: 10, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
         <XAxis 

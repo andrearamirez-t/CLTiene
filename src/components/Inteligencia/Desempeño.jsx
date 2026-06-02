@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   BarChart,
   Bar,
@@ -14,7 +14,7 @@ import {
 
 const Desempeño = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={380}>
       <BarChart
         data={data}
         margin={{ top: 20, right: 30, left: 10, bottom: 120 }}
