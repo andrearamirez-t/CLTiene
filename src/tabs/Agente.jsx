@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-
+﻿import React, { useState } from 'react';
+import { useFilters } from '../FiltersContext';
 
 import HerramientaCard from '../components/HerramientaCard';
 import Chat from '../components/Chat';
@@ -14,6 +14,7 @@ import BotonAnalisis from '../components/ui/BotonAnalisis';
 const PROMPT_CHAT_INTELIGENTE = "Eres analista experto de call centers en Colombia. Genera 5 insights accionables. Español, emojis, datos específicos.";
 
 const Agente = () => {
+    const { buildQuery } = useFilters();
     const [tabActiva, setTabActiva] = useState('Chat Inteligente');
     const [messages, setMessages] = useState([
         { role: 'ai', content: '¡Hola! Soy el Agente IA de CL Tiene. Pregúntame sobre datos, rendimiento, recomendaciones o análisis.' }
@@ -46,7 +47,9 @@ const Agente = () => {
 
         try {
 
-            const response = await fetch('https://cltiene-backend-293865702055.us-central1.run.app/api/chat', {
+            const params = buildQuery();
+            const url = 'https://cltiene-backend-293865702055.us-central1.run.app/api/chat' + (params ? '?' + params : '');
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
