@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { useFilters } from '../../FiltersContext';
 
@@ -44,7 +44,7 @@ const DuracionChart = () => {
                 Distribución por Duración
             </div>
 
-            <ResponsiveContainer width="100%" height="80%">
+            <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={datos} margin={{ top: 20, right: 10, left: -20, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="label" axisLine={false} tickLine={false} tick={<TickPersonalizado />} height={45} />

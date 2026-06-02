@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
     ResponsiveContainer, LabelList 
@@ -17,7 +17,7 @@ const ResultadosChart = ({ datos }) => {
                 Distribución de Resultados
             </div>
             
-            <ResponsiveContainer width="100%" height="85%">
+            <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                     layout="vertical"
                     data={dataFormateada}
