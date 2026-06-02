@@ -1,9 +1,16 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const InsightsCard = () => {
     const [estado, setEstado] = useState('reposo');
     const [insights, setInsights] = useState('');
     const [error, setError] = useState('');
+    const contenedorRef = useRef(null);
+
+    useEffect(() => {
+        if (contenedorRef.current) {
+            contenedorRef.current.innerHTML = estado === 'completado' ? insights : '';
+        }
+    }, [estado, insights]);
 
     const manejarClicIA = async () => {
         if (estado === 'completado') {
@@ -43,24 +50,6 @@ const InsightsCard = () => {
             <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '15px' }}>
                 Insights
             </div>
-
-            {/* <div style={{
-                background: '#f8f9fa',
-                border: '2px solid #FC3276',
-                borderRadius: '16px',
-                padding: '20px',
-                marginBottom: '20px'
-            }}>
-                <h4 style={{ margin: '0 0 15px 0', fontSize: '15px', color: '#1e293b' }}>
-                    Para aumentar el éxito
-                </h4>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px', color: '#334155' }}>
-                    <li style={{ marginBottom: '8px' }}>• 3,298 contestadas de 3,299 (100%)</li>
-                    <li style={{ marginBottom: '8px' }}>• 185 efectivas (5.6% de contestadas)</li>
-                    <li style={{ marginBottom: '8px' }}>• 62 ventas cerradas (1.9%)</li>
-                    <li>• Calidad promedio: <strong>12/100</strong></li>
-                </ul>
-            </div> */}
 
             <button
                 onClick={manejarClicIA}
@@ -102,25 +91,20 @@ const InsightsCard = () => {
                 </div>
             )}
 
-            {estado === 'completado' && (
-                <div
-                    key={insights.length}
-                    style={{
-                        background: 'white',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '16px',
-                        padding: '25px',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                        animation: 'fadeIn 0.5s ease-out'
-                    }}
-                >
-                    <div
-                        key={`html-${insights.length}`}
-                        style={{ fontSize: '13px', lineHeight: '1.6', color: '#334155' }}
-                        dangerouslySetInnerHTML={{ __html: insights.replace(/\n/g, "<br/>") }}
-                    />
-                </div>
-            )}
+            <div
+                style={{
+                    display: estado === 'completado' ? 'block' : 'none',
+                    background: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '25px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                    color: '#334155'
+                }}
+                ref={contenedorRef}
+            />
 
             <style>{`
                 @keyframes fadeIn {
