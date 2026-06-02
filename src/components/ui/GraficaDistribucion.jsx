@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 
 const GraficaDistribucion = ({ datos = [] }) => {
@@ -7,7 +7,7 @@ const GraficaDistribucion = ({ datos = [] }) => {
       <div style={{ borderTop: '2px solid #3b82f6', marginBottom: '24px', paddingTop: '10px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>Distribución de Turnos</h3>
       </div>
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer width="100%" height={320}>
         <AreaChart data={datos} margin={{ top: 10, right: 10, left: 0, bottom: 25 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={true} stroke="#f1f5f9" />
           <XAxis 

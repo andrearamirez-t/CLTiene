@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, LabelList } from 'recharts';
 
 const GraficaBarrasAnalisis = ({ titulo, datos, colorBarra, icono }) => {
@@ -18,7 +18,7 @@ const GraficaBarrasAnalisis = ({ titulo, datos, colorBarra, icono }) => {
         <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>{titulo}</h3>
       </div>
 
-      <ResponsiveContainer width="100%" height="85%">
+      <ResponsiveContainer width="100%" height={320}>
         <BarChart
           layout="vertical"
           data={datos}
