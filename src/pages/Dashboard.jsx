@@ -78,13 +78,13 @@ const Dashboard = () => {
                 }}>
                     {[
                         { icon: <Phone size={18} />, label: 'TOTAL LLAMADAS', value: kpi?.total ?? '-' },
-                        { icon: <CheckCircle size={18} />, label: 'EFECTIVAS', value: kpi?.efectivas ?? '-' },
+                        { icon: <CheckCircle size={18} />, label: 'CONTACTADAS', value: kpi?.efectivas ?? '-' },
                         { icon: <DollarSign size={18} />, label: 'VENTAS', value: kpi?.ventas ?? '-' },
-                        { icon: <Clock size={18} />, label: 'MEJOR HORA', value: kpi?.hora_promedio ?? '-' },
-                        { icon: <Calendar size={18} />, label: 'MEJOR DÍA', value: kpi?.dia_promedio ?? '-' },
-                        { icon: <Trophy size={18} />, label: 'TOP', value: kpi?.top_asesor ?? '-' },
-                        { icon: <Star size={18} />, label: 'SALUDO', value: kpi?.saludo ? `${kpi.saludo}%` : '-' },
-                        { icon: <Handshake size={18} />, label: 'CALIDAD', value: kpi?.calidad ? `${kpi.calidad}/100` : '-' }
+                        { icon: <Clock size={18} />, label: 'HORA PICO', value: kpi?.hora_promedio ?? '-' },
+                        { icon: <Calendar size={18} />, label: 'DÍA PICO', value: kpi?.dia_promedio ?? '-' },
+                        { icon: <Trophy size={18} />, label: 'TOP ASESOR', value: kpi?.top_asesor ?? '-' },
+                        { icon: <Star size={18} />, label: '% SALUDO', value: kpi?.saludo ? `${kpi.saludo}%` : '-' },
+                        { icon: <Handshake size={18} />, label: 'CALIDAD PROM.', value: kpi?.calidad ? `${kpi.calidad}/100` : '-' }
                     ].map((item, index) => (
                         <div key={index} style={{
                             backgroundColor: 'white',
@@ -153,3 +153,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
