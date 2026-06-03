@@ -21,7 +21,7 @@ const ResultadosChart = ({ datos }) => {
                 <BarChart
                     layout="vertical"
                     data={dataFormateada}
-                    margin={{ top: 5, right: 80, left: 40, bottom: 20 }}
+                    margin={{ top: 5, right: 140, left: 40, bottom: 20 }}
                 >
                     <defs>
                         <linearGradient id="colorRes" x1="0" y1="0" x2="1" y2="0">
@@ -60,11 +60,11 @@ const ResultadosChart = ({ datos }) => {
                         radius={[0, 4, 4, 0]} 
                         barSize={20}
                     >
-                        <LabelList 
-                            dataKey="etiquetaCompleta" 
-                            position="right" 
-                            style={{ fontSize: '10px', fill: '#64748b', fontWeight: '500' }} 
-                            offset={10}
+                        <LabelList
+                            dataKey="etiquetaCompleta"
+                            position="right"
+                            style={{ fontSize: '11px', fill: '#64748b', fontWeight: '600' }}
+                            offset={8}
                         />
                     </Bar>
                 </BarChart>

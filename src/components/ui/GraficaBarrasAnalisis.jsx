@@ -22,7 +22,7 @@ const GraficaBarrasAnalisis = ({ titulo, datos, colorBarra, icono }) => {
         <BarChart
           layout="vertical"
           data={datos}
-          margin={{ top: 5, right: 30, left: 40, bottom: 20 }}
+          margin={{ top: 5, right: 100, left: 40, bottom: 20 }}
         >
 
           <CartesianGrid strokeDasharray="0" vertical={true} horizontal={false} stroke="#f1f5f9" />
@@ -47,9 +47,9 @@ const GraficaBarrasAnalisis = ({ titulo, datos, colorBarra, icono }) => {
 
             <LabelList
               dataKey="v"
-              position="insideRight"
-              style={{ fill: 'white', fontSize: '10px', fontWeight: '500' }}
-              offset={10}
+              position="right"
+              style={{ fill: '#64748b', fontSize: '11px', fontWeight: '600' }}
+              offset={8}
             />
           </Bar>
         </BarChart>
