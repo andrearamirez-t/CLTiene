@@ -113,20 +113,24 @@ const AnalisisAu = () => {
             {/* BOTÓN */}
             <button
                 onClick={handleGenerar}
+                disabled={cargando}
                 style={{
                     width: '100%',
                     padding: '15px',
-                    backgroundColor: '#FC3276',
+                    background: cargando
+                        ? '#cbd5e0'
+                        : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '10px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
+                    borderRadius: '12px',
+                    fontWeight: '700',
+                    fontSize: '14px',
+                    letterSpacing: '0.5px',
+                    cursor: cargando ? 'not-allowed' : 'pointer',
+                    boxShadow: cargando ? 'none' : '0 4px 18px rgba(252,50,118,0.35)',
                 }}
             >
-
-                {cargando ? 'Analizando...' : 'Generar'}
-
+                {cargando ? '⌛ Analizando...' : 'Generar'}
             </button>
 
 

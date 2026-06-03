@@ -1,7 +1,11 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { jsPDF } from "jspdf";
+import { useFilters } from "../FiltersContext";
+
+const BASE_URL = "https://cltiene-backend-293865702055.us-central1.run.app";
 
 const ReporteCompleto = () => {
+  const { buildQuery } = useFilters();
   const [reporte, setReporte] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -9,146 +13,253 @@ const ReporteCompleto = () => {
     setLoading(true);
     setReporte(null);
     try {
-      const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/analisis_automatico", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo_analisis: "ejecutivo" })
-      });
+      const params = buildQuery();
+      const url = `${BASE_URL}/ia/reporte_completo${params ? `?${params}` : ""}`;
+      const response = await fetch(url);
       const data = await response.json();
-      if (data.resultado) {
-        setReporte(data.resultado);
-      }
+      if (data.result) setReporte(data.result);
     } catch (error) {
       console.error("Error al obtener el reporte:", error);
     }
     setLoading(false);
   };
 
-  const descargarReportePDF = () => {
+  const descargarPDF = () => {
     if (!reporte) return;
-
     const doc = new jsPDF();
     const margin = 20;
-    let yPosition = 20;
+    let y = 20;
 
-    // --- ENCABEZADO ---
     doc.setFontSize(18);
-    doc.setTextColor(252, 50, 118); 
-    doc.text("REPORTE ESTRATÉGICO DE OPERACIONES", margin, yPosition);
-    
-    yPosition += 10;
+    doc.setTextColor(252, 50, 118);
+    doc.text("REPORTE ESTRATÉGICO DE OPERACIONES", margin, y);
+    y += 10;
+
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()} | Generado por: Agente IA PRO`, margin, yPosition);
-    
+    doc.text(
+      `Fecha: ${new Date().toLocaleDateString()} | Generado por: Agente IA PRO`,
+      margin,
+      y
+    );
     doc.setDrawColor(252, 50, 118);
-    doc.line(margin, yPosition + 2, 190, yPosition + 2);
-    yPosition += 15;
+    doc.line(margin, y + 2, 190, y + 2);
+    y += 15;
 
-    // --- SECCIÓN RESUMEN ---
-    doc.setFontSize(14);
-    doc.setTextColor(0);
-    doc.setFont("helvetica", "bold");
-    doc.text("1. Resumen Ejecutivo", margin, yPosition);
-    
-    yPosition += 7;
-    doc.setFont("helvetica", "normal");
+    const texto = reporte.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     doc.setFontSize(11);
-    const resumenLineas = doc.splitTextToSize(reporte.resumen, 170);
-    doc.text(resumenLineas, margin, yPosition);
-    yPosition += (resumenLineas.length * 6) + 10;
-
-    // --- SECCIÓN HALLAZGOS ---
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("2. Hallazgos Clave", margin, yPosition);
-    
-    yPosition += 7;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    reporte.hallazgos?.forEach((h, i) => {
-        const text = `${i + 1}. ${h}`;
-        const lines = doc.splitTextToSize(text, 170);
-        doc.text(lines, margin, yPosition);
-        yPosition += (lines.length * 6);
-    });
-    yPosition += 10;
-
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("3. Recomendaciones", margin, yPosition);
-    
-    yPosition += 7;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    reporte.recomendaciones?.forEach((r) => {
-        const text = `• ${r}`;
-        const lines = doc.splitTextToSize(text, 170);
-        doc.text(lines, margin, yPosition);
-        yPosition += (lines.length * 6);
+    doc.setTextColor(30);
+    const lineas = doc.splitTextToSize(texto, 170);
+    lineas.forEach((linea) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(linea, margin, y);
+      y += 6;
     });
 
     doc.setFontSize(9);
     doc.setTextColor(150);
     doc.text("Documento confidencial - CL TIENE SOLUCIONES", margin, 285);
-
-    doc.save(`Reporte_IA_${new Date().getTime()}.pdf`);
+    doc.save(`Reporte_IA_${Date.now()}.pdf`);
   };
 
   return (
-    <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "25px", fontFamily: 'sans-serif' }}>
-      
-      <div style={{ backgroundColor: "#ffffff", borderRadius: "15px", padding: "30px", border: "1px solid #e2e8f0", textAlign: 'center' }}>
-        <h2>📊 Inteligencia Operativa</h2>
+    <div style={styles.wrapper}>
+      {/* Tarjeta de acción */}
+      <div style={styles.actionCard}>
+        <div style={styles.actionHeader}>
+          <span style={styles.actionIcon}>📊</span>
+          <div>
+            <h3 style={styles.actionTitle}>Inteligencia Operativa</h3>
+            <p style={styles.actionSubtitle}>
+              Análisis completo basado en los filtros activos del dashboard
+            </p>
+          </div>
+        </div>
         <button
           onClick={generarReporte}
           disabled={loading}
-          style={{
-            width: "100%", maxWidth: "350px", backgroundColor: loading ? "#cbd5e0" : "#FC3276",
-            color: "white", padding: "16px", borderRadius: "12px", border: "none", fontWeight: "bold",
-            cursor: loading ? "not-allowed" : "pointer"
-          }}
+          style={loading ? styles.btnDisabled : styles.btn}
         >
           {loading ? "⌛ PROCESANDO..." : "GENERAR REPORTE EJECUTIVO"}
         </button>
       </div>
 
-      {reporte && (
-        <div style={{ backgroundColor: "#ffffff", borderRadius: "15px", padding: "40px", border: "1px solid #e2e8f0" }}>
-          
-          <div style={{ borderLeft: "6px solid #FC3276", paddingLeft: "25px", marginBottom: "35px" }}>
-            <h3 style={{ color: "#FC3276", margin: "0" }}>💡 Resumen Ejecutivo</h3>
-            <p>{reporte.resumen}</p>
+      {/* Skeleton de carga */}
+      {loading && (
+        <div style={styles.loadingCard}>
+          <div style={styles.loadingIcon}>🤖</div>
+          <p style={styles.loadingTitle}>La IA está analizando los datos...</p>
+          <p style={styles.loadingSubtitle}>Esto puede tomar unos segundos</p>
+        </div>
+      )}
+
+      {/* Resultado */}
+      {!loading && reporte && (
+        <div style={styles.resultCard}>
+          <div style={styles.resultHeader}>
+            <span style={styles.resultBadge}>💡 Reporte Ejecutivo</span>
+            <span style={styles.resultMeta}>
+              Generado con los filtros activos del dashboard
+            </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }}>
-            <div style={{ backgroundColor: "#f7fafc", padding: "20px", borderRadius: "15px" }}>
-              <h4>🔍 Hallazgos Clave</h4>
-              <ul>{reporte.hallazgos?.map((h, i) => <li key={i}>{typeof h === "object" ? (h.comentario || h.hallazgo || JSON.stringify(h)) : h}</li>)}</ul>
-            </div>
-            <div style={{ backgroundColor: "#fff5f5", padding: "20px", borderRadius: "15px" }}>
-              <h4>🚀 Recomendaciones</h4>
-              <ul>{reporte.recomendaciones?.map((r, i) => <li key={i}>{typeof r === "object" ? (r.recomendacion || JSON.stringify(r)) : r}</li>)}</ul>
-            </div>
-          </div>
+          <div
+            style={styles.resultBody}
+            dangerouslySetInnerHTML={{ __html: reporte }}
+          />
 
-          {/* BOTÓN DESCARGAR PDF */}
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <button
-              onClick={descargarReportePDF}
-              style={{
-                backgroundColor: "#FC3276", 
-                color: "white", padding: "12px 40px", borderRadius: "10px", border: "none",
-                fontWeight: "bold", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "10px"
-              }}
-            >
-              DESCARGAR EN PDF
+          <div style={styles.pdfRow}>
+            <button onClick={descargarPDF} style={styles.pdfBtn}>
+              📄 DESCARGAR EN PDF
             </button>
           </div>
         </div>
       )}
     </div>
   );
+};
+
+const styles = {
+  wrapper: {
+    padding: "20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    fontFamily: "'Inter', sans-serif",
+  },
+  actionCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    padding: "28px 32px",
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "20px",
+  },
+  actionHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+  },
+  actionIcon: {
+    fontSize: "36px",
+  },
+  actionTitle: {
+    margin: 0,
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  actionSubtitle: {
+    margin: "4px 0 0",
+    fontSize: "13px",
+    color: "#64748b",
+  },
+  btn: {
+    width: "100%",
+    maxWidth: "360px",
+    background: "linear-gradient(135deg, #FC3276 0%, #db2777 100%)",
+    color: "white",
+    padding: "15px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontWeight: "700",
+    fontSize: "14px",
+    letterSpacing: "0.6px",
+    cursor: "pointer",
+    boxShadow: "0 4px 18px rgba(252,50,118,0.35)",
+    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+  },
+  btnDisabled: {
+    width: "100%",
+    maxWidth: "360px",
+    background: "#cbd5e0",
+    color: "white",
+    padding: "15px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontWeight: "700",
+    fontSize: "14px",
+    letterSpacing: "0.6px",
+    cursor: "not-allowed",
+    boxShadow: "none",
+  },
+  loadingCard: {
+    backgroundColor: "#fff5f9",
+    borderRadius: "16px",
+    padding: "40px",
+    border: "1px solid #fce7f3",
+    textAlign: "center",
+  },
+  loadingIcon: {
+    fontSize: "44px",
+    marginBottom: "12px",
+  },
+  loadingTitle: {
+    margin: "0 0 6px",
+    fontWeight: "600",
+    fontSize: "16px",
+    color: "#FC3276",
+  },
+  loadingSubtitle: {
+    margin: 0,
+    fontSize: "13px",
+    color: "#94a3b8",
+  },
+  resultCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    padding: "36px 40px",
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  resultHeader: {
+    borderLeft: "5px solid #FC3276",
+    paddingLeft: "20px",
+    marginBottom: "28px",
+    background: "linear-gradient(90deg, #fff5f9 0%, transparent 80%)",
+    borderRadius: "0 10px 10px 0",
+    padding: "14px 20px",
+  },
+  resultBadge: {
+    display: "block",
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#FC3276",
+    marginBottom: "4px",
+  },
+  resultMeta: {
+    fontSize: "12px",
+    color: "#94a3b8",
+  },
+  resultBody: {
+    lineHeight: "1.8",
+    color: "#334155",
+    fontSize: "14px",
+  },
+  pdfRow: {
+    textAlign: "center",
+    marginTop: "36px",
+    paddingTop: "24px",
+    borderTop: "1px solid #f1f5f9",
+  },
+  pdfBtn: {
+    background: "linear-gradient(135deg, #FC3276 0%, #db2777 100%)",
+    color: "white",
+    padding: "13px 48px",
+    borderRadius: "10px",
+    border: "none",
+    fontWeight: "700",
+    fontSize: "14px",
+    letterSpacing: "1px",
+    cursor: "pointer",
+    boxShadow: "0 4px 18px rgba(252,50,118,0.3)",
+  },
 };
 
 export default ReporteCompleto;

@@ -108,7 +108,7 @@ export default function Inteligencia() {
       const query = params ? `?${params}` : '';
 
       // const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/analisis-ia${query}`);
-      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa`);
+      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa${query}`);
       const result = await response.json();
       const data = result.result
 
@@ -205,17 +205,23 @@ export default function Inteligencia() {
             style={{
               width: '100%',
               padding: '16px',
-              backgroundColor: '#db2777',
+              background: mostrarAnalisis
+                ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: '600',
+              fontSize: '14px',
+              fontWeight: '700',
+              letterSpacing: '0.5px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
+              boxShadow: mostrarAnalisis
+                ? '0 4px 18px rgba(100,116,139,0.25)'
+                : '0 4px 18px rgba(252,50,118,0.35)',
             }}
           >
             <span>{mostrarAnalisis ? 'Cerrar Análisis' : 'Análisis IA de Inteligencia Operativa'}</span>

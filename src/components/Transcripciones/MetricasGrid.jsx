@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useFilters } from '../../FiltersContext';
 
 const MetricasGrid = ({ data }) => {
+    const { buildQuery } = useFilters();
     const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
 
     const getStatusColor = (val) => {
@@ -12,7 +14,9 @@ const MetricasGrid = ({ data }) => {
 
     const obtenerAnalisisIA = async () => {
         try {
-            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa");
+            const params = buildQuery();
+            const query = params ? `?${params}` : '';
+            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa${query}`);
             const result = await response.json();
 
             const data = result.result || "No se obtuvo un análisis válido";
@@ -49,13 +53,19 @@ const MetricasGrid = ({ data }) => {
                     }}
                     style={{
                         padding: '14px 22px',
-                        backgroundColor: '#db2777',
+                        background: mostrarAnalisis
+                            ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                            : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '10px',
-                        fontSize: '15px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        letterSpacing: '0.5px',
+                        cursor: 'pointer',
+                        boxShadow: mostrarAnalisis
+                            ? '0 4px 18px rgba(100,116,139,0.25)'
+                            : '0 4px 18px rgba(252,50,118,0.35)',
                     }}
                 >
                     {mostrarAnalisis ? '✕ Ocultar Análisis' : 'Analizar llamada con IA'}

@@ -63,7 +63,7 @@ const Analisis = () => {
       const query = params ? `?${params}` : "";
 
       // const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/analisis-patrones${query}`);
-      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/analisis_ranking`);
+      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/analisis_ranking${query}`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -151,17 +151,23 @@ const Analisis = () => {
         style={{
           width: '100%',
           padding: '16px',
-          backgroundColor: '#be185d',
+          background: mostrarAnalisis
+            ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+            : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
-          fontWeight: 'bold',
+          borderRadius: '12px',
+          fontWeight: '700',
           cursor: 'pointer',
           fontSize: '14px',
+          letterSpacing: '0.5px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px'
+          gap: '10px',
+          boxShadow: mostrarAnalisis
+            ? '0 4px 18px rgba(100,116,139,0.25)'
+            : '0 4px 18px rgba(252,50,118,0.35)',
         }}
       >
 

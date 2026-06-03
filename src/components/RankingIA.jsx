@@ -77,9 +77,24 @@ const RankingIA = () => {
                 onClick={generarAnalisisIA}
                 disabled={loadingIA}
                 style={{
-                    width: '100%', backgroundColor: loadingIA ? '#ccc' : '#FC3276',
-                    color: 'white', padding: '12px', borderRadius: '10px', border: 'none',
-                    fontWeight: 'bold', cursor: 'pointer', marginTop: '10px'
+                    width: '100%',
+                    background: loadingIA
+                        ? '#cbd5e0'
+                        : mostrarInforme
+                            ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                            : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    fontWeight: '700',
+                    fontSize: '14px',
+                    letterSpacing: '0.5px',
+                    cursor: loadingIA ? 'not-allowed' : 'pointer',
+                    marginTop: '10px',
+                    boxShadow: loadingIA ? 'none' : mostrarInforme
+                        ? '0 4px 18px rgba(100,116,139,0.25)'
+                        : '0 4px 18px rgba(252,50,118,0.35)',
                 }}
             >
                 {loadingIA ? '⌛ Analizando...' : mostrarInforme ? 'Cerrar Análisis' : 'Análisis Comparativo IA'}

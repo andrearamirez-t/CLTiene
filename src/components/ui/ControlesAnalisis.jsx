@@ -79,18 +79,26 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
                     disabled={cargando}
                     style={{
                         flex: 1,
-                        backgroundColor: analizado ? '#FD7751' : '#FC3276',
+                        background: cargando
+                            ? '#cbd5e0'
+                            : analizado
+                                ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                                : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
+                        borderRadius: '12px',
+                        fontWeight: '700',
+                        fontSize: '14px',
+                        letterSpacing: '0.3px',
+                        cursor: cargando ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        height: '40px',
-                        transition: 'all 0.3s ease'
+                        height: '44px',
+                        boxShadow: cargando ? 'none' : analizado
+                            ? '0 4px 18px rgba(100,116,139,0.25)'
+                            : '0 4px 18px rgba(252,50,118,0.35)',
                     }}
                 >
                     {cargando ? (

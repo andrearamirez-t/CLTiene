@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useFilters } from '../../FiltersContext';
 
 const InsightsCard = () => {
+    const { buildQuery } = useFilters();
     const [estado, setEstado] = useState('reposo');
     const [insights, setInsights] = useState('');
     const [error, setError] = useState('');
@@ -24,7 +26,9 @@ const InsightsCard = () => {
         setError('');
 
         try {
-            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/ia/generar_insights");
+            const params = buildQuery();
+            const query = params ? `?${params}` : '';
+            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/generar_insights${query}`);
             const data = await response.json();
 
             if (!response.ok || !data.result) {
@@ -57,20 +61,24 @@ const InsightsCard = () => {
                 style={{
                     width: '100%',
                     padding: '14px',
-                    background: estado === 'completado' ? '#FD7751' : '#FC3276',
+                    background: estado === 'cargando'
+                        ? '#cbd5e0'
+                        : estado === 'completado'
+                            ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                            : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
-                    fontSize: '15px',
-                    fontWeight: '600',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    letterSpacing: '0.5px',
                     cursor: estado === 'cargando' ? 'not-allowed' : 'pointer',
                     marginBottom: '20px',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    boxShadow: estado === 'cargando' ? 'none' : '0 4px 18px rgba(252,50,118,0.35)',
                 }}
             >
                 {estado === 'reposo' && "Generar Insights con IA"}
-                {estado === 'cargando' && "Analizando datos..."}
+                {estado === 'cargando' && "⌛ Analizando datos..."}
                 {estado === 'completado' && "Limpiar Análisis"}
             </button>
 
