@@ -519,13 +519,13 @@ def scorecard_asesores(filters: FilterModel = Depends()):
         ROUND(AVG(CAST(Turnos_Asesor_V4 AS FLOAT64)), 1) turnosAsesor,
         ROUND(AVG(CAST(Turnos_Cliente_V4 AS FLOAT64)), 1) turnosCliente,
         ROUND(AVG(CAST(palabras AS FLOAT64)), 0) palabras,
-        ROUND(AVG(CAST(saludo_inicial AS FLOAT64)), 3) saludo,
-        ROUND(AVG(CAST(identificacion_cliente AS FLOAT64)), 3) identificacion,
-        ROUND(AVG(CAST(comprension_problema AS FLOAT64)), 3) comprension,
-        ROUND(AVG(CAST(ofrecimiento_solucion AS FLOAT64)), 3) ofrecimiento,
-        ROUND(AVG(CAST(manejo_inquietudes AS FLOAT64)), 3) manejo,
-        ROUND(AVG(CAST(cierre_servicio AS FLOAT64)), 3) cierre,
-        ROUND(AVG(CAST(proximo_paso AS FLOAT64)), 3) paso
+        ROUND(AVG(CAST(saludo_inicial AS FLOAT64)) * 100, 1) saludo,
+        ROUND(AVG(CAST(identificacion_cliente AS FLOAT64)) * 100, 1) identificacion,
+        ROUND(AVG(CAST(comprension_problema AS FLOAT64)) * 100, 1) comprension,
+        ROUND(AVG(CAST(ofrecimiento_solucion AS FLOAT64)) * 100, 1) ofrecimiento,
+        ROUND(AVG(CAST(manejo_inquietudes AS FLOAT64)) * 100, 1) manejo,
+        ROUND(AVG(CAST(cierre_servicio AS FLOAT64)) * 100, 1) cierre,
+        ROUND(AVG(CAST(proximo_paso AS FLOAT64)) * 100, 1) paso
     FROM
         `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
