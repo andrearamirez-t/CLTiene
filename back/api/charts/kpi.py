@@ -17,6 +17,7 @@ def kpi(filters: FilterModel):
             manejo_inquietudes,
             cierre_servicio,
             proximo_paso,
+            transcripcion,
             {calculo_fecha()} ts
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {filters.get_query()}
@@ -61,7 +62,12 @@ def kpi(filters: FilterModel):
         END AS dia_promedio,
         (SELECT Cuenta FROM top_asesor) top_asesor,
 
-        COALESCE(ROUND(AVG(saludo_inicial) * 100,1), 0) saludo,
+        COALESCE(ROUND(
+            SAFE_DIVIDE(
+                SUM(CASE WHEN transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50 AND saludo_inicial = 1 THEN 1 ELSE 0 END),
+                SUM(CASE WHEN transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50 THEN 1 ELSE 0 END)
+            ) * 100, 1
+        ), 0) saludo,
 
         COALESCE(ROUND((
             AVG(saludo_inicial) +
