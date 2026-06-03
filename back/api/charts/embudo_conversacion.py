@@ -19,17 +19,6 @@ def embudo_conversacion(filters: FilterModel):
         UNION ALL
 
         SELECT
-            "Contestadas" nombre,
-            COUNTIF(Estado_de_la_LLamada = "ANSWERED") valor,
-            ROUND(
-                SAFE_DIVIDE(COUNTIF(Estado_de_la_LLamada = "ANSWERED") * 100.0, COUNT(*)),
-                1
-            ) porcentaje
-        FROM base
-
-        UNION ALL
-
-        SELECT
             "Efectivas (contacto)" nombre,
             COUNTIF(efectiva = 1.0) valor,
             ROUND(
