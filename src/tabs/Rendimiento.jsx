@@ -183,7 +183,7 @@ const Rendimiento = () => {
                             </th>
 
 
-                            {['Llamadas', 'Turnos', 'Palabras', 'Efectivas', 'Éxito_%', 'Calidad_IA']
+                            {['Llamadas', 'Turnos', 'Score Calidad', '% Contacto', '% Ventas']
                                 .map((label, i) => (
 
                                     <th key={i} style={{ padding: '12px 16px' }}>
@@ -196,11 +196,7 @@ const Rendimiento = () => {
                                                 onChange={(e) => {
 
                                                     setColumnaOrden(
-                                                        label.toLowerCase().includes('éxito')
-                                                            ? 'exito'
-                                                            : label.toLowerCase().includes('calidad')
-                                                                ? 'calidad'
-                                                                : label.toLowerCase()
+                                                        label.includes('Calidad') ? 'score_calidad' : label.includes('Contacto') ? 'contacto_pct' : label.includes('Ventas') ? 'tasa_venta' : label.toLowerCase()
                                                     );
 
                                                     setOrden(e.target.value);
@@ -243,18 +239,12 @@ const Rendimiento = () => {
 
                                 <td style={{ padding: '16px' }}>{agente.llamadas}</td>
                                 <td style={{ padding: '16px' }}>{agente.turnos}</td>
-                                <td style={{ padding: '16px' }}>{agente.palabras}</td>
-                                <td style={{ padding: '16px' }}>{agente.efectivas}</td>
+                                <td style={{ padding: '16px' }}>{agente.score_calidad}</td>
+                                <td style={{ padding: '16px' }}>{agente.contacto_pct + '%'}</td>
 
                                 <td style={{ padding: '16px' }}>
                                     <div style={estiloBadge(agente.color)}>
-                                        {agente.exito}%
-                                    </div>
-                                </td>
-
-                                <td style={{ padding: '16px' }}>
-                                    <div style={estiloBadge(agente.color)}>
-                                        {agente.calidad}%
+                                        {agente.tasa_venta}%
                                     </div>
                                 </td>
 
@@ -326,3 +316,4 @@ const Rendimiento = () => {
 };
 
 export default Rendimiento;
+
