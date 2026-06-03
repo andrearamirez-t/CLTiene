@@ -5,10 +5,12 @@ import {
 } from 'recharts';
 
 const ResultadosChart = ({ datos }) => {
+    const labelMap = { 'Venta': 'Venta Cerrada' };
+
     const dataFormateada = datos.map(item => ({
-        name: item.nombre,
+        name: labelMap[item.nombre] ?? item.nombre,
         valor: parseInt(item.valor.split(' ')[0].replace('.', '')),
-        etiquetaCompleta: item.valor 
+        etiquetaCompleta: item.valor
     }));
 
     return (

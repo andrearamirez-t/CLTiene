@@ -28,4 +28,8 @@ def resultado_llamada(filters):
     job = client.query(query)
     df = job.to_dataframe()
 
-    return df.to_dict(orient="records")
+    display_map = {"Venta": "Venta Cerrada"}
+    df["id"] = df["name"]
+    df["name"] = df["name"].map(lambda x: display_map.get(x, x))
+
+    return df[["id", "name"]].to_dict(orient="records")

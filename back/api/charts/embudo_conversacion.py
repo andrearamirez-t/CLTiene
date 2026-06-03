@@ -52,7 +52,7 @@ def embudo_conversacion(filters: FilterModel):
         UNION ALL
 
         SELECT
-            "Ventas" nombre,
+            "Ventas Cerradas" nombre,
             COUNTIF(Resultado_Llamada = "Venta") valor,
             ROUND(
                 SAFE_DIVIDE(COUNTIF(Resultado_Llamada = "Venta") * 100.0, COUNT(*)),
