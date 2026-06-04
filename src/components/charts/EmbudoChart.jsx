@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config';
 import React, { useEffect, useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -9,7 +10,7 @@ const EmbudoChart = () => {
 
     useEffect(() => {
         const params = buildQuery() || null
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/embudo_conversacion${(params ? `?${params}` : "")}`)
+        fetch(`${API_BASE}/api/embudo_conversacion${(params ? `?${params}` : "")}`)
             .then(res => res.json())
             .then(data => setEmbudo(Array.isArray(data) ? data : []));
     }, [filters]);

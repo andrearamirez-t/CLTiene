@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config';
 import React, { useState, useRef, useEffect } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -28,7 +29,7 @@ const InsightsCard = () => {
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
-            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/generar_insights${query}`);
+            const response = await fetch(`${API_BASE}/ia/generar_insights${query}`);
             const data = await response.json();
 
             if (!response.ok || !data.result) {

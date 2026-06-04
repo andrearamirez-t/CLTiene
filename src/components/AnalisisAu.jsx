@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 import React, { useState } from 'react';
 import { useFilters } from '../FiltersContext';
 
@@ -41,7 +42,7 @@ const AnalisisAu = () => {
         try {
 
             const response = await fetch(
-                "https://cltiene-backend-293865702055.us-central1.run.app/ia/analisis_automatico" +
+                `${API_BASE}/ia/analisis_automatico` +
                 (params
                     ? `?${params}&tipo_analisis=${mapTipos[tipo]}`
                     : `?tipo_analisis=${mapTipos[tipo]}`)

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useFilters } from "../FiltersContext";
 
-const BASE_URL = "https://cltiene-backend-293865702055.us-central1.run.app";
+import { API_BASE } from "../config";
 
 const ReporteCompleto = () => {
   const { buildQuery } = useFilters();
@@ -14,7 +14,7 @@ const ReporteCompleto = () => {
     setReporte(null);
     try {
       const params = buildQuery();
-      const url = `${BASE_URL}/ia/reporte_completo${params ? `?${params}` : ""}`;
+      const url = `${API_BASE}/ia/reporte_completo${params ? `?${params}` : ""}`;
       const response = await fetch(url);
       const data = await response.json();
       if (data.result) setReporte(data.result);

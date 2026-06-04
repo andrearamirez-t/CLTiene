@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 ﻿import React, { useState } from 'react';
 import { useFilters } from '../FiltersContext';
 
@@ -48,7 +49,7 @@ const Agente = () => {
         try {
 
             const params = buildQuery();
-            const url = 'https://cltiene-backend-293865702055.us-central1.run.app/api/chat' + (params ? '?' + params : '');
+            const url = `${API_BASE}/api/chat` + (params ? '?' + params : '');
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

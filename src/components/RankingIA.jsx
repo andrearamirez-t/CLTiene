@@ -1,6 +1,9 @@
+import { API_BASE } from '../config';
 import React, { useState, useEffect } from 'react';
+import { useFilters } from '../FiltersContext';
 
 const RankingIA = () => {
+    const { filters, buildQuery } = useFilters();
     const [mostrarInforme, setMostrarInforme] = useState(false);
     const [asesores, setAsesores] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -10,7 +13,8 @@ const RankingIA = () => {
     const obtenerRanking = async () => {
         setLoading(true);
         try {
-            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/ranking_asesores");
+            const params = buildQuery();
+            const response = await fetch(`${API_BASE}/api/ranking_asesores${params ? `?${params}` : ''}`);
             const data = await response.json();
             setAsesores(data || []);
         } catch (error) {
@@ -28,7 +32,7 @@ const RankingIA = () => {
 
         setLoadingIA(true);
         try {
-            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/analisis_ranking_ia", {
+            const response = await fetch(`${API_BASE}/api/analisis_ranking_ia`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ asesores: asesores })
@@ -44,7 +48,7 @@ const RankingIA = () => {
 
     useEffect(() => {
         obtenerRanking();
-    }, []);
+    }, [filters]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontFamily: 'sans-serif' }}>

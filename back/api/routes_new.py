@@ -1,7 +1,7 @@
 from IA.Open_AI import call
 from helpers.utils import get_history
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Query, Depends
 import json
 import os
 import pandas as pd
@@ -9,6 +9,7 @@ from google.cloud import bigquery
 from openai import OpenAI
 from dotenv import load_dotenv
 from api.database import client as bq_client
+from api.models import FilterModel
 
 load_dotenv()
 
@@ -149,15 +150,17 @@ async def chat_asistente(payload: dict = Body(...)):
 
 
 @router.get("/ranking_asesores")
-async def ranking_asesores():
+async def ranking_asesores(filters: FilterModel = Depends()):
     try:
-        query = """
+        where = filters.get_query() or "1=1"
+        query = f"""
             SELECT
                 cuenta as nombre,
                 COUNT(*) as llamadas,
                 SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) as ventas,
                 ROUND(AVG(saludo_inicial) * 100) as puntos
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            WHERE {where}
             GROUP BY cuenta
             ORDER BY puntos DESC
             LIMIT 10

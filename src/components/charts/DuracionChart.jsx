@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config';
 ﻿import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { useFilters } from '../../FiltersContext';
@@ -9,7 +10,7 @@ const DuracionChart = () => {
 
     useEffect(() => {
 
-        fetch("https://cltiene-backend-293865702055.us-central1.run.app/duracion_llamadas" + (params ? `?${params}` : ""))
+        fetch(`${API_BASE}/duracion_llamadas` + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setDatos(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

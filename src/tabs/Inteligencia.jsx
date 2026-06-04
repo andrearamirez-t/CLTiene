@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 import React, { useEffect, useState } from 'react';
 import Hora from '../components/Inteligencia/Hora';
 import Dia from '../components/Inteligencia/Dia';
@@ -72,15 +73,15 @@ export default function Inteligencia() {
         const params = buildQuery();
         const query = params ? `?${params}` : '';
 
-        const hora = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/rendimiento-hora${query}`).then((r) => r.json());
-        const dia = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/rendimiento-dia${query}`).then((r) => r.json());
-        const ventas = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ventas-vs-servicio${query}`).then((r) => r.json());
-        const subjetividad = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/subjetividad-confianza-modulo${query}`).then((r) => r.json());
-        const desempeno = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/desempeno-sentimiento-asesor${query}`).then((r) => r.json());
-        const evolucion = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/evolucion-ventas${query}`).then((r) => r.json());
-        const scorecard = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/scorecard-asesores${query}`).then((r) => r.json());
-        const duracion = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/duracion-vs-efectividad${query}`).then((r) => r.json());
-        const sentimiento = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/clasificacion-sentimiento${query}`).then((r) => r.json());
+        const hora = await fetch(`${API_BASE}/rendimiento-hora${query}`).then((r) => r.json());
+        const dia = await fetch(`${API_BASE}/rendimiento-dia${query}`).then((r) => r.json());
+        const ventas = await fetch(`${API_BASE}/ventas-vs-servicio${query}`).then((r) => r.json());
+        const subjetividad = await fetch(`${API_BASE}/subjetividad-confianza-modulo${query}`).then((r) => r.json());
+        const desempeno = await fetch(`${API_BASE}/desempeno-sentimiento-asesor${query}`).then((r) => r.json());
+        const evolucion = await fetch(`${API_BASE}/evolucion-ventas${query}`).then((r) => r.json());
+        const scorecard = await fetch(`${API_BASE}/scorecard-asesores${query}`).then((r) => r.json());
+        const duracion = await fetch(`${API_BASE}/duracion-vs-efectividad${query}`).then((r) => r.json());
+        const sentimiento = await fetch(`${API_BASE}/clasificacion-sentimiento${query}`).then((r) => r.json());
 
         setDatosHoras(Array.isArray(hora) ? hora : []);
         setDatosDias(Array.isArray(dia) ? dia : []);
@@ -107,8 +108,8 @@ export default function Inteligencia() {
       const params = buildQuery();
       const query = params ? `?${params}` : '';
 
-      // const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/analisis-ia${query}`);
-      const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa${query}`);
+      // const response = await fetch(`${API_BASE}/analisis-ia${query}`);
+      const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
       const result = await response.json();
       const data = result.result
 

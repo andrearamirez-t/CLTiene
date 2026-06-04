@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config';
 import React, { useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -16,7 +17,7 @@ const MetricasGrid = ({ data }) => {
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
-            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/inteligencia_operativa${query}`);
+            const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
             const result = await response.json();
 
             const data = result.result || "No se obtuvo un análisis válido";

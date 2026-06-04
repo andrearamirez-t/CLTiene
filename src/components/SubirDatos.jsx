@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-const BASE = "https://cltiene-backend-293865702055.us-central1.run.app";
+import { API_BASE } from "../config";
 
 const SubirDatos = () => {
     const [estado, setEstado] = useState(null);
@@ -11,7 +11,7 @@ const SubirDatos = () => {
     useEffect(() => {
         if (!polling) return;
         const id = setInterval(async () => {
-            const res = await fetch(`${BASE}/api/upload/estado`);
+            const res = await fetch(`${API_BASE}/api/upload/estado`);
             const data = await res.json();
             setEstado(data);
             if (!data.corriendo) setPolling(false);
@@ -26,7 +26,7 @@ const SubirDatos = () => {
     const iniciar = async () => {
         setEstado({ corriendo: true, logs: ['Iniciando...'], error: null, filas: null });
         setPolling(true);
-        await fetch(`${BASE}/api/upload/iniciar`, { method: 'POST' });
+        await fetch(`${API_BASE}/api/upload/iniciar`, { method: 'POST' });
     };
 
     const terminado = estado && !estado.corriendo && estado.logs.length > 0;

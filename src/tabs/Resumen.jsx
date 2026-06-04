@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 import React, { useEffect, useState } from "react";
 import ResultadosChart from "../components/charts/ResultadosChart";
 import EmbudoChart from "../components/charts/EmbudoChart";
@@ -12,7 +13,7 @@ function Resumen() {
     useEffect(() => {
         const params = buildQuery() || null;
 
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/distribucion_resultado${params ? `?${params}` : ""}`)
+        fetch(`${API_BASE}/api/distribucion_resultado${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 setResults(Array.isArray(data) ? data : []);

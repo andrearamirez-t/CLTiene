@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 ﻿import React, { useEffect, useState } from 'react';
 
 import Sidebar from '../layout/Sidebar.jsx';
@@ -35,7 +36,7 @@ const Dashboard = () => {
         const fetchKpi = async () => {
             try {
 
-                const res = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/kpi" + (params ? `?${params}` : ""));
+                const res = await fetch(`${API_BASE}/api/kpi` + (params ? `?${params}` : ""));
                 const data = await res.json();
 
                 setKpi(data[0] || []);

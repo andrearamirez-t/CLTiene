@@ -1,3 +1,4 @@
+import { API_BASE } from '../../config';
 import React, { useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -25,7 +26,7 @@ const BusquedaInteligente = () => {
 
         try {
 
-            const response = await fetch("https://cltiene-backend-293865702055.us-central1.run.app/api/busqueda_inteligente" + (params ? `?${params}` : ""), {
+            const response = await fetch(`${API_BASE}/api/busqueda_inteligente` + (params ? `?${params}` : ""), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

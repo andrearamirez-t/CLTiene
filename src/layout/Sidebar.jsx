@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 ﻿import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -14,7 +15,7 @@ function Sidebar({ isOpen, onToggle }) {
     const [fechas, setFechas] = useState({ primera_fecha: "", ultima_fecha: "" })
     useEffect(() => {
         // Fetch a tu endpoint
-        fetch("https://cltiene-backend-293865702055.us-central1.run.app/limite-fecha")
+        fetch(`${API_BASE}/limite-fecha`)
             .then((res) => res.json())
             .then((data) => {
                 setFechas({

@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 import { useEffect, useState, useMemo } from "react";
 import { useFilters } from "../FiltersContext";
 
@@ -11,7 +12,7 @@ function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "
     // }
 
     useEffect(() => {
-        fetch("https://cltiene-backend-293865702055.us-central1.run.app" + endPoint + (params ? `?${params}` : ""))
+        fetch(API_BASE + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setOpciones(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

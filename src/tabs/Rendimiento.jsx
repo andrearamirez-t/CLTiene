@@ -1,3 +1,4 @@
+import { API_BASE } from '../config';
 ﻿import React, { useEffect, useState, useRef } from 'react';
 import ControlesAnalisis from '../components/ui/ControlesAnalisis';
 import GraficaCalidadIA from '../components/ui/GraficaCalidadIA';
@@ -35,7 +36,7 @@ const Rendimiento = () => {
 
         const params = buildQuery() || "";
 
-        fetch(`https://cltiene-backend-293865702055.us-central1.run.app/api/rendimiento_agente${params ? `?${params}` : ""}`)
+        fetch(`${API_BASE}/api/rendimiento_agente${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 setRendimiento(data || []);
@@ -79,7 +80,7 @@ const Rendimiento = () => {
 
         try {
 
-            const response = await fetch(`https://cltiene-backend-293865702055.us-central1.run.app/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
+            const response = await fetch(`${API_BASE}/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
 
             const result = await response.json();
             const data = result.result
