@@ -4,7 +4,9 @@ import { useFilters } from '../../FiltersContext';
 
 const MetricasGrid = ({ data }) => {
     const { buildQuery } = useFilters();
-    const [mostrarAnalisis, setMostrarAnalisis] = useState(false);
+    const [mostrar, setMostrar] = useState(false);
+    const [cargando, setCargando] = useState(false);
+    const [analisis, setAnalisis] = useState('');
 
     const getStatusColor = (val) => {
         const lowerVal = val.toString().toLowerCase();
@@ -13,19 +15,25 @@ const MetricasGrid = ({ data }) => {
         return '#1e293b';
     };
 
-    const obtenerAnalisisIA = async () => {
+    const handleClick = async () => {
+        if (mostrar) {
+            setMostrar(false);
+            setAnalisis('');
+            return;
+        }
+        setMostrar(true);
+        setCargando(true);
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
             const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
             const result = await response.json();
-
-            const data = result.result || "No se obtuvo un análisis válido";
-
-            setMostrarAnalisis(data)
+            setAnalisis(result.result || 'No se obtuvo un análisis válido');
         } catch (error) {
-            console.error("Error consultando IA:", error);
+            console.error('Error consultando IA:', error);
+            setAnalisis('Error al conectar con la IA.');
         }
+        setCargando(false);
     };
 
     return (
@@ -41,49 +49,65 @@ const MetricasGrid = ({ data }) => {
                 ))}
             </div>
 
-            {/* BOTÓN DE ACCIÓN */}
+            {/* BOTÓN */}
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <button
-                    onClick={async () => {
-                        const nuevoEstado = !mostrarAnalisis;
-                        setMostrarAnalisis(nuevoEstado);
-
-                        if (nuevoEstado) {
-                            await obtenerAnalisisIA();
-                        }
-                    }}
+                    onClick={handleClick}
+                    disabled={cargando}
                     style={{
                         padding: '14px 22px',
-                        background: mostrarAnalisis
-                            ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
-                            : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
+                        background: cargando
+                            ? '#cbd5e0'
+                            : mostrar
+                                ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                                : 'linear-gradient(135deg, #FC3276 0%, #db2777 100%)',
                         color: 'white',
                         border: 'none',
                         borderRadius: '12px',
                         fontSize: '14px',
                         fontWeight: '700',
                         letterSpacing: '0.5px',
-                        cursor: 'pointer',
-                        boxShadow: mostrarAnalisis
+                        cursor: cargando ? 'not-allowed' : 'pointer',
+                        boxShadow: cargando ? 'none' : mostrar
                             ? '0 4px 18px rgba(100,116,139,0.25)'
                             : '0 4px 18px rgba(252,50,118,0.35)',
                     }}
                 >
-                    {mostrarAnalisis ? '✕ Ocultar Análisis' : 'Analizar llamada con IA'}
+                    {cargando ? '⌛ Analizando...' : mostrar ? '✕ Ocultar Análisis' : 'Analizar llamada con IA'}
                 </button>
             </div>
 
-            {/* CUADRO DE ANÁLISIS */}
-            {mostrarAnalisis && (
+            {/* RESULTADO */}
+            {mostrar && (
                 <div style={{
-                    width: '100%',
-                    backgroundColor: 'white',
-                    border: '1.5px solid #fc3474',
-                    borderRadius: '15px',
-                    padding: '25px',
-                    marginTop: '10px',
-                    boxShadow: '0 4px 12px rgba(252, 52, 116, 0.05)'
-                }} dangerouslySetInnerHTML={{ __html: mostrarAnalisis }} />
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '36px 40px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                }}>
+                    <div style={{
+                        borderLeft: '5px solid #FC3276',
+                        background: 'linear-gradient(90deg, #fff5f9 0%, transparent 80%)',
+                        borderRadius: '0 10px 10px 0',
+                        padding: '14px 20px',
+                        marginBottom: '28px',
+                    }}>
+                        <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
+                            🧠 Análisis de Inteligencia Operativa
+                        </span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                            Generado con los filtros activos del dashboard
+                        </span>
+                    </div>
+
+                    {cargando ? (
+                        <p style={{ color: '#94a3b8', fontSize: '14px' }}>⌛ Generando análisis con IA...</p>
+                    ) : (
+                        <div style={{ lineHeight: '1.8', color: '#334155', fontSize: '14px' }}
+                            dangerouslySetInnerHTML={{ __html: analisis }} />
+                    )}
+                </div>
             )}
         </div>
     );
