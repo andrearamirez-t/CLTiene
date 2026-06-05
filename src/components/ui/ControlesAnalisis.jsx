@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, User, Trash2, Search } from "lucide-react";
 
-const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnalizar, cargando, analizado }) => {
+const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnalizar, onLimpiar, cargando, analizado }) => {
     const [abierto, setAbierto] = useState(false);
 
     return (
@@ -75,7 +75,7 @@ const ControlesAnalisis = ({ asesores = [], seleccionado, onSeleccionar, onAnali
 
 
                 <button
-                    onClick={onAnalizar}
+                    onClick={analizado ? onLimpiar : onAnalizar}
                     disabled={cargando}
                     style={{
                         flex: 1,

@@ -289,6 +289,7 @@ const Rendimiento = () => {
                 seleccionado={asesorSeleccionado}
                 onSeleccionar={setAsesorSeleccionado}
                 onAnalizar={ejecutarAnalisisIA}
+                onLimpiar={() => { setMostrarIA(false); setDiagnosticoIA(""); }}
                 cargando={cargandoIA}
                 analizado={mostrarIA}
             />
