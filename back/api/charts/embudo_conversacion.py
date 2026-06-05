@@ -42,9 +42,9 @@ def embudo_conversacion(filters: FilterModel):
 
         SELECT
             "Con Saludo" nombre,
-            COUNTIF(Saludo_Completo = "Sí") valor,
+            COUNTIF(saludo_inicial = 1.0) valor,
             ROUND(
-                SAFE_DIVIDE(COUNTIF(Saludo_Completo = "Sí") * 100.0, COUNT(*)),
+                SAFE_DIVIDE(COUNTIF(saludo_inicial = 1.0) * 100.0, COUNT(*)),
                 1
             ) porcentaje
         FROM base
