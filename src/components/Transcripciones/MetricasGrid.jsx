@@ -2,7 +2,7 @@ import { API_BASE } from '../../config';
 import React, { useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
-const MetricasGrid = ({ data }) => {
+const MetricasGrid = ({ data, llamadaId }) => {
     const { buildQuery } = useFilters();
     const [mostrar, setMostrar] = useState(false);
     const [cargando, setCargando] = useState(false);
@@ -26,7 +26,11 @@ const MetricasGrid = ({ data }) => {
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
-            const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
+            const sep = params ? '&' : '?';
+            const url = llamadaId && llamadaId !== 0
+                ? `${API_BASE}/ia/analizar_llamada${query}${sep}llamada_id=${llamadaId}`
+                : `${API_BASE}/ia/inteligencia_operativa${query}`;
+            const response = await fetch(url);
             const result = await response.json();
             setAnalisis(result.result || 'No se obtuvo un análisis válido');
         } catch (error) {
@@ -94,10 +98,10 @@ const MetricasGrid = ({ data }) => {
                         marginBottom: '28px',
                     }}>
                         <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
-                            🧠 Análisis de Inteligencia Operativa
+                            🎧 Análisis de la Llamada #{llamadaId}
                         </span>
                         <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                            Generado con los filtros activos del dashboard
+                            Resumen, aciertos, errores, scorecard y coaching
                         </span>
                     </div>
 

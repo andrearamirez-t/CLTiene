@@ -97,7 +97,7 @@ const Transcripciones = () => {
                     <h3 style={{ margin: 0, color: '#1e293b', fontSize: '18px' }}>📊 Análisis Detallado de Métricas Operativas e IA</h3>
                 </div>
 
-                <MetricasGrid data={metricas} />
+                <MetricasGrid data={metricas} llamadaId={agentID} />
             </div>
         </div>
     );
