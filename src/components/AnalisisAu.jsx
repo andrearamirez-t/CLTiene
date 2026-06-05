@@ -1,4 +1,5 @@
 import { API_BASE } from '../config';
+import { cleanHtml } from '../utils/cleanHtml';
 import React, { useState } from 'react';
 import { useFilters } from '../FiltersContext';
 
@@ -50,7 +51,7 @@ const AnalisisAu = () => {
 
             const data = await response.json();
 
-            setResultado(data.result || "No se recibió respuesta de la IA.");
+            setResultado(cleanHtml(data.result || "No se recibió respuesta de la IA."));
 
         } catch (error) {
 

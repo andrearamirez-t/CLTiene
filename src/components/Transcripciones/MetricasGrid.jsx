@@ -32,7 +32,12 @@ const MetricasGrid = ({ data, llamadaId }) => {
                 : `${API_BASE}/ia/inteligencia_operativa${query}`;
             const response = await fetch(url);
             const result = await response.json();
-            setAnalisis(result.result || 'No se obtuvo un análisis válido');
+            const raw = result.result || 'No se obtuvo un análisis válido';
+            const limpio = raw
+                .replace(/background-color\s*:\s*rgb\(15,\s*23,\s*42\)[^;"']*/g, 'background-color: #f8fafc')
+                .replace(/color\s*:\s*rgb\(203,\s*213,\s*225\)[^;"']*/g, 'color: #334155')
+                .replace(/border-bottom\s*:\s*1px solid rgb\(30,\s*41,\s*59\)[^;"']*/g, 'border-bottom: 1px solid #e2e8f0');
+            setAnalisis(limpio);
         } catch (error) {
             console.error('Error consultando IA:', error);
             setAnalisis('Error al conectar con la IA.');
