@@ -31,7 +31,8 @@ Dashboard web que procesa, analiza y visualiza el rendimiento de los asesores de
 CLTiene/
 ├── src/                        # Frontend React
 │   ├── config.js               # URL base del backend (cambiar aquí para todos los fetch)
-│   ├── styles/theme.js         # Tokens de diseño: colores, gradientes, sombras
+│   ├── styles/theme.js         # Tokens de diseño: colores, gradientes, sombras, botones IA
+│   ├── utils/cleanHtml.js      # Limpia estilos oscuros del prompt_html() antes de renderizar
 │   ├── pages/Dashboard.jsx     # Shell principal: sidebar + KPIs + navegación de tabs
 │   ├── tabs/                   # Un componente por pestaña
 │   │   ├── Resumen.jsx
@@ -41,6 +42,10 @@ CLTiene/
 │   │   ├── Transcripciones.jsx
 │   │   └── Agente.jsx
 │   ├── components/             # Gráficas, botones IA, UI reutilizable
+│   │   ├── AnalisisAu.jsx      # 8 tipos de análisis automático (Agente IA PRO)
+│   │   ├── RankingIA.jsx       # Ranking de asesores + análisis comparativo completo
+│   │   ├── ReporteCompleto.jsx # Reporte ejecutivo en 9 secciones con descarga PDF
+│   │   └── ui/InsightsCard.jsx # Insights rápidos del período
 │   ├── FiltersContext.jsx      # Estado global de filtros (Context API)
 │   └── layout/Sidebar.jsx      # Barra lateral de filtros
 │
@@ -55,7 +60,7 @@ CLTiene/
 │   │   ├── filters/            # Opciones de filtros del sidebar
 │   │   └── upload/             # Pipeline SQL Server → BigQuery (solo local)
 │   ├── IA/Open_AI.py           # call(system, user) → (content, error)  |  prompt_html()
-│   ├── helpers/utils.py        # get_data_context() — contexto de datos para la IA
+│   ├── helpers/utils.py        # Contextos de datos para IA (general, asesor, llamada, ranking)
 │   ├── subir_datos.py          # Script autónomo de carga de datos
 │   └── registrar_tarea.ps1     # Registra tarea automática en Windows
 │
@@ -65,34 +70,77 @@ CLTiene/
 
 ## KPIs del dashboard
 
-| KPI | Fuente | Descripción |
-|-----|--------|-------------|
+| KPI | Campo BigQuery | Descripción |
+|-----|---------------|-------------|
 | TOTAL LLAMADAS | `COUNT(*)` | Todas las llamadas en el período |
-| LLAMADAS EFECTIVAS | `SUM(efectiva)` | Llamadas marcadas como efectivas en la CUN |
-| VENTAS CERRADAS | `COUNT(resultado_llamada = 'Venta')` | Ventas detectadas por transcripción |
+| LLAMADAS EFECTIVAS | `SUM(efectiva)` | Campo `efectiva` de la CUN (0 o 1) |
+| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Ventas detectadas por transcripción |
 | HORA PICO | `AVG(timestamp)` | Hora promedio de mayor actividad |
 | DÍA PICO | `GROUP BY día` | Día con más llamadas |
-| ASESOR TOP | `ORDER BY total DESC` | Asesor con más llamadas |
-| SALUDO OK | `AVG(saludo_inicial)` | % de llamadas con saludo completo |
-| CALIDAD LLAMADA IA | Promedio 7 métricas | Score 0–100 de calidad del asesor |
+| ASESOR TOP | `ORDER BY COUNT DESC` | Asesor con más llamadas |
+| SALUDO OK | `AVG(saludo_inicial)` | % de llamadas con `saludo_inicial = 1` (dato CUN) |
+| CALIDAD LLAMADA IA | Promedio 7 métricas | Score 0–100 calculado sobre métricas de calidad |
+
+> **Nota:** `saludo_inicial` (CUN) y `Saludo_Completo` (pipeline) son campos distintos.
+> El KPI y el embudo usan `saludo_inicial` para ser coherentes entre sí.
 
 ## Pestañas del dashboard
 
 1. **Resumen Ejecutivo** — KPIs, embudo de conversión, distribución de resultados, insights IA
-2. **Rendimiento Asesores** — Scorecard individual, ranking con filtros, análisis IA por asesor
-3. **Análisis Detallado** — Planes mencionados, motivos de rechazo, tipo de cliente
-4. **Inteligencia Operativa** — Gráficas de horas/días/sentimiento + análisis IA operativo
-5. **Transcripciones** — Visor de llamadas con búsqueda inteligente y análisis por llamada
-6. **Agente IA PRO** — Chat interactivo + 8 tipos de análisis automático con filtros activos
+2. **Rendimiento Asesores** — Tabla de asesores con filtros, análisis IA individual por asesor
+3. **Análisis Detallado** — Planes mencionados, motivos de rechazo, tipo de cliente + análisis IA de patrones
+4. **Inteligencia Operativa** — Gráficas de horas/días/sentimiento/scorecard + análisis IA operativo
+5. **Transcripciones** — Visor de llamadas con chat, búsqueda inteligente y análisis IA por llamada
+6. **Agente IA PRO** — Chat + 8 análisis automáticos + ranking comparativo + reporte completo PDF
+
+## Embudo de conversión
+
+| Paso | Campo BigQuery | Descripción |
+|------|---------------|-------------|
+| Total llamadas | `COUNT(*)` | Todas las llamadas |
+| Efectivas (contacto) | `efectiva = 1.0` | Llamadas con contacto real (campo CUN) |
+| Conv > 30s | `Duracion_Estimada IN ('Corta','Media','Larga')` | Conversaciones con duración real |
+| Con Saludo | `saludo_inicial = 1.0` | Saludos correctos según la CUN |
+| Ventas Cerradas | `Resultado_Llamada = 'Venta'` | Ventas detectadas por transcripción |
+
+## Módulos de IA disponibles
+
+| Endpoint | Usado en | Descripción |
+|----------|----------|-------------|
+| `GET /ia/generar_insights` | Resumen | Insights rápidos del período |
+| `GET /ia/analisis_automatico?tipo_analisis=X` | Agente IA PRO | 8 tipos de análisis profundo |
+| `GET /ia/inteligencia_operativa` | Inteligencia | Patrones operativos de horas/días/rendimiento |
+| `GET /ia/analizar_asesor?asesor=X` | Rendimiento | Diagnóstico individual con fortalezas y coaching |
+| `GET /ia/analizar_llamada?llamada_id=X` | Transcripciones | Análisis de llamada específica: resumen, scorecard, coaching |
+| `GET /ia/reporte_completo` | Agente IA PRO | Reporte ejecutivo de 9 secciones descargable en PDF |
+| `GET /ia/analisis_ranking` | Agente IA PRO | Comparativo de TODOS los asesores con plan de mentoría |
+
+> Todos los módulos usan `prompt_html()` → retornan HTML renderizable directamente.
+> `call()` siempre retorna tupla `(content, error)` — siempre desempaquetar: `content, error = call(...)`.
+> `MAX_TOKENS` default: **4000** (configurable via variable de entorno en Cloud Run).
+> El HTML de los resultados pasa por `src/utils/cleanHtml.js` para convertir fondos oscuros a claros.
+
+## Tipos de análisis automático (Agente IA PRO)
+
+| Tipo | `tipo_analisis` | Prompt objetivo |
+|------|----------------|-----------------|
+| Resumen Ejecutivo | `resumen_ejecutivo` | KPIs, tendencias, fortalezas, debilidades, recomendaciones |
+| Oportunidades de Mejora | `oportunidades_mejora` | 10 oportunidades con impacto y prioridad |
+| Análisis de Rechazos | `analisis_rechazos` | Distribución, patrones y estrategias para reducir rechazos |
+| Mejores Prácticas | `mejores_practicas` | Benchmark de top performers y cómo replicarlo |
+| Patrones de Ventas | `patrones_ventas` | Duración óptima, turnos ideales, perfil de llamada exitosa |
+| Plan de Coaching | `plan_coaching` | Diagnóstico por asesor, ejercicios, cronograma 4 semanas |
+| Recomendaciones Semanales | `recomendaciones_semanales` | 3 prioridades, métricas diarias, alertas |
+| Predicción de Tendencias | `prediccion_tendencias` | Proyección del próximo mes, riesgos y acciones preventivas |
 
 ## Filtros del dashboard
 
-Todos los endpoints aceptan `FilterModel` como query params. Los filtros disponibles son:
+Todos los endpoints aceptan `FilterModel` como query params:
 
 | Filtro | Campo BigQuery |
 |--------|---------------|
 | Fecha desde / hasta | `Fecha` |
-| Resultado llamada | `Resultado_Llamada` |
+| Resultado llamada | `Resultado_Llamada` (muestra "Venta Cerrada", envía "Venta" al backend) |
 | Plan mencionado | `Plan_Mencionado` |
 | Duración | `Duracion_Estimada` |
 | Saludo asesor | `Saludo_Completo` |
@@ -102,19 +150,22 @@ Todos los endpoints aceptan `FilterModel` como query params. Los filtros disponi
 | Tipo llamada | `tipo` |
 | Asistencia mencionada | `asistencia_mencionada` |
 
-## Módulos de IA disponibles
+## Campos calculados por el pipeline vs campos de la CUN
 
-| Endpoint | Descripción |
-|----------|-------------|
-| `GET /ia/generar_insights` | Insights rápidos del período |
-| `GET /ia/analisis_automatico?tipo_analisis=X` | 8 tipos de análisis (resumen, coaching, rechazos…) |
-| `GET /ia/inteligencia_operativa` | Análisis profundo de patrones operativos |
-| `GET /ia/analizar_asesor?asesor=X` | Diagnóstico individual de asesor |
-| `GET /ia/reporte_completo` | Reporte ejecutivo completo (9 secciones) en HTML |
-| `GET /ia/analisis_ranking` | Comparativo de rankings con recomendaciones |
+| Campo | Origen | Cómo se calcula |
+|-------|--------|-----------------|
+| `Resultado_Llamada` | Pipeline | Regex sobre transcripción |
+| `Plan_Mencionado` | Pipeline | Regex sobre transcripción |
+| `Duracion_Estimada` | Pipeline | Longitud de transcripción |
+| `Saludo_Completo` | Pipeline | 3/4 frases específicas detectadas |
+| `Motivo_Rechazo` | Pipeline | Basado en Resultado_Llamada |
+| `efectiva` | CUN | Campo directo del SQL Server |
+| `saludo_inicial` | CUN | Campo directo del SQL Server |
+| `clasificacion` | CUN | Campo directo del SQL Server (⚠️ mayoría neutro) |
+| `subjectivity` / `confianza` | CUN | Campos directos del SQL Server |
 
-> Todos los módulos usan `prompt_html()` para retornar HTML renderizable directamente.
-> `call()` siempre retorna tupla `(content, error)` — siempre desempaquetar con `content, error = call(...)`.
+> ⚠️ `clasificacion`, `subjectivity` y `confianza` vienen del SQL Server de la CUN.
+> Si estos campos no se llenan correctamente en la fuente, las gráficas de sentimiento y subjetividad mostrarán datos incompletos.
 
 ## Pipeline de datos
 
@@ -173,6 +224,8 @@ firebase deploy --only hosting:cltiene-dashboard
 |----------|-------------|
 | `OPENAI_API_MUNDIAL` | API key de OpenAI (configurada como secret) |
 | `GOOGLE_CLOUD_PROJECT` | ID del proyecto GCP |
+| `MAX_TOKENS` | Máximo de tokens por respuesta IA (default: 4000) |
+| `MODEL` | Modelo OpenAI a usar (default: gpt-4o-mini) |
 
 ## Automatización de carga de datos
 
