@@ -8,6 +8,7 @@ const AnalisisAu = () => {
     const { buildQuery } = useFilters();
 
     const [tipo, setTipo] = useState('Resumen Ejecutivo');
+    const [tipoGenerado, setTipoGenerado] = useState('');
     const [cargando, setCargando] = useState(false);
     const [resultado, setResultado] = useState("");
 
@@ -28,6 +29,7 @@ const AnalisisAu = () => {
 
         setCargando(true);
         setResultado("");
+        setTipoGenerado(tipo);
 
         const mapTipos = {
             "Resumen Ejecutivo": "resumen_ejecutivo",
@@ -162,7 +164,7 @@ const AnalisisAu = () => {
                             marginBottom: '28px',
                         }}>
                             <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
-                                🤖 {tipo}
+                                🤖 {tipoGenerado}
                             </span>
                             <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                                 Generado con los filtros activos del dashboard
