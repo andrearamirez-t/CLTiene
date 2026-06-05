@@ -63,8 +63,7 @@ const Analisis = () => {
       const params = buildQuery();
       const query = params ? `?${params}` : "";
 
-      // const response = await fetch(`${API_BASE}/analisis-patrones${query}`);
-      const response = await fetch(`${API_BASE}/ia/analisis_ranking${query}`);
+      const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
