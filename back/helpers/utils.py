@@ -495,25 +495,32 @@ def get_search_results_context(where="1=1", search_query=""):
     return ctx
 
 
-def get_llamada_context(where="1=1", asesor=None):
+def get_llamada_context(filters, llamada_id):
+
+    where = filters.get_query() if hasattr(filters, "get_query") else "1=1"
 
     query = f"""
-    SELECT
-        Cuenta,
-        Estado_de_la_Llamada,
-        Resultado_Llamada,
-        Duracion_Estimada,
-        Num_Turnos_V4,
-        Plan_Mencionado,
-        Motivo_Rechazo,
-        Saludo_Completo,
-        Explico_Beneficios,
-        Ofrecio_WhatsApp,
-        Despedida_Correcta,
-        transcripcion
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
-    WHERE {where}
-    AND Cuenta = '{asesor}'
+    WITH numeradas AS (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
+            Cuenta,
+            Estado_de_la_Llamada,
+            Resultado_Llamada,
+            Duracion_Estimada,
+            Num_Turnos_V4,
+            Plan_Mencionado,
+            Motivo_Rechazo,
+            Saludo_Completo,
+            Explico_Beneficios,
+            Ofrecio_WhatsApp,
+            Despedida_Correcta,
+            Transcripcion_V4
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        WHERE Transcripcion_V4 IS NOT NULL
+        AND {where}
+    )
+    SELECT * FROM numeradas
+    WHERE id = {llamada_id}
     LIMIT 1
     """
 
@@ -526,16 +533,11 @@ def get_llamada_context(where="1=1", asesor=None):
     r = rows[0]
 
     ctx = f"""
-    ANÁLISIS DE LLAMADA – CALL CENTER CL TIENE SOLUCIONES
+    ANÁLISIS DE LLAMADA #{llamada_id} – CALL CENTER CL TIENE SOLUCIONES
 
-    ASESOR:
-    {r.Cuenta}
-
-    ESTADO DE LA LLAMADA:
-    {r.Estado_de_la_Llamada}
-
-    RESULTADO:
-    {r.Resultado_Llamada}
+    ASESOR: {r.Cuenta}
+    ESTADO: {r.Estado_de_la_Llamada}
+    RESULTADO: {r.Resultado_Llamada}
 
     DETALLES OPERATIVOS:
     - Duración estimada: {r.Duracion_Estimada}
@@ -549,8 +551,8 @@ def get_llamada_context(where="1=1", asesor=None):
     - Ofreció WhatsApp: {r.Ofrecio_WhatsApp}
     - Despedida correcta: {r.Despedida_Correcta}
 
-    TRANSCRIPCIÓN DE LA LLAMADA:
-    {r.transcripcion}
+    TRANSCRIPCIÓN:
+    {r.Transcripcion_V4}
     """
 
     return ctx
