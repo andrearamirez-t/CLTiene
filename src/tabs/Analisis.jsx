@@ -63,7 +63,8 @@ const Analisis = () => {
       const params = buildQuery();
       const query = params ? `?${params}` : "";
 
-      const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
+      const sep = params ? '&' : '?';
+      const response = await fetch(`${API_BASE}/ia/analisis_automatico${query}${sep}tipo_analisis=patrones_ventas`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
