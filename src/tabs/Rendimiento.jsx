@@ -266,15 +266,32 @@ const Rendimiento = () => {
             {mostrarIA && (
 
                 <div style={{
-                    backgroundColor: '#f0f4ff',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '12px',
-                    padding: '30px',
-                    borderLeft: '6px solid #be185d',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '36px 40px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                     marginBottom: '24px'
                 }}>
 
-                    <div style={{ whiteSpace: "pre-wrap" }} dangerouslySetInnerHTML={{ __html: diagnosticoIA.replace(/\n/g, "<br/>") }} />
+                    <div style={{
+                        borderLeft: '5px solid #FC3276',
+                        paddingLeft: '20px',
+                        marginBottom: '28px',
+                        background: 'linear-gradient(90deg, #fff5f9 0%, transparent 80%)',
+                        borderRadius: '0 10px 10px 0',
+                        padding: '14px 20px',
+                    }}>
+                        <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
+                            🔍 Análisis del Asesor
+                        </span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                            {asesorSeleccionado}
+                        </span>
+                    </div>
+
+                    <div style={{ lineHeight: '1.8', color: '#334155', fontSize: '14px' }}
+                        dangerouslySetInnerHTML={{ __html: diagnosticoIA }} />
 
                 </div>
 
