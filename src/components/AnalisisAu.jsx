@@ -147,22 +147,28 @@ const AnalisisAu = () => {
                 {!cargando && resultado && (
 
                     <div style={{
-                        backgroundColor: 'white',
-                        padding: '25px',
-                        borderRadius: '12px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '16px',
+                        padding: '36px 40px',
                         border: '1px solid #e2e8f0',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                        lineHeight: '1.7',
-                        color: '#334155'
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                     }}>
-
-                        <h3 style={{ color: '#FC3276', marginTop: 0 }}>
-                            Análisis IA
-                        </h3>
-
-                        {/* <p>{resultado}</p> */}
-                        <div dangerouslySetInnerHTML={{ __html: resultado }} />
-
+                        <div style={{
+                            borderLeft: '5px solid #FC3276',
+                            background: 'linear-gradient(90deg, #fff5f9 0%, transparent 80%)',
+                            borderRadius: '0 10px 10px 0',
+                            padding: '14px 20px',
+                            marginBottom: '28px',
+                        }}>
+                            <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
+                                🤖 {tipo}
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                Generado con los filtros activos del dashboard
+                            </span>
+                        </div>
+                        <div style={{ lineHeight: '1.8', color: '#334155', fontSize: '14px' }}
+                            dangerouslySetInnerHTML={{ __html: resultado }} />
                     </div>
 
                 )}

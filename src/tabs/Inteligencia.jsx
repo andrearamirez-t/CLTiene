@@ -233,20 +233,31 @@ export default function Inteligencia() {
           <div
             style={{
               gridColumn: '1 / span 2',
-              backgroundColor: 'white',
-              padding: '30px',
-              borderRadius: '12px',
-              border: '1px solid #db2777',
-              boxShadow: '0 4px 20px rgba(219, 39, 119, 0.1)',
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              padding: '36px 40px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
             }}
           >
-            <h3 style={{ color: '#db2777', marginTop: 0 }}>
-              Análisis de Inteligencia Operativa del Call Center
-            </h3>
+            <div style={{
+              borderLeft: '5px solid #FC3276',
+              background: 'linear-gradient(90deg, #fff5f9 0%, transparent 80%)',
+              borderRadius: '0 10px 10px 0',
+              padding: '14px 20px',
+              marginBottom: '28px',
+            }}>
+              <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
+                🧠 Análisis de Inteligencia Operativa
+              </span>
+              <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                Generado con los filtros activos del dashboard
+              </span>
+            </div>
 
-            <div style={{ lineHeight: '1.8', color: '#334155' }}>
+            <div style={{ lineHeight: '1.8', color: '#334155', fontSize: '14px' }}>
               {cargandoAnalisis ? (
-                <p>Generando análisis con IA...</p>
+                <p style={{ color: '#94a3b8' }}>⌛ Generando análisis con IA...</p>
               ) : (
                 <div dangerouslySetInnerHTML={{ __html: analisisIA }} />
               )}

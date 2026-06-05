@@ -100,20 +100,32 @@ const InsightsCard = () => {
                 </div>
             )}
 
-            <div
-                style={{
-                    display: estado === 'completado' ? 'block' : 'none',
-                    background: 'white',
-                    border: '1px solid #e2e8f0',
+            {estado === 'completado' && (
+                <div style={{
+                    backgroundColor: '#ffffff',
                     borderRadius: '16px',
-                    padding: '25px',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                    fontSize: '13px',
-                    lineHeight: '1.6',
-                    color: '#334155'
-                }}
-                ref={contenedorRef}
-            />
+                    padding: '36px 40px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                }}>
+                    <div style={{
+                        borderLeft: '5px solid #FC3276',
+                        background: 'linear-gradient(90deg, #fff5f9 0%, transparent 80%)',
+                        borderRadius: '0 10px 10px 0',
+                        padding: '14px 20px',
+                        marginBottom: '28px',
+                    }}>
+                        <span style={{ display: 'block', fontSize: '18px', fontWeight: '700', color: '#FC3276', marginBottom: '4px' }}>
+                            💡 Insights del período
+                        </span>
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                            Generado con los filtros activos del dashboard
+                        </span>
+                    </div>
+                    <div style={{ lineHeight: '1.8', color: '#334155', fontSize: '14px' }}
+                        ref={contenedorRef} />
+                </div>
+            )}
 
             <style>{`
                 @keyframes fadeIn {
