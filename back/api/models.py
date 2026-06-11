@@ -15,6 +15,7 @@ class FilterModel(BaseModel):
     modulo_atencion: Optional[str] = Query(None)
     clasificacion_sentimiento: Optional[str] = Query(None)
     tipo_llamada: Optional[str] = Query(None)
+    seguimiento_llamada: Optional[str] = Query(None)
     transcripcion: Optional[str] = Query(None)
     asistencia_mencionada: Optional[str] = Query(None)
 

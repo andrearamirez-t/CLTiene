@@ -82,6 +82,7 @@ def cargar_desde_sql():
             b.[efectiva], b.[polarity], b.[subjectivity],
             b.[clasificacion], b.[confianza], b.[palabras],
             b.[IDENTIFICACION], b.[fecha_carga], b.[transcripcion],
+            b.[Tipo de Llamada],
             CASE WHEN a.cant > 1 THEN 'mixto' ELSE b.tipo END AS tipo
         FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS b
         INNER JOIN registros_unicos a
@@ -97,13 +98,23 @@ def cargar_desde_sql():
 
 # ─── Procesamiento ───────────────────────────────────────────────────────────────
 
-def detectar_duracion_estimada(texto):
-    if pd.isna(texto) or not texto: return "Sin Datos"
-    n = len(str(texto).strip())
-    if n < 50:   return "Buzón"
-    if n < 200:  return "Muy Corta"
-    if n < 500:  return "Corta"
-    if n < 1500: return "Media"
+def detectar_duracion_estimada(tiempo_str):
+    if pd.isna(tiempo_str) or not tiempo_str:
+        return "Sin Datos"
+    try:
+        partes = str(tiempo_str).strip().split(':')
+        if len(partes) == 3:
+            segundos = int(partes[0]) * 3600 + int(partes[1]) * 60 + int(partes[2])
+        elif len(partes) == 2:
+            segundos = int(partes[0]) * 60 + int(partes[1])
+        else:
+            return "Sin Datos"
+    except Exception:
+        return "Sin Datos"
+    if segundos <= 30:  return "Buzón"
+    if segundos <= 60:  return "Muy Corta"
+    if segundos <= 120: return "Corta"
+    if segundos <= 300: return "Media"
     return "Larga"
 
 def detectar_plan(texto):
@@ -183,7 +194,7 @@ def dividir_transcripcion_en_turnos(texto):
 def procesar(df):
     df['Resultado_Llamada'] = df['transcripcion'].apply(detectar_resultado_llamada)
     df['Plan_Mencionado']   = df['transcripcion'].apply(detectar_plan)
-    df['Duracion_Estimada'] = df['transcripcion'].apply(detectar_duracion_estimada)
+    df['Duracion_Estimada'] = df['Tiempo  de Conversacion'].apply(detectar_duracion_estimada)
     df['Saludo_Completo']   = df['transcripcion'].apply(detectar_saludo_completo)
     df['Ofrecio_WhatsApp']  = df['transcripcion'].apply(detectar_ofrecio_whatsapp)
     df['Motivo_Rechazo']    = df.apply(

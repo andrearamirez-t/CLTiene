@@ -31,6 +31,7 @@ from api.filters.clasificacion_sentimiento import clasificacion_sentimiento
 from api.filters.modulo_atencion import modulo_atencion
 from api.filters.tipo_llamada import tipo_llamada
 from api.filters.asistencia_mencionada import asistencia_mencionada
+from api.filters.seguimiento_llamada import seguimiento_llamada
 
 from api.charts.transcripciones import transcripciones
 from api.charts.tipo_vehiculo import tipo_vehiculo
@@ -133,6 +134,11 @@ def api_modulo_atencion(filters: FilterModel = Depends()):
 @router.get("/api/tipo_llamada")
 def api_tipo_llamada(filters: FilterModel = Depends()):
     return tipo_llamada(filters)
+
+
+@router.get("/api/seguimiento_llamada")
+def api_seguimiento_llamada(filters: FilterModel = Depends()):
+    return seguimiento_llamada(filters)
 
 
 @router.get("/api/distribucion_resultado")

@@ -14,6 +14,7 @@ export const FiltersProvider = ({ children }) => {
         modulo_atencion: null,
         clasificacion_sentimiento: null,
         tipo_llamada: null,
+        seguimiento_llamada: null,
         asistencia_mencionada: null,
         transcripcion: null
     });

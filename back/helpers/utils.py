@@ -53,6 +53,9 @@ def filters(filters: dict) -> dict:
         if key == "tipo_llamada":
             filtros_string.append(f"tipo = '{value}'")
 
+        if key == "seguimiento_llamada":
+            filtros_string.append(f"Tipo_de_Llamada = '{value}'")
+
         if key == "transcripcion" and value == "true":
             filtros_string.append("transcripcion is not null")
 

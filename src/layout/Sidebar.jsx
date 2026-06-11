@@ -169,6 +169,9 @@ function Sidebar({ isOpen, onToggle }) {
                     <label style={labelMargin}>Tipo de Llamada</label>
                     <Select onChange={handleChange} name="tipo_llamada" style={customInput} endPoint="/api/tipo_llamada" />
 
+                    <label style={labelMargin}>Seguimiento de Llamada</label>
+                    <Select onChange={handleChange} name="seguimiento_llamada" style={customInput} endPoint="/api/seguimiento_llamada" />
+
                     <label style={labelMargin}>Asistencia Mencionada</label>
                     <Select onChange={handleChange} name="asistencia_mencionada" style={customInput} endPoint="/api/asistencia_mencionada" />
 
