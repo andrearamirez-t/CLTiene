@@ -82,7 +82,7 @@ def cargar_desde_sql():
             b.[efectiva], b.[polarity], b.[subjectivity],
             b.[clasificacion], b.[confianza], b.[palabras],
             b.[IDENTIFICACION], b.[fecha_carga], b.[transcripcion],
-            b.[Tipo de Llamada],
+            b.[Tipo_Llamada],
             CASE WHEN a.cant > 1 THEN 'mixto' ELSE b.tipo END AS tipo
         FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS b
         INNER JOIN registros_unicos a
