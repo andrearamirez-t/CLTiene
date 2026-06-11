@@ -21,7 +21,7 @@ def metricas(id):
         UNION ALL
         SELECT 'Plan', IFNULL(Plan_Mencionado,'-') FROM base
         UNION ALL
-        SELECT 'Turnos', IFNULL(CAST(Turnos_Asesor_V4 AS STRING),'-') FROM base
+        SELECT 'Turnos', IFNULL(Duracion_Estimada,'-') FROM base
         UNION ALL
         SELECT 'Saludo', IFNULL(Saludo_Completo,'-') FROM base
         UNION ALL

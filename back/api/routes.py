@@ -516,8 +516,8 @@ def scorecard_asesores(filters: FilterModel = Depends()):
             SAFE_DIVIDE (SUM(CAST(efectiva AS FLOAT64)), COUNT(*)) * 100,
             1
         ) efectividad,
-        ROUND(AVG(CAST(Turnos_Asesor_V4 AS FLOAT64)), 1) turnosAsesor,
-        ROUND(AVG(CAST(Turnos_Cliente_V4 AS FLOAT64)), 1) turnosCliente,
+        ROUND(AVG(CAST(palabras AS FLOAT64)) / 15, 1) turnosAsesor,
+        ROUND(AVG(CAST(palabras AS FLOAT64)) / 20, 1) turnosCliente,
         ROUND(AVG(CAST(palabras AS FLOAT64)), 0) palabras,
         ROUND(AVG(CAST(saludo_inicial AS FLOAT64)) * 100, 1) saludo,
         ROUND(AVG(CAST(identificacion_cliente AS FLOAT64)) * 100, 1) identificacion,
@@ -668,17 +668,16 @@ def api_lista_llamadas(filters: FilterModel = Depends()):
 
     return option(
         f"""
-    SELECT 
+    SELECT
         ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
         Resultado_Llamada,
-        Num_Turnos_V4,
+        Duracion_Estimada,
         Telefono,
         Cuenta
     FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
     AND transcripcion IS NOT NULL
-    ORDER BY fecha DESC
     """,
         "id",
-        "concat('#', id, ' | ', Resultado_Llamada, ' | ', Num_Turnos_V4, ' | ', Telefono, ' | ', Cuenta)",
+        "concat('#', id, ' | ', Resultado_Llamada, ' | ', Duracion_Estimada, ' | ', Telefono, ' | ', Cuenta)",
     )

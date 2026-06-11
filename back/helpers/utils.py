@@ -77,15 +77,14 @@ def get_data_context(where="1=1"):
     query = f"""
     WITH base AS (
         SELECT
-            Estado_de_la_Llamada,
+            efectiva,
             Resultado_Llamada,
-            Num_Turnos_V4,
             Duracion_Estimada,
             Plan_Mencionado,
             Saludo_Completo,
-            Explico_Beneficios,
+            ofrecimiento_solucion,
             Ofrecio_WhatsApp,
-            Despedida_Correcta,
+            cierre_servicio,
             Cuenta,
             Motivo_Rechazo
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
@@ -95,18 +94,17 @@ def get_data_context(where="1=1"):
     resumen AS (
         SELECT
             COUNT(*) total,
-            SUM(CASE WHEN Estado_de_la_Llamada = 'ANSWERED' THEN 1 ELSE 0 END) contactadas,
-            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
-            AVG(Num_Turnos_V4) turnos_prom
+            SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
+            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas
         FROM base
     ),
 
     calidad AS (
         SELECT
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
-            SUM(CASE WHEN Explico_Beneficios = 'Sí' THEN 1 ELSE 0 END) beneficios,
+            SUM(CASE WHEN ofrecimiento_solucion = 1 THEN 1 ELSE 0 END) beneficios,
             SUM(CASE WHEN Ofrecio_WhatsApp = 'Sí' THEN 1 ELSE 0 END) whatsapp,
-            SUM(CASE WHEN Despedida_Correcta = 'Sí' THEN 1 ELSE 0 END) despedida
+            SUM(CASE WHEN cierre_servicio = 1 THEN 1 ELSE 0 END) despedida
         FROM base
     ),
 
@@ -197,7 +195,6 @@ def get_data_context(where="1=1"):
     - Total: {total:,}
     - Contactadas: {contactadas:,} ({contactadas/total*100:.1f}%)
     - Ventas: {ventas:,} ({ventas/total*100:.2f}%)
-    - Turnos prom: {turnos:.1f}
 
     RESULTADOS:
     """
@@ -238,15 +235,14 @@ def get_asesor_context(where, asesor=""):
     query = f"""
     WITH base AS (
         SELECT
-            Estado_de_la_Llamada,
+            efectiva,
             Resultado_Llamada,
-            Num_Turnos_V4,
             Duracion_Estimada,
             Plan_Mencionado,
             Saludo_Completo,
-            Explico_Beneficios,
+            ofrecimiento_solucion,
             Ofrecio_WhatsApp,
-            Despedida_Correcta,
+            cierre_servicio,
             Cuenta,
             Motivo_Rechazo
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
@@ -257,18 +253,17 @@ def get_asesor_context(where, asesor=""):
     resumen AS (
         SELECT
             COUNT(*) total,
-            SUM(CASE WHEN Estado_de_la_Llamada = 'ANSWERED' THEN 1 ELSE 0 END) contactadas,
-            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
-            AVG(Num_Turnos_V4) turnos_prom
+            SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
+            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas
         FROM base
     ),
 
     calidad AS (
         SELECT
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
-            SUM(CASE WHEN Explico_Beneficios = 'Sí' THEN 1 ELSE 0 END) beneficios,
+            SUM(CASE WHEN ofrecimiento_solucion = 1 THEN 1 ELSE 0 END) beneficios,
             SUM(CASE WHEN Ofrecio_WhatsApp = 'Sí' THEN 1 ELSE 0 END) whatsapp,
-            SUM(CASE WHEN Despedida_Correcta = 'Sí' THEN 1 ELSE 0 END) despedida
+            SUM(CASE WHEN cierre_servicio = 1 THEN 1 ELSE 0 END) despedida
         FROM base
     ),
 
@@ -333,7 +328,6 @@ def get_asesor_context(where, asesor=""):
     total = row["resumen"]["total"]
     contactadas = row["resumen"]["contactadas"]
     ventas = row["resumen"]["ventas"]
-    turnos = row["resumen"]["turnos_prom"]
 
     tasa_contacto = (contactadas / total * 100) if total else 0
     tasa_venta = (ventas / total * 100) if total else 0
@@ -343,9 +337,8 @@ def get_asesor_context(where, asesor=""):
 
     RESUMEN:
     - Total llamadas: {total:,}
-    - Contactadas: {contactadas:,} ({tasa_contacto:.1f}%)
+    - Contactadas (efectivas): {contactadas:,} ({tasa_contacto:.1f}%)
     - Ventas: {ventas:,} ({tasa_venta:.2f}%)
-    - Turnos promedio: {turnos:.1f}
 
     RESULTADOS:
     """
@@ -384,13 +377,12 @@ def get_ranking_context(where="1=1"):
         SELECT
             Cuenta,
             Resultado_Llamada,
-            Estado_de_la_Llamada,
-            Num_Turnos_V4,
+            efectiva,
             Duracion_Estimada,
             Saludo_Completo,
-            Explico_Beneficios,
+            ofrecimiento_solucion,
             Ofrecio_WhatsApp,
-            Despedida_Correcta
+            cierre_servicio
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {where}
     ),
@@ -399,13 +391,12 @@ def get_ranking_context(where="1=1"):
         SELECT
             Cuenta,
             COUNT(*) llamadas,
-            SUM(CASE WHEN Estado_de_la_Llamada = 'ANSWERED' THEN 1 ELSE 0 END) contactadas,
+            SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
             SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
-            AVG(Num_Turnos_V4) turnos_prom,
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
-            SUM(CASE WHEN Explico_Beneficios = 'Sí' THEN 1 ELSE 0 END) beneficios,
+            SUM(CASE WHEN ofrecimiento_solucion = 1 THEN 1 ELSE 0 END) beneficios,
             SUM(CASE WHEN Ofrecio_WhatsApp = 'Sí' THEN 1 ELSE 0 END) whatsapp,
-            SUM(CASE WHEN Despedida_Correcta = 'Sí' THEN 1 ELSE 0 END) despedida
+            SUM(CASE WHEN cierre_servicio = 1 THEN 1 ELSE 0 END) despedida
         FROM base
         GROUP BY Cuenta
     )
@@ -416,7 +407,6 @@ def get_ranking_context(where="1=1"):
         contactadas,
         ventas,
         ROUND(SAFE_DIVIDE(ventas,llamadas)*100,2) exito_pct,
-        turnos_prom,
         saludo,
         beneficios,
         whatsapp,
@@ -434,10 +424,9 @@ def get_ranking_context(where="1=1"):
         ctx += f"""
         ASESOR: {r.Cuenta}
         - Llamadas: {r.llamadas}
-        - Contactadas: {r.contactadas}
+        - Contactadas (efectivas): {r.contactadas}
         - Ventas: {r.ventas}
         - Tasa de éxito: {r.exito_pct}%
-        - Turnos promedio: {r.turnos_prom:.1f}
 
         CALIDAD:
         - Saludo correcto: {r.saludo}
