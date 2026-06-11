@@ -148,6 +148,9 @@ def procesar(df):
     df['Motivo_Rechazo']    = df.apply(
         lambda r: ("No Interesa" if r['Resultado_Llamada'] == "Rechazado" else "N/A"), axis=1
     )
+    # Transcripcion_V4 es la columna que usan los endpoints de transcripciones e IA
+    if 'Transcripcion_V4' not in df.columns:
+        df['Transcripcion_V4'] = df['transcripcion']
     return df
 
 

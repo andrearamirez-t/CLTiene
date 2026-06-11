@@ -14,9 +14,8 @@ def llamadas(filters: FilterModel):
             Resultado_Llamada,
             cuenta
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
-            WHERE {filters.get_query()}
-            ORDER BY fecha DESC
-        ) 
+            WHERE Transcripcion_V4 IS NOT NULL AND {filters.get_query()}
+        )
         SELECT id, concat({concat_fields}) text 
         FROM id_provicional
         """,
