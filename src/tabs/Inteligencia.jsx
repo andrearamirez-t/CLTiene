@@ -73,15 +73,20 @@ export default function Inteligencia() {
         const params = buildQuery();
         const query = params ? `?${params}` : '';
 
-        const hora = await fetch(`${API_BASE}/rendimiento-hora${query}`).then((r) => r.json());
-        const dia = await fetch(`${API_BASE}/rendimiento-dia${query}`).then((r) => r.json());
-        const ventas = await fetch(`${API_BASE}/ventas-vs-servicio${query}`).then((r) => r.json());
-        const subjetividad = await fetch(`${API_BASE}/subjetividad-confianza-modulo${query}`).then((r) => r.json());
-        const desempeno = await fetch(`${API_BASE}/desempeno-sentimiento-asesor${query}`).then((r) => r.json());
-        const evolucion = await fetch(`${API_BASE}/evolucion-ventas${query}`).then((r) => r.json());
-        const scorecard = await fetch(`${API_BASE}/scorecard-asesores${query}`).then((r) => r.json());
-        const duracion = await fetch(`${API_BASE}/duracion-vs-efectividad${query}`).then((r) => r.json());
-        const sentimiento = await fetch(`${API_BASE}/clasificacion-sentimiento${query}`).then((r) => r.json());
+        const safe = (url) => fetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
+
+        const [hora, dia, ventas, subjetividad, desempeno, evolucion, scorecard, duracion, sentimiento] =
+          await Promise.all([
+            safe(`${API_BASE}/rendimiento-hora${query}`),
+            safe(`${API_BASE}/rendimiento-dia${query}`),
+            safe(`${API_BASE}/ventas-vs-servicio${query}`),
+            safe(`${API_BASE}/subjetividad-confianza-modulo${query}`),
+            safe(`${API_BASE}/desempeno-sentimiento-asesor${query}`),
+            safe(`${API_BASE}/evolucion-ventas${query}`),
+            safe(`${API_BASE}/scorecard-asesores${query}`),
+            safe(`${API_BASE}/duracion-vs-efectividad${query}`),
+            safe(`${API_BASE}/clasificacion-sentimiento${query}`),
+          ]);
 
         setDatosHoras(Array.isArray(hora) ? hora : []);
         setDatosDias(Array.isArray(dia) ? dia : []);

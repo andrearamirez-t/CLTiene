@@ -27,20 +27,19 @@ const Analisis = () => {
         const params = buildQuery();
         const query = params ? `?${params}` : "";
 
-        const planesRes = await fetch(`${API_BASE}/api/planes_mencionados${query}`);
-        const mascotasRes = await fetch(`${API_BASE}/api/tipo_mascota${query}`);
-        const vehiculosRes = await fetch(`${API_BASE}/api/tipo_vehiculo${query}`);
-        const motivosRechazoRes = await fetch(`${API_BASE}/api/motivo_rechazo${query}`);
+        const safe = (url) => fetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
 
-        const planes = await planesRes.json();
-        const mascotas = await mascotasRes.json();
-        const vehiculos = await vehiculosRes.json();
-        const motivor = await motivosRechazoRes.json();
+        const [planes, mascotas, vehiculos, motivor] = await Promise.all([
+          safe(`${API_BASE}/api/planes_mencionados${query}`),
+          safe(`${API_BASE}/api/tipo_mascota${query}`),
+          safe(`${API_BASE}/api/tipo_vehiculo${query}`),
+          safe(`${API_BASE}/api/motivo_rechazo${query}`),
+        ]);
 
-        setPlanes(Array.isArray(planes) ? planes : []);
-        setMascotas(Array.isArray(mascotas) ? mascotas : []);
-        setVehiculos(Array.isArray(vehiculos) ? vehiculos : []);
-        setMotivosRechazo(Array.isArray(motivor) ? motivor : []);
+        setPlanes(planes);
+        setMascotas(mascotas);
+        setVehiculos(vehiculos);
+        setMotivosRechazo(motivor);
 
       } catch (error) {
 
