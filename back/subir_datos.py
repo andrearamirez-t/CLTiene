@@ -139,6 +139,29 @@ def detectar_ofrecio_whatsapp(texto):
     if pd.isna(texto) or not texto: return "No"
     return "Sí" if re.search(r'(?:env[ií]o|mando|dejo).*whatsapp|whatsapp.*(?:env[ií]o|mando)', str(texto).lower()) else "No"
 
+def dividir_transcripcion_en_turnos(texto):
+    """Convierte transcripción plana en turnos [Asesor]/[Cliente] alternos."""
+    if pd.isna(texto) or not texto or len(str(texto).strip()) < 10:
+        return None
+    oraciones = re.split(r'(?<=[.!?])\s+', str(texto).strip())
+    speakers = ["Asesor", "Cliente"]
+    turnos = []
+    idx = 0
+    acumulado = []
+    for oracion in oraciones:
+        oracion = oracion.strip()
+        if not oracion:
+            continue
+        acumulado.append(oracion)
+        # Agrupar oraciones cortas para no fragmentar demasiado
+        if sum(len(o) for o in acumulado) >= 40:
+            turnos.append(f"[{speakers[idx % 2]}]: {' '.join(acumulado)}")
+            idx += 1
+            acumulado = []
+    if acumulado:
+        turnos.append(f"[{speakers[idx % 2]}]: {' '.join(acumulado)}")
+    return "\n".join(turnos)
+
 def procesar(df):
     df['Resultado_Llamada'] = df['transcripcion'].apply(detectar_resultado_llamada)
     df['Plan_Mencionado']   = df['transcripcion'].apply(detectar_plan)
@@ -148,10 +171,7 @@ def procesar(df):
     df['Motivo_Rechazo']    = df.apply(
         lambda r: ("No Interesa" if r['Resultado_Llamada'] == "Rechazado" else "N/A"), axis=1
     )
-    # Transcripcion_V4 viene directo de CUN con formato [Cliente]/[Asesor]
-    # Si CUN no la incluyó, usamos transcripcion como fallback
-    if 'Transcripcion_V4' not in df.columns or df['Transcripcion_V4'].isna().all():
-        df['Transcripcion_V4'] = df['transcripcion']
+    df['Transcripcion_V4']  = df['transcripcion'].apply(dividir_transcripcion_en_turnos)
     return df
 
 
