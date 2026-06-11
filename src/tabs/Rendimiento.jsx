@@ -188,7 +188,7 @@ const Rendimiento = () => {
                             </th>
 
 
-                            {['Llamadas', 'Turnos Conv.', 'Calidad /100', '% Efectividad', '% Ventas']
+                            {['Llamadas', 'Calidad /100', '% Efectividad', '% Ventas']
                                 .map((label, i) => (
 
                                     <th key={i} style={{ padding: '12px 16px' }}>
@@ -243,7 +243,6 @@ const Rendimiento = () => {
                                 </td>
 
                                 <td style={{ padding: '16px' }}>{agente.llamadas}</td>
-                                <td style={{ padding: '16px' }}>{agente.turnos}</td>
                                 <td style={{ padding: '16px' }}>{agente.score_calidad}</td>
                                 <td style={{ padding: '16px' }}>{agente.contacto_pct + '%'}</td>
 
