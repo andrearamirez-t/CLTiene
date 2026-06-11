@@ -8,6 +8,9 @@ def rendimiento_agente(filters: FilterModel):
         cuenta AS n,
         COUNT(*) AS llamadas,
         ROUND(AVG(
+            CAST((LENGTH(IFNULL(Transcripcion_V4,'')) - LENGTH(REPLACE(IFNULL(Transcripcion_V4,''), '[Asesor]:', ''))) / 9 AS INT64)
+        ), 1) AS turnos,
+        ROUND(AVG(
             IF(Saludo_Completo = "Sí", 25, 0) +
             IF(ofrecimiento_solucion = 1, 25, 0) +
             IF(Ofrecio_WhatsApp = "Sí", 20, 0) +
