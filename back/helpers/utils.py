@@ -504,16 +504,16 @@ def get_llamada_context(filters, llamada_id):
         SELECT
             ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
             Cuenta,
-            Estado_de_la_Llamada,
+            Estado_de_la_LLamada      AS estado,
             Resultado_Llamada,
             Duracion_Estimada,
-            Num_Turnos_V4,
             Plan_Mencionado,
             Motivo_Rechazo,
             Saludo_Completo,
-            Explico_Beneficios,
+            saludo_inicial,
+            ofrecimiento_solucion,
+            cierre_servicio,
             Ofrecio_WhatsApp,
-            Despedida_Correcta,
             Transcripcion_V4
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE Transcripcion_V4 IS NOT NULL
@@ -536,20 +536,20 @@ def get_llamada_context(filters, llamada_id):
     ANÁLISIS DE LLAMADA #{llamada_id} – CALL CENTER CL TIENE SOLUCIONES
 
     ASESOR: {r.Cuenta}
-    ESTADO: {r.Estado_de_la_Llamada}
+    ESTADO: {r.estado}
     RESULTADO: {r.Resultado_Llamada}
 
     DETALLES OPERATIVOS:
     - Duración estimada: {r.Duracion_Estimada}
-    - Turnos conversación: {r.Num_Turnos_V4}
     - Plan mencionado: {r.Plan_Mencionado}
     - Motivo de rechazo: {r.Motivo_Rechazo}
 
-    CALIDAD DE ATENCIÓN:
-    - Saludo completo: {r.Saludo_Completo}
-    - Explicó beneficios: {r.Explico_Beneficios}
+    CALIDAD DE ATENCIÓN (escala 0–1):
+    - Saludo inicial (CUN): {r.saludo_inicial}
+    - Saludo completo (pipeline): {r.Saludo_Completo}
+    - Ofreció solución: {r.ofrecimiento_solucion}
+    - Cierre del servicio: {r.cierre_servicio}
     - Ofreció WhatsApp: {r.Ofrecio_WhatsApp}
-    - Despedida correcta: {r.Despedida_Correcta}
 
     TRANSCRIPCIÓN:
     {r.Transcripcion_V4}
