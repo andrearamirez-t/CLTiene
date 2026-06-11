@@ -139,6 +139,24 @@ def detectar_ofrecio_whatsapp(texto):
     if pd.isna(texto) or not texto: return "No"
     return "Sí" if re.search(r'(?:env[ií]o|mando|dejo).*whatsapp|whatsapp.*(?:env[ií]o|mando)', str(texto).lower()) else "No"
 
+def detectar_tipo_mascota(texto):
+    if pd.isna(texto) or not texto: return "N/A"
+    tl = str(texto).lower()
+    if re.search(r'\bperr[oa]s?\b|\bcan[es]?\b|\bcachorr[oa]s?\b', tl): return "Perro"
+    if re.search(r'\bgat[oa]s?\b|\bfelin[oa]s?\b|\bmichin\b', tl):      return "Gato"
+    if re.search(r'\bconejo\b|\bhámster\b|\broedor\b', tl):              return "Roedor"
+    if re.search(r'\bpájaro\b|\bave\b|\bperico\b|\bloro\b|\bcanario\b', tl): return "Ave"
+    if re.search(r'\bmascota\b|\banimal\b', tl):                          return "Otra Mascota"
+    return "N/A"
+
+def detectar_tipo_vehiculo(texto):
+    if pd.isna(texto) or not texto: return "N/A"
+    tl = str(texto).lower()
+    if re.search(r'\bmoto(?:cicleta)?\b|\bmotociclista\b', tl): return "Moto"
+    if re.search(r'\bcarro\b|\bauto(?:m[oó]vil)?\b|\bveh[ií]culo\b|\bcamioneta\b|\bsed[aá]n\b', tl): return "Carro"
+    if re.search(r'\bcami[oó]n\b|\bcarga\b|\bcamionero\b', tl): return "Camión"
+    return "N/A"
+
 def dividir_transcripcion_en_turnos(texto):
     """Convierte transcripción plana en turnos [Asesor]/[Cliente] alternos."""
     if pd.isna(texto) or not texto or len(str(texto).strip()) < 10:
@@ -172,6 +190,8 @@ def procesar(df):
         lambda r: ("No Interesa" if r['Resultado_Llamada'] == "Rechazado" else "N/A"), axis=1
     )
     df['Transcripcion_V4']  = df['transcripcion'].apply(dividir_transcripcion_en_turnos)
+    df['Tipo_Mascota']      = df['transcripcion'].apply(detectar_tipo_mascota)
+    df['Tipo_Vehiculo']     = df['transcripcion'].apply(detectar_tipo_vehiculo)
     return df
 
 
