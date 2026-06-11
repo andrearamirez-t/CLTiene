@@ -148,8 +148,9 @@ def procesar(df):
     df['Motivo_Rechazo']    = df.apply(
         lambda r: ("No Interesa" if r['Resultado_Llamada'] == "Rechazado" else "N/A"), axis=1
     )
-    # Transcripcion_V4 es la columna que usan los endpoints de transcripciones e IA
-    if 'Transcripcion_V4' not in df.columns:
+    # Transcripcion_V4 viene directo de CUN con formato [Cliente]/[Asesor]
+    # Si CUN no la incluyó, usamos transcripcion como fallback
+    if 'Transcripcion_V4' not in df.columns or df['Transcripcion_V4'].isna().all():
         df['Transcripcion_V4'] = df['transcripcion']
     return df
 

@@ -14,7 +14,7 @@ def llamadas(filters: FilterModel):
             Resultado_Llamada,
             cuenta
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
-            WHERE Transcripcion_V4 IS NOT NULL AND {filters.get_query()}
+            WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL AND {filters.get_query()}
         )
         SELECT id, concat({concat_fields}) text 
         FROM id_provicional
