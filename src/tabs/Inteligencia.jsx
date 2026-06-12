@@ -56,6 +56,7 @@ export default function Inteligencia() {
   const [cargandoAnalisis, setCargandoAnalisis] = useState(false);
 
   const { filters, buildQuery } = useFilters();
+  const esServicio = filters.tipo_llamada?.toLowerCase() === 'servicio';
 
   const [f_datosHoras, setDatosHoras] = useState([]);
   const [f_datosDias, setDatosDias] = useState([]);
@@ -185,7 +186,7 @@ export default function Inteligencia() {
         </CardGrafica>
 
         <CardGrafica titulo="Evolución de Ventas en el Tiempo">
-          <Evolucion data={datosEvolucion} />
+          <Evolucion data={datosEvolucion} ocultarVentas={esServicio} />
         </CardGrafica>
 
         <div style={{ gridColumn: '1 / span 2', margin: '10px 0' }}>

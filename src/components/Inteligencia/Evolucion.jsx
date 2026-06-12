@@ -11,7 +11,7 @@ import {
   Line
 } from 'recharts';
 
-const Evolucion = ({ data }) => {
+const Evolucion = ({ data, ocultarVentas = false }) => {
   return (
     <ResponsiveContainer width="100%" height={380}>
       <AreaChart
@@ -65,16 +65,18 @@ const Evolucion = ({ data }) => {
           activeDot={{ r: 6 }}
         />
 
-        <Area
-          type="monotone"
-          dataKey="ventas"
-          name="Ventas"
-          stroke="#10b981"
-          strokeWidth={3}
-          fill="transparent" // Solo queremos la línea
-          dot={{ r: 4, fill: '#10b981' }}
-          activeDot={{ r: 6 }}
-        />
+        {!ocultarVentas && (
+          <Area
+            type="monotone"
+            dataKey="ventas"
+            name="Ventas"
+            stroke="#10b981"
+            strokeWidth={3}
+            fill="transparent"
+            dot={{ r: 4, fill: '#10b981' }}
+            activeDot={{ r: 6 }}
+          />
+        )}
       </AreaChart>
     </ResponsiveContainer>
   );
