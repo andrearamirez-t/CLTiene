@@ -21,7 +21,8 @@ function Resumen() {
             .catch(() => setResults([]));
     }, [filters]);
 
-    const resultados = results
+    const esServicio = filters.tipo_llamada?.toLowerCase() === 'servicio';
+    const resultados = esServicio ? results.filter(r => r.nombre !== 'Venta') : results;
 
     return (
         <div className="dashboard-grid">
