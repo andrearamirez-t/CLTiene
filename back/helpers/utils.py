@@ -192,7 +192,6 @@ def get_data_context(where="1=1"):
     total = row["resumen"]["total"]
     contactadas = row["resumen"]["contactadas"]
     ventas = row["resumen"]["ventas"]
-    turnos = row["resumen"]["turnos_prom"]
 
     ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
     - Total: {total:,}
