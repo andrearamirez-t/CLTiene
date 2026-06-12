@@ -4,12 +4,15 @@ import { useFilters } from "../FiltersContext";
 
 function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "Seleccione" }, ...props }) {
     const [opciones, setOpciones] = useState([]);
-    const { filters, buildQuery } = useFilters();
-    const params = useMemo(() => buildQuery() || null, [buildQuery]);
+    const { filters, setFilters } = useFilters();
 
-    // if (!depsUseEffect.length) {
-    //     depsUseEffect
-    // }
+    const params = useMemo(() => {
+        const nombre = props.name;
+        const sinPropio = Object.fromEntries(
+            Object.entries(filters).filter(([k, v]) => k !== nombre && v !== null && v !== "")
+        );
+        return new URLSearchParams(sinPropio).toString() || null;
+    }, [filters, props.name]);
 
     useEffect(() => {
         fetch(API_BASE + endPoint + (params ? `?${params}` : ""))
