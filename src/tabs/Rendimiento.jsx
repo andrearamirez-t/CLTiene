@@ -9,6 +9,7 @@ const Rendimiento = () => {
 
     const [rendimiento, setRendimiento] = useState([]);
     const { filters, buildQuery } = useFilters();
+    const esServicio = filters.tipo_llamada?.toLowerCase() === 'servicio';
 
     const [asesorSeleccionado, setAsesorSeleccionado] = useState("");
     const [busqueda, setBusqueda] = useState("");
@@ -188,7 +189,7 @@ const Rendimiento = () => {
                             </th>
 
 
-                            {['Llamadas', 'Calidad /100', '% Efectividad', '% Ventas']
+                            {['Llamadas', 'Calidad /100', '% Efectividad', ...(!esServicio ? ['% Ventas'] : [])]
                                 .map((label, i) => (
 
                                     <th key={i} style={{ padding: '12px 16px' }}>
@@ -246,11 +247,13 @@ const Rendimiento = () => {
                                 <td style={{ padding: '16px' }}>{agente.score_calidad}</td>
                                 <td style={{ padding: '16px' }}>{agente.contacto_pct + '%'}</td>
 
-                                <td style={{ padding: '16px' }}>
-                                    <div style={estiloBadge(agente.tasa_venta)}>
-                                        {agente.tasa_venta}%
-                                    </div>
-                                </td>
+                                {!esServicio && (
+                                    <td style={{ padding: '16px' }}>
+                                        <div style={estiloBadge(agente.tasa_venta)}>
+                                            {agente.tasa_venta}%
+                                        </div>
+                                    </td>
+                                )}
 
                             </tr>
 
