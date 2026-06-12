@@ -192,6 +192,7 @@ def dividir_transcripcion_en_turnos(texto):
     return "\n".join(turnos)
 
 def procesar(df):
+    df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente'})
     df['Resultado_Llamada'] = df['transcripcion'].apply(detectar_resultado_llamada)
     df['Plan_Mencionado']   = df['transcripcion'].apply(detectar_plan)
     df['Duracion_Estimada'] = df['Tiempo  de Conversacion'].apply(detectar_duracion_estimada)
