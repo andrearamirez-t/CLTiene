@@ -163,8 +163,6 @@ function Sidebar({ isOpen, onToggle }) {
                     <label style={labelMargin}>Módulo de Atención</label>
                     <Select onChange={handleChange} name="modulo_atencion" style={customInput} endPoint="/api/modulo_atencion" />
 
-                    <label style={labelMargin}>Clasificación del Sentimiento</label>
-                    <Select onChange={handleChange} name="clasificacion_sentimiento" style={customInput} endPoint="/api/clasificacion_sentimiento" />
 
                     <label style={labelMargin}>Tipo de Llamada</label>
                     <Select onChange={handleChange} name="tipo_llamada" style={customInput} endPoint="/api/tipo_llamada" />
