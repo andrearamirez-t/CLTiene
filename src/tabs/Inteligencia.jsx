@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Hora from '../components/Inteligencia/Hora';
 import Dia from '../components/Inteligencia/Dia';
 import Ventas from '../components/Inteligencia/Ventas';
-import Subjetividad from '../components/Inteligencia/Subjetividad';
-import Desempeño from '../components/Inteligencia/Desempeño';
 import Evolucion from '../components/Inteligencia/Evolucion';
 import IndicadoresTabla from '../components/Inteligencia/IndicadoresTabla';
 import Duracion from '../components/Inteligencia/Duracion';
@@ -61,11 +59,8 @@ export default function Inteligencia() {
   const [f_datosHoras, setDatosHoras] = useState([]);
   const [f_datosDias, setDatosDias] = useState([]);
   const [f_datosVentas, setDatosVentas] = useState([]);
-  const [f_datosSubjetividad, setDatosSubjetividad] = useState([]);
-  const [f_datosDesempeño, setDatosDesempeño] = useState([]);
   const [f_datosEvolucion, setDatosEvolucion] = useState([]);
   const [f_datosDuracion, setDatosDuracion] = useState([]);
-  const [f_datosSentimiento, setDatosSentimiento] = useState([]);
   const [f_datosCompletosTabla, setDatosCompletosTabla] = useState([]);
 
   useEffect(() => {
@@ -76,28 +71,22 @@ export default function Inteligencia() {
 
         const safe = (url) => fetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
 
-        const [hora, dia, ventas, subjetividad, desempeno, evolucion, scorecard, duracion, sentimiento] =
+        const [hora, dia, ventas, evolucion, scorecard, duracion] =
           await Promise.all([
             safe(`${API_BASE}/rendimiento-hora${query}`),
             safe(`${API_BASE}/rendimiento-dia${query}`),
             safe(`${API_BASE}/ventas-vs-servicio${query}`),
-            safe(`${API_BASE}/subjetividad-confianza-modulo${query}`),
-            safe(`${API_BASE}/desempeno-sentimiento-asesor${query}`),
             safe(`${API_BASE}/evolucion-ventas${query}`),
             safe(`${API_BASE}/scorecard-asesores${query}`),
             safe(`${API_BASE}/duracion-vs-efectividad${query}`),
-            safe(`${API_BASE}/clasificacion-sentimiento${query}`),
           ]);
 
         setDatosHoras(Array.isArray(hora) ? hora : []);
         setDatosDias(Array.isArray(dia) ? dia : []);
         setDatosVentas(Array.isArray(ventas) ? ventas : []);
-        setDatosSubjetividad(Array.isArray(subjetividad) ? subjetividad : []);
-        setDatosDesempeño(Array.isArray(desempeno) ? desempeno : []);
         setDatosEvolucion(Array.isArray(evolucion) ? evolucion : []);
         setDatosCompletosTabla(Array.isArray(scorecard) ? scorecard : []);
         setDatosDuracion(Array.isArray(duracion) ? duracion : []);
-        setDatosSentimiento(Array.isArray(sentimiento) ? sentimiento : []);
       } catch (err) {
         console.error('Error cargando dashboard:', err);
       }
@@ -140,11 +129,8 @@ export default function Inteligencia() {
   const datosHoras = f_datosHoras;
   const datosDias = f_datosDias;
   const datosVentas = f_datosVentas;
-  const datosSubjetividad = f_datosSubjetividad;
-  const datosDesempeño = f_datosDesempeño;
   const datosEvolucion = f_datosEvolucion;
   const datosDuracion = f_datosDuracion;
-  const datosSentimiento = f_datosSentimiento;
   const datosCompletosTabla = f_datosCompletosTabla;
 
   return (
@@ -175,14 +161,6 @@ export default function Inteligencia() {
 
         <CardGrafica titulo={esServicio ? "Llamadas de Servicio" : "Ventas vs Servicio"}>
           <Ventas data={datosVentas} />
-        </CardGrafica>
-
-        <CardGrafica titulo="Subjetividad vs Confianza por Módulo">
-          <Subjetividad data={datosSubjetividad} />
-        </CardGrafica>
-
-        <CardGrafica titulo="Desempeño y Sentimiento por Asesor">
-          <Desempeño data={datosDesempeño} />
         </CardGrafica>
 
         <CardGrafica titulo={esServicio ? "Evolución de Llamadas en el Tiempo" : "Evolución de Ventas en el Tiempo"}>
