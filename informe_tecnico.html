@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Informe Técnico — CL Tiene Soluciones Dashboard Analytics</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #1e293b;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  /* ── Portada ── */
+  .cover {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(252,50,118,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover-badge {
+    background: rgba(252,50,118,0.15);
+    border: 1px solid rgba(252,50,118,0.4);
+    color: #FC3276;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    z-index: 1;
+  }
+  .cover-logo-text {
+    font-size: 52px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -1px;
+    z-index: 1;
+    margin-bottom: 8px;
+  }
+  .cover-logo-text span { color: #FC3276; }
+  .cover-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    font-weight: 400;
+    margin-bottom: 48px;
+    z-index: 1;
+  }
+  .cover-divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #FC3276, #818cf8);
+    border-radius: 2px;
+    margin: 0 auto 48px;
+    z-index: 1;
+  }
+  .cover-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.3;
+    max-width: 600px;
+    margin-bottom: 16px;
+    z-index: 1;
+  }
+  .cover-description {
+    font-size: 13px;
+    color: #94a3b8;
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 60px;
+    z-index: 1;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    z-index: 1;
+  }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; color: #cbd5e1; font-weight: 500; }
+
+  /* ── Layout ── */
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 56px;
+  }
+
+  /* ── Encabezado de sección ── */
+  .section {
+    margin-bottom: 40px;
+    page-break-inside: avoid;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+  }
+  .section-number {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #FC3276, #db2777);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* ── Subsección ── */
+  .subsection { margin-bottom: 20px; }
+  .subsection-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+
+  /* ── Tabla ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+    margin-bottom: 8px;
+  }
+  thead tr { background: #0f172a; }
+  thead th {
+    color: white;
+    font-weight: 600;
+    padding: 9px 12px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+  }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:nth-child(odd) { background: #fff; }
+  tbody td {
+    padding: 8px 12px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+  }
+
+  /* ── Cards ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    border-left: 3px solid #FC3276;
+  }
+  .card-label {
+    font-size: 9px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .card-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+  .card-desc {
+    font-size: 9.5px;
+    color: #64748b;
+  }
+  .card.accent { border-left-color: #818cf8; }
+  .card.green { border-left-color: #22c55e; }
+
+  /* ── Tech pill ── */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .pill {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px;
+    color: #334155;
+    font-weight: 500;
+  }
+  .pill.pink { background: #fdf2f8; border-color: #fce7f3; color: #be185d; }
+  .pill.blue { background: #eff6ff; border-color: #dbeafe; color: #1d4ed8; }
+  .pill.purple { background: #f5f3ff; border-color: #ede9fe; color: #6d28d9; }
+  .pill.green { background: #f0fdf4; border-color: #dcfce7; color: #15803d; }
+  .pill.orange { background: #fff7ed; border-color: #ffedd5; color: #c2410c; }
+
+  /* ── Diagrama de flujo ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .flow-step {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0;
+    padding: 12px 10px;
+    text-align: center;
+    position: relative;
+    font-size: 10px;
+  }
+  .flow-step:first-child { border-radius: 8px 0 0 8px; }
+  .flow-step:last-child { border-radius: 0 8px 8px 0; }
+  .flow-step + .flow-step::before {
+    content: '→';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #FC3276;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 1;
+  }
+  .flow-step-icon { font-size: 18px; margin-bottom: 4px; }
+  .flow-step-label { font-weight: 600; color: #0f172a; font-size: 10px; }
+  .flow-step-sub { color: #64748b; font-size: 9px; margin-top: 2px; }
+
+  /* ── Highlight box ── */
+  .highlight {
+    background: linear-gradient(135deg, #fdf2f8, #eff6ff);
+    border: 1px solid #e0e7ff;
+    border-left: 4px solid #FC3276;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .highlight p { font-size: 10.5px; color: #334155; margin: 0; }
+  .highlight strong { color: #0f172a; }
+
+  /* ── Code block ── */
+  .code {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    overflow-x: auto;
+  }
+  .code .comment { color: #64748b; }
+  .code .keyword { color: #FC3276; }
+  .code .string { color: #86efac; }
+
+  /* ── Estructura de archivos ── */
+  .tree {
+    background: #0f172a;
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5px;
+    line-height: 1.9;
+    margin-bottom: 12px;
+  }
+  .tree .dir { color: #7dd3fc; font-weight: 600; }
+  .tree .file { color: #e2e8f0; }
+  .tree .comment { color: #475569; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-brand { font-size: 10px; color: #94a3b8; }
+  .footer-brand strong { color: #FC3276; }
+  .footer-url { font-size: 9.5px; color: #94a3b8; }
+
+  /* ── Page breaks ── */
+  .page-break { page-break-after: always; }
+
+  /* ── Print overrides ── */
+  @media print {
+    body { font-size: 10.5px; }
+    .cover { min-height: 100vh; }
+    .page { padding: 36px 44px; }
+    .section { page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ PORTADA ═══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Informe Técnico · Versión 2.0</div>
+  <div class="cover-logo-text"><span>CL</span>TIENE</div>
+  <div class="cover-subtitle">Soluciones</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">Dashboard Analytics de Call Center con Inteligencia Artificial</div>
+  <div class="cover-description">
+    Sistema de análisis en tiempo real del rendimiento de asesores, conversiones y calidad de servicio. Pipeline V4 con estructuración automática de transcripciones y 7 módulos de IA generativa.
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Desarrollado por</div>
+      <div class="cover-meta-value">DivergencyAI SAS</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Versión pipeline</div>
+      <div class="cover-meta-value">V4</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Llamadas procesadas</div>
+      <div class="cover-meta-value">36,969</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fecha</div>
+      <div class="cover-meta-value">Junio 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CONTENIDO ═══════════════════════════════ -->
+<div class="page">
+
+  <!-- ─── 1. RESUMEN EJECUTIVO ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title">Resumen Ejecutivo</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Llamadas procesadas</div>
+        <div class="card-value">36,969</div>
+        <div class="card-desc">Historial completo en BigQuery</div>
+      </div>
+      <div class="card accent">
+        <div class="card-label">Asesores activos</div>
+        <div class="card-value">6+</div>
+        <div class="card-desc">Con datos analizados</div>
+      </div>
+      <div class="card green">
+        <div class="card-label">Módulos IA</div>
+        <div class="card-value">7</div>
+        <div class="card-desc">Análisis automáticos disponibles</div>
+      </div>
+    </div>
+
+    <p style="font-size:11px; color:#334155; line-height:1.8;">
+      El Dashboard Analytics de CL Tiene Soluciones es una plataforma web full-stack que extrae diariamente los registros de llamadas del SQL Server de la CUN, los procesa mediante un pipeline de análisis de texto (V4) y los publica en un dashboard interactivo con filtros dinámicos, gráficas de rendimiento y siete módulos de análisis con IA generativa (GPT-4o-mini). El sistema permite a los supervisores identificar patrones operativos, evaluar la calidad de atención y tomar decisiones basadas en datos en tiempo real.
+    </p>
+  </div>
+
+  <!-- ─── 2. ARQUITECTURA TECNOLÓGICA ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title">Arquitectura Tecnológica</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Capa</th>
+          <th>Tecnología</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Frontend</td><td>React 19 + Vite 7</td><td>SPA con Context API para filtros globales</td></tr>
+        <tr><td>Backend</td><td>Python 3.11 + FastAPI</td><td>~50 endpoints REST con FilterModel (Pydantic)</td></tr>
+        <tr><td>Base de datos</td><td>Google BigQuery</td><td>Tabla <code>cltiene_llamadas_procesadas</code></td></tr>
+        <tr><td>IA / LLM</td><td>OpenAI GPT-4o-mini</td><td>Análisis de texto, coaching, reportes</td></tr>
+        <tr><td>Hosting backend</td><td>Google Cloud Run</td><td>Servicio <code>cltiene-backend</code> (us-central1)</td></tr>
+        <tr><td>Hosting frontend</td><td>Firebase Hosting</td><td>cltiene-dashboard.web.app</td></tr>
+        <tr><td>Fuente de datos</td><td>SQL Server 2019 (CUN)</td><td>172.16.1.33 — Windows Auth</td></tr>
+        <tr><td>CI/CD</td><td>Cloud Build</td><td>cloudbuild.yaml — deploy automático</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection" style="margin-top:20px;">
+      <div class="subsection-title">URLs de producción</div>
+      <div class="pills">
+        <div class="pill pink">Frontend: https://cltiene-dashboard.web.app</div>
+        <div class="pill blue">Backend: https://cltiene-backend-293865702055.us-central1.run.app</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. PIPELINE DE DATOS V4 ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title">Pipeline de Datos V4</div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-step-icon">🏢</div>
+        <div class="flow-step-label">SQL Server CUN</div>
+        <div class="flow-step-sub">172.16.1.33<br/>Windows Auth</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-icon">⚙️</div>
+        <div class="flow-step-label">subir_datos.py</div>
+        <div class="flow-step-sub">Pipeline V4<br/>36,969 filas</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-icon">🔬</div>
+        <div class="flow-step-label">Procesamiento</div>
+        <div class="flow-step-sub">Regex + detección<br/>de hablantes V4</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-icon">☁️</div>
+        <div class="flow-step-label">BigQuery</div>
+        <div class="flow-step-sub">WRITE_TRUNCATE<br/>auto-schema</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-icon">📊</div>
+        <div class="flow-step-label">Dashboard</div>
+        <div class="flow-step-sub">FastAPI + React<br/>Filtros + IA</div>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <p><strong>Automatización:</strong> El script <code>subir_datos.py</code> se ejecuta diariamente a las 7:00 AM mediante el Programador de Tareas de Windows (<code>registrar_tarea.ps1</code>). Los logs quedan en <code>back/subir_datos.log</code>.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Columnas generadas por el pipeline V4</div>
+      <table>
+        <thead>
+          <tr><th>Columna</th><th>Origen</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Transcripcion_V4</code></td><td>Pipeline V4</td><td>Transcripción estructurada por hablante [Asesor] / [Cliente]</td></tr>
+          <tr><td><code>Resultado_Llamada</code></td><td>Pipeline V4</td><td>Venta / Contactado / Rechazado / No Disponible / Buzón / Número Equivocado</td></tr>
+          <tr><td><code>Plan_Mencionado</code></td><td>Pipeline V4</td><td>Plan Salud / Mascotas / Movilidad / Manada / Premium</td></tr>
+          <tr><td><code>Asistencia</code></td><td>Pipeline V4</td><td>Servicios específicos mencionados (catálogo de 35+ asistencias)</td></tr>
+          <tr><td><code>Duracion_Estimada</code></td><td>Pipeline V4</td><td>Buzón / Muy Corta / Corta / Media / Larga — basado en <code>Tiempo de Conversación</code></td></tr>
+          <tr><td><code>Saludo_Completo</code></td><td>Pipeline V4</td><td>Sí / Parcial / No — basado en frases clave detectadas</td></tr>
+          <tr><td><code>Motivo_Rechazo</code></td><td>Pipeline V4</td><td>Precio / Ya Tiene Servicio / No Aplica / Confusión / No Interesa</td></tr>
+          <tr><td><code>Tipo_Mascota</code></td><td>Pipeline V4</td><td>Perro / Gato / Ambos / N/A</td></tr>
+          <tr><td><code>Tipo_Vehiculo</code></td><td>Pipeline V4</td><td>Carro / Moto / Ambos / N/A</td></tr>
+          <tr><td><code>Explico_Beneficios</code></td><td>Pipeline V4</td><td>Sí / Parcial / No</td></tr>
+          <tr><td><code>Ofrecio_WhatsApp</code></td><td>Pipeline V4</td><td>Sí / No</td></tr>
+          <tr><td><code>Despedida_Correcta</code></td><td>Pipeline V4</td><td>Sí / No — detectado sobre Transcripcion_V4</td></tr>
+          <tr><td><code>Num_Objeciones</code></td><td>Pipeline V4</td><td>Conteo de objeciones del cliente</td></tr>
+          <tr><td><code>Turnos_Asesor_V4</code></td><td>Pipeline V4</td><td>Número de turnos del asesor en Transcripcion_V4</td></tr>
+          <tr><td><code>Turnos_Cliente_V4</code></td><td>Pipeline V4</td><td>Número de turnos del cliente en Transcripcion_V4</td></tr>
+          <tr><td><code>Tipo_Llamada</code></td><td>SQL Server CUN</td><td>Entrante / Saliente (normalizado: Salientes → Saliente)</td></tr>
+          <tr><td><code>efectiva</code></td><td>SQL Server CUN</td><td>0 o 1 — campo directo de la CUN</td></tr>
+          <tr><td><code>saludo_inicial</code></td><td>SQL Server CUN</td><td>0 o 1 — campo directo de la CUN</td></tr>
+          <tr><td><code>palabras</code></td><td>SQL Server CUN</td><td>Cantidad de palabras por llamada (métrica CUN)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Categorías de duración (tiempo real)</div>
+      <table>
+        <thead>
+          <tr><th>Categoría</th><th>Rango (segundos)</th><th>Duración</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Buzón</td><td>0 – 30 s</td><td>Menos de 30 segundos</td></tr>
+          <tr><td>Muy Corta</td><td>31 – 60 s</td><td>30 segundos a 1 minuto</td></tr>
+          <tr><td>Corta</td><td>61 – 120 s</td><td>1 a 2 minutos</td></tr>
+          <tr><td>Media</td><td>121 – 300 s</td><td>2 a 5 minutos</td></tr>
+          <tr><td>Larga</td><td>+ 300 s</td><td>Más de 5 minutos</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:9.5px; color:#64748b; margin-top:6px;">
+        ⚠️ Cambio desde V3: antes se calculaba por longitud de texto. Ahora usa el campo <code>Tiempo de Conversación</code> (HH:MM:SS) del SQL Server de la CUN para mayor precisión.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Catálogo de asistencias detectadas automáticamente</div>
+      <div class="pills">
+        <div class="pill">Grúa para carro</div>
+        <div class="pill">Grúa para moto</div>
+        <div class="pill">Cambio de llanta</div>
+        <div class="pill">Reinicio de batería</div>
+        <div class="pill">Conductor elegido</div>
+        <div class="pill">Cerrajería vial</div>
+        <div class="pill">Cerrajería por urgencia</div>
+        <div class="pill">Plomería por urgencia</div>
+        <div class="pill">Electricista por urgencia</div>
+        <div class="pill">Armado de muebles</div>
+        <div class="pill">Médico a domicilio</div>
+        <div class="pill">Pediatra a domicilio</div>
+        <div class="pill">Psicólogo a domicilio</div>
+        <div class="pill">Videollamada con médico</div>
+        <div class="pill">Orientación médica</div>
+        <div class="pill">Veterinario en casa</div>
+        <div class="pill">Desparasitación</div>
+        <div class="pill">Refuerzo de vacunas</div>
+        <div class="pill">Chip de identificación</div>
+        <div class="pill">Limpieza dental</div>
+        <div class="pill">Declaración de renta</div>
+        <div class="pill" style="background:#f1f5f9; color:#94a3b8;">+ 14 más...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 4. PESTAÑAS DEL DASHBOARD ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title">Pestañas del Dashboard</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>#</th><th>Pestaña</th><th>Contenido</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Resumen Ejecutivo</strong></td>
+          <td>KPIs principales, embudo de conversión, distribución de resultados, duración de llamadas, insights automáticos con IA</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Rendimiento Asesores</strong></td>
+          <td>Tabla con métricas por asesor (ventas, efectividad, calidad, turnos), análisis IA individual por asesor seleccionado</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Análisis Detallado</strong></td>
+          <td>Planes mencionados, motivos de rechazo, tipo de cliente (mascota/vehículo), análisis IA de patrones</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Inteligencia Operativa</strong></td>
+          <td>Rendimiento por hora y día, evolución temporal, ventas vs. servicio, scorecard por asesor, duración vs. efectividad</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Transcripciones</strong></td>
+          <td>Visor de llamadas con chat estructurado [Asesor]/[Cliente], búsqueda por texto, análisis IA por llamada específica</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Agente IA PRO</strong></td>
+          <td>Chat libre con contexto de datos, 8 análisis automáticos, ranking comparativo de asesores, reporte ejecutivo PDF</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection" style="margin-top:20px;">
+      <div class="subsection-title">KPIs del panel superior</div>
+      <table>
+        <thead>
+          <tr><th>KPI</th><th>Campo BigQuery</th><th>Nota</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Total Llamadas</td><td><code>COUNT(*)</code></td><td>–</td></tr>
+          <tr><td>Llamadas Efectivas</td><td><code>SUM(efectiva)</code></td><td>Campo CUN (0/1)</td></tr>
+          <tr><td>Ventas Cerradas</td><td><code>Resultado_Llamada = 'Venta'</code></td><td>Oculto con filtro Servicio</td></tr>
+          <tr><td>Hora Pico</td><td><code>AVG(timestamp)</code></td><td>–</td></tr>
+          <tr><td>Día Pico</td><td><code>GROUP BY día</code></td><td>–</td></tr>
+          <tr><td>Asesor Top</td><td><code>ORDER BY COUNT DESC</code></td><td>–</td></tr>
+          <tr><td>Saludo OK</td><td><code>AVG(saludo_inicial)</code></td><td>Campo CUN (0/1)</td></tr>
+          <tr><td>Calidad Llamada IA</td><td>Promedio 7 métricas</td><td>Score 0–100</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection" style="margin-top:20px;">
+      <div class="subsection-title">Embudo de conversión</div>
+      <table>
+        <thead>
+          <tr><th>Paso</th><th>Condición BigQuery</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Total llamadas</td><td><code>COUNT(*)</code></td><td>Todas las llamadas del período</td></tr>
+          <tr><td>Efectivas (contacto)</td><td><code>efectiva = 1.0</code></td><td>Contacto real según CUN</td></tr>
+          <tr><td>Conv &gt; 30s</td><td><code>Duracion_Estimada IN ('Muy Corta','Corta','Media','Larga')</code></td><td>Conversaciones reales (no buzón)</td></tr>
+          <tr><td>Con Saludo</td><td><code>saludo_inicial = 1.0</code></td><td>Saludo correcto (campo CUN)</td></tr>
+          <tr><td>Ventas Cerradas</td><td><code>Resultado_Llamada = 'Venta'</code></td><td>Oculto con filtro Servicio activo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── 5. MÓDULOS DE IA ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title">Módulos de Inteligencia Artificial</div>
+    </div>
+
+    <div class="highlight">
+      <p>Todos los módulos usan <strong><code>prompt_html()</code></strong> y retornan HTML renderizable directamente. El HTML pasa por <code>src/utils/cleanHtml.js</code> que convierte fondos oscuros a claros antes del render. La función <code>call(system, user)</code> siempre retorna tupla <code>(content, error)</code>. <strong>MAX_TOKENS</strong> configurable vía variable de entorno (default: 4000).</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Pestaña</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /ia/generar_insights</code></td><td>Resumen Ejecutivo</td><td>Insights rápidos del período con filtros activos</td></tr>
+        <tr><td><code>GET /ia/inteligencia_operativa</code></td><td>Inteligencia Operativa</td><td>Patrones operativos de horas, días y rendimiento</td></tr>
+        <tr><td><code>GET /ia/analizar_asesor</code></td><td>Rendimiento Asesores</td><td>Diagnóstico individual con fortalezas y plan de coaching</td></tr>
+        <tr><td><code>GET /ia/analizar_llamada</code></td><td>Transcripciones</td><td>Análisis de llamada específica: resumen, scorecard, recomendaciones</td></tr>
+        <tr><td><code>GET /ia/analisis_automatico</code></td><td>Agente IA PRO</td><td>8 tipos de análisis profundo (ver tabla siguiente)</td></tr>
+        <tr><td><code>GET /ia/reporte_completo</code></td><td>Agente IA PRO</td><td>Reporte ejecutivo 9 secciones — descargable como PDF</td></tr>
+        <tr><td><code>GET /ia/analisis_ranking</code></td><td>Agente IA PRO</td><td>Comparativo de todos los asesores con plan de mentoría</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection" style="margin-top:20px;">
+      <div class="subsection-title">Tipos de análisis automático (Agente IA PRO)</div>
+      <table>
+        <thead>
+          <tr><th>tipo_analisis</th><th>Objetivo del análisis</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>resumen_ejecutivo</code></td><td>KPIs clave, tendencias del período, fortalezas y debilidades identificadas</td></tr>
+          <tr><td><code>oportunidades_mejora</code></td><td>10 oportunidades priorizadas por impacto potencial</td></tr>
+          <tr><td><code>analisis_rechazos</code></td><td>Distribución de motivos, patrones y estrategias para reducir rechazos</td></tr>
+          <tr><td><code>mejores_practicas</code></td><td>Benchmark de top performers y guía para replicar sus resultados</td></tr>
+          <tr><td><code>patrones_ventas</code></td><td>Duración óptima, número de turnos ideal, perfil de llamada exitosa</td></tr>
+          <tr><td><code>plan_coaching</code></td><td>Diagnóstico por asesor con ejercicios y cronograma de 4 semanas</td></tr>
+          <tr><td><code>recomendaciones_semanales</code></td><td>3 prioridades operativas, métricas diarias, alertas tempranas</td></tr>
+          <tr><td><code>prediccion_tendencias</code></td><td>Proyección del próximo mes, riesgos identificados y acciones preventivas</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── 6. FILTROS DEL SIDEBAR ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title">Filtros del Dashboard</div>
+    </div>
+
+    <p style="font-size:10.5px; color:#334155; margin-bottom:14px;">
+      Todos los endpoints del backend aceptan <code>FilterModel</code> (Pydantic) como parámetros de query. Los filtros se combinan dinámicamente en una cláusula <code>WHERE</code> sobre BigQuery. El componente <code>Select.jsx</code> excluye su propio filtro al cargar opciones para que el cambio de valor siempre muestre todas las alternativas disponibles.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Filtro en UI</th><th>Parámetro</th><th>Campo BigQuery</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Fecha desde / hasta</td><td><code>fecha_desde</code>, <code>fecha_hasta</code></td><td><code>Fecha</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Resultado de la Llamada</td><td><code>resultado_llamada</code></td><td><code>Resultado_Llamada</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Plan Mencionado</td><td><code>plan_mencionado</code></td><td><code>Plan_Mencionado</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Duración de la Llamada</td><td><code>duracion_llamada</code></td><td><code>Duracion_Estimada</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Saludo del Asesor</td><td><code>saludo_asesor</code></td><td><code>Saludo_Completo</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Nombre del Asesor</td><td><code>nombre_asesor</code></td><td><code>Cuenta LIKE</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Módulo de Atención</td><td><code>modulo_atencion</code></td><td><code>Nombre_del_Modulo</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Tipo de Llamada</td><td><code>tipo_llamada</code></td><td><code>tipo</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Seguimiento de Llamada</td><td><code>seguimiento_llamada</code></td><td><code>Tipo_Llamada</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Asistencia Mencionada</td><td><code>asistencia_mencionada</code></td><td><code>Asistencia LIKE</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+        <tr><td>Solo con transcripción</td><td><code>transcripcion</code></td><td><code>transcripcion IS NOT NULL</code></td><td><span class="pill green" style="font-size:9px;padding:2px 6px;">Activo</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight" style="margin-top:14px;">
+      <p><strong>Comportamiento especial — filtro Tipo de Llamada = "Servicio":</strong> cuando está activo, el dashboard oculta automáticamente todos los elementos relacionados con ventas: KPI "Ventas Cerradas", paso "Ventas Cerradas" en el embudo, columna "% Ventas" en Rendimiento, línea Ventas en evolución, y barra "Venta" en distribución de resultados. Los títulos de las gráficas también se adaptan.</p>
+    </div>
+  </div>
+
+  <!-- ─── 7. ESTRUCTURA DEL PROYECTO ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <div class="section-title">Estructura del Proyecto</div>
+    </div>
+
+    <div class="tree">
+<span class="dir">CLTiene/</span>
+├── <span class="dir">src/</span>                        <span class="comment"># Frontend React 19 + Vite 7</span>
+│   ├── <span class="file">config.js</span>               <span class="comment"># URL base del backend (API_BASE)</span>
+│   ├── <span class="file">FiltersContext.jsx</span>      <span class="comment"># Estado global de filtros — Context API</span>
+│   ├── <span class="dir">pages/</span>
+│   │   └── <span class="file">Dashboard.jsx</span>       <span class="comment"># Shell: sidebar + KPIs + tabs</span>
+│   ├── <span class="dir">tabs/</span>                   <span class="comment"># Un componente por pestaña</span>
+│   │   ├── <span class="file">Resumen.jsx</span>
+│   │   ├── <span class="file">Rendimiento.jsx</span>
+│   │   ├── <span class="file">Analisis.jsx</span>
+│   │   ├── <span class="file">Inteligencia.jsx</span>
+│   │   ├── <span class="file">Transcripciones.jsx</span>
+│   │   └── <span class="file">Agente.jsx</span>
+│   ├── <span class="dir">components/</span>
+│   │   ├── <span class="file">Select.jsx</span>              <span class="comment"># Excluye su propio filtro al cargar opciones</span>
+│   │   ├── <span class="file">AnalisisAu.jsx</span>          <span class="comment"># 8 análisis automáticos IA</span>
+│   │   ├── <span class="file">RankingIA.jsx</span>           <span class="comment"># Ranking comparativo de asesores</span>
+│   │   ├── <span class="file">ReporteCompleto.jsx</span>     <span class="comment"># Reporte ejecutivo descargable PDF</span>
+│   │   └── <span class="dir">ui/</span>
+│   │       └── <span class="file">InsightsCard.jsx</span>    <span class="comment"># Insights rápidos del período</span>
+│   ├── <span class="dir">layout/</span>
+│   │   └── <span class="file">Sidebar.jsx</span>         <span class="comment"># 11 filtros del panel lateral</span>
+│   └── <span class="dir">utils/</span>
+│       └── <span class="file">cleanHtml.js</span>        <span class="comment"># Convierte fondos oscuros a claros en respuestas IA</span>
+│
+├── <span class="dir">back/</span>                       <span class="comment"># Backend Python 3.11 + FastAPI</span>
+│   ├── <span class="file">main.py</span>
+│   ├── <span class="file">subir_datos.py</span>          <span class="comment"># Pipeline V4 — SQL Server → BigQuery</span>
+│   ├── <span class="file">registrar_tarea.ps1</span>     <span class="comment"># Tarea automática diaria Windows 7:00 AM</span>
+│   ├── <span class="dir">api/</span>
+│   │   ├── <span class="file">routes.py</span>           <span class="comment"># ~50 endpoints GET /api/ y /ia/</span>
+│   │   ├── <span class="file">models.py</span>           <span class="comment"># FilterModel — construye WHERE BigQuery</span>
+│   │   ├── <span class="dir">charts/</span>             <span class="comment"># Queries BigQuery por gráfica</span>
+│   │   ├── <span class="dir">ia/</span>                 <span class="comment"># Módulos IA — prompt_html() + call()</span>
+│   │   └── <span class="dir">filters/</span>            <span class="comment"># Endpoints de opciones para dropdowns</span>
+│   ├── <span class="dir">IA/</span>
+│   │   └── <span class="file">Open_AI.py</span>          <span class="comment"># call(system, user) → (content, error)</span>
+│   └── <span class="dir">helpers/</span>
+│       └── <span class="file">utils.py</span>            <span class="comment"># Contextos de datos para todos los módulos IA</span>
+│
+├── <span class="file">cloudbuild.yaml</span>             <span class="comment"># CI/CD — deploy automático backend</span>
+└── <span class="file">firebase.json</span>               <span class="comment"># Configuración Firebase Hosting</span>
+    </div>
+  </div>
+
+  <!-- ─── 8. DESPLIEGUE ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <div class="section-title">Guía de Despliegue</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Backend — Google Cloud Run</div>
+      <div class="code"><span class="comment"># Despliegue directo desde el directorio back/</span>
+<span class="keyword">gcloud</span> run deploy cltiene-backend \
+  --source . \
+  --region us-central1 \
+  --project desarrollo-investigaciones \
+  --quiet</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Frontend — Firebase Hosting</div>
+      <div class="code"><span class="comment"># Build y deploy</span>
+<span class="keyword">npm</span> run build
+<span class="keyword">firebase</span> deploy --only hosting:cltiene-dashboard</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Pipeline de datos (desde PC con sesión CUN)</div>
+      <div class="code"><span class="comment"># Ejecución manual</span>
+<span class="keyword">python</span> back/subir_datos.py
+
+<span class="comment"># Registrar tarea automática diaria (como Administrador)</span>
+<span class="keyword">.\back\registrar_tarea.ps1</span></div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Variables de entorno (Cloud Run)</div>
+      <table>
+        <thead>
+          <tr><th>Variable</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>OPENAI_API_MUNDIAL</code></td><td>API key de OpenAI (Secret Manager)</td></tr>
+          <tr><td><code>GOOGLE_CLOUD_PROJECT</code></td><td>ID del proyecto GCP</td></tr>
+          <tr><td><code>MAX_TOKENS</code></td><td>Máximo tokens por respuesta IA (default: 4000)</td></tr>
+          <tr><td><code>MODEL</code></td><td>Modelo OpenAI (default: gpt-4o-mini)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    <div class="footer-brand">Desarrollado por <strong>DivergencyAI SAS</strong> · contacto@divergencyai.com</div>
+    <div class="footer-url">cltiene-dashboard.web.app · Junio 2026</div>
+  </div>
+
+</div>
+</body>
+</html>

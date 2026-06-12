@@ -63,9 +63,8 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"clasificacion = '{value}'")
 
         if key == "asistencia_mencionada":
-            asistencia = value.replace("...", "")
-            filtros_string.append(
-                f"(Asistencia like '{asistencia}%' or transcripcion like '%{asistencia}%')")
+            asistencia = value.replace("...", "").strip()
+            filtros_string.append(f"Asistencia LIKE '%{asistencia}%'")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",

@@ -42,12 +42,13 @@ CLTiene/
 │   │   ├── Transcripciones.jsx
 │   │   └── Agente.jsx
 │   ├── components/             # Gráficas, botones IA, UI reutilizable
+│   │   ├── Select.jsx          # Excluye su propio filtro al cargar opciones
 │   │   ├── AnalisisAu.jsx      # 8 tipos de análisis automático (Agente IA PRO)
 │   │   ├── RankingIA.jsx       # Ranking de asesores + análisis comparativo completo
 │   │   ├── ReporteCompleto.jsx # Reporte ejecutivo en 9 secciones con descarga PDF
 │   │   └── ui/InsightsCard.jsx # Insights rápidos del período
 │   ├── FiltersContext.jsx      # Estado global de filtros (Context API)
-│   └── layout/Sidebar.jsx      # Barra lateral de filtros
+│   └── layout/Sidebar.jsx      # Barra lateral con 11 filtros
 │
 ├── back/                       # Backend FastAPI
 │   ├── main.py                 # App principal
@@ -57,13 +58,13 @@ CLTiene/
 │   │   ├── models.py           # FilterModel — construye WHERE para BigQuery
 │   │   ├── charts/             # Queries BigQuery por gráfica
 │   │   ├── ia/                 # Módulos de IA — todos usan call() + prompt_html()
-│   │   ├── filters/            # Opciones de filtros del sidebar
-│   │   └── upload/             # Pipeline SQL Server → BigQuery (solo local)
+│   │   └── filters/            # Opciones de filtros del sidebar
 │   ├── IA/Open_AI.py           # call(system, user) → (content, error)  |  prompt_html()
 │   ├── helpers/utils.py        # Contextos de datos para IA (general, asesor, llamada, ranking)
-│   ├── subir_datos.py          # Script autónomo de carga de datos
-│   └── registrar_tarea.ps1     # Registra tarea automática en Windows
+│   ├── subir_datos.py          # Pipeline V4 autónomo: SQL Server → procesamiento → BigQuery
+│   └── registrar_tarea.ps1     # Registra tarea automática en Windows (7:00 AM diario)
 │
+├── informe_tecnico.html        # Informe técnico del proyecto (abrir en navegador → imprimir PDF)
 ├── cloudbuild.yaml             # Pipeline CI/CD — solo despliega el backend
 └── firebase.json               # Configuración Firebase Hosting
 ```
@@ -74,7 +75,7 @@ CLTiene/
 |-----|---------------|-------------|
 | TOTAL LLAMADAS | `COUNT(*)` | Todas las llamadas en el período |
 | LLAMADAS EFECTIVAS | `SUM(efectiva)` | Campo `efectiva` de la CUN (0 o 1) |
-| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Ventas detectadas por transcripción |
+| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Ventas detectadas por transcripción. Se oculta con filtro Servicio |
 | HORA PICO | `AVG(timestamp)` | Hora promedio de mayor actividad |
 | DÍA PICO | `GROUP BY día` | Día con más llamadas |
 | ASESOR TOP | `ORDER BY COUNT DESC` | Asesor con más llamadas |
@@ -89,7 +90,7 @@ CLTiene/
 1. **Resumen Ejecutivo** — KPIs, embudo de conversión, distribución de resultados, insights IA
 2. **Rendimiento Asesores** — Tabla de asesores con filtros, análisis IA individual por asesor
 3. **Análisis Detallado** — Planes mencionados, motivos de rechazo, tipo de cliente + análisis IA de patrones
-4. **Inteligencia Operativa** — Gráficas de horas/días/sentimiento/scorecard + análisis IA operativo
+4. **Inteligencia Operativa** — Gráficas de horas/días/scorecard + análisis IA operativo
 5. **Transcripciones** — Visor de llamadas con chat, búsqueda inteligente y análisis IA por llamada
 6. **Agente IA PRO** — Chat + 8 análisis automáticos + ranking comparativo + reporte completo PDF
 
@@ -99,9 +100,9 @@ CLTiene/
 |------|---------------|-------------|
 | Total llamadas | `COUNT(*)` | Todas las llamadas |
 | Efectivas (contacto) | `efectiva = 1.0` | Llamadas con contacto real (campo CUN) |
-| Conv > 30s | `Duracion_Estimada IN ('Corta','Media','Larga')` | Conversaciones con duración real |
+| Conv > 30s | `Duracion_Estimada IN ('Muy Corta','Corta','Media','Larga')` | Conversaciones con duración real (no buzón) |
 | Con Saludo | `saludo_inicial = 1.0` | Saludos correctos según la CUN |
-| Ventas Cerradas | `Resultado_Llamada = 'Venta'` | Ventas detectadas por transcripción |
+| Ventas Cerradas | `Resultado_Llamada = 'Venta'` | Ventas detectadas por transcripción. Oculto con filtro Servicio |
 
 ## Módulos de IA disponibles
 
@@ -135,62 +136,83 @@ CLTiene/
 
 ## Filtros del dashboard
 
-Todos los endpoints aceptan `FilterModel` como query params:
+Todos los endpoints aceptan `FilterModel` como query params. El componente `Select.jsx` excluye su propio filtro al consultar opciones, de modo que cambiar un valor siempre muestra todas las alternativas.
 
-| Filtro | Campo BigQuery |
-|--------|---------------|
-| Fecha desde / hasta | `Fecha` |
-| Resultado llamada | `Resultado_Llamada` (muestra "Venta Cerrada", envía "Venta" al backend) |
-| Plan mencionado | `Plan_Mencionado` |
-| Duración | `Duracion_Estimada` |
-| Saludo asesor | `Saludo_Completo` |
-| Nombre asesor | `Cuenta` |
-| Módulo de atención | `Nombre_del_Modulo` |
-| Clasificación sentimiento | `clasificacion` |
-| Tipo llamada | `tipo` |
-| Asistencia mencionada | `asistencia_mencionada` |
+| Filtro en UI | Parámetro | Campo BigQuery |
+|--------------|-----------|---------------|
+| Fecha desde / hasta | `fecha_desde`, `fecha_hasta` | `Fecha` |
+| Resultado de la Llamada | `resultado_llamada` | `Resultado_Llamada` |
+| Plan Mencionado | `plan_mencionado` | `Plan_Mencionado` |
+| Duración de la Llamada | `duracion_llamada` | `Duracion_Estimada` |
+| Saludo del Asesor | `saludo_asesor` | `Saludo_Completo` |
+| Nombre del Asesor | `nombre_asesor` | `Cuenta LIKE` |
+| Módulo de Atención | `modulo_atencion` | `Nombre_del_Modulo` |
+| Tipo de Llamada | `tipo_llamada` | `tipo` |
+| Seguimiento de Llamada | `seguimiento_llamada` | `Tipo_Llamada` (Entrante / Saliente) |
+| Asistencia Mencionada | `asistencia_mencionada` | `Asistencia LIKE '%valor%'` |
+| Solo con transcripción | `transcripcion` | `transcripcion IS NOT NULL` |
 
-## Campos calculados por el pipeline vs campos de la CUN
+> **Comportamiento especial — filtro Tipo de Llamada = "Servicio":** oculta automáticamente el KPI "Ventas Cerradas", el paso del embudo, la columna "% Ventas" en Rendimiento, la línea Ventas en evolución temporal, y la barra "Venta" en distribución de resultados. Los títulos de las gráficas también se adaptan.
 
-| Campo | Origen | Cómo se calcula |
-|-------|--------|-----------------|
-| `Resultado_Llamada` | Pipeline | Regex sobre transcripción |
-| `Plan_Mencionado` | Pipeline | Regex sobre transcripción |
-| `Duracion_Estimada` | Pipeline | Longitud de transcripción |
-| `Saludo_Completo` | Pipeline | 3/4 frases específicas detectadas |
-| `Motivo_Rechazo` | Pipeline | Basado en Resultado_Llamada |
-| `efectiva` | CUN | Campo directo del SQL Server |
-| `saludo_inicial` | CUN | Campo directo del SQL Server |
-| `clasificacion` | CUN | Campo directo del SQL Server (⚠️ mayoría neutro) |
-| `subjectivity` / `confianza` | CUN | Campos directos del SQL Server |
-
-> ⚠️ `clasificacion`, `subjectivity` y `confianza` vienen del SQL Server de la CUN.
-> Si estos campos no se llenan correctamente en la fuente, las gráficas de sentimiento y subjetividad mostrarán datos incompletos.
-
-## Pipeline de datos
+## Pipeline de datos — V4
 
 ```
 SQL Server CUN (172.16.1.33)
         ↓  (Windows Auth — cuenta CUN)
 subir_datos.py  ←  Programador de Tareas Windows (diario 7:00 AM)
         ↓
-Procesamiento: Resultado_Llamada, Plan_Mencionado, Duracion_Estimada,
-               Saludo_Completo, Motivo_Rechazo (basados en transcripción)
+Procesamiento V4:
+  · estructurar_dialogo()     → Transcripcion_V4 (turnos [Asesor] / [Cliente])
+  · detectar_plan()           → Plan_Mencionado
+  · detectar_asistencia()     → Asistencia (catálogo 35+ servicios)
+  · detectar_resultado_llamada() → Resultado_Llamada
+  · detectar_motivo_rechazo() → Motivo_Rechazo
+  · detectar_duracion_estimada() → Duracion_Estimada (desde Tiempo de Conversación)
+  · detectar_saludo_completo() → Saludo_Completo
+  · detectar_explico_beneficios() → Explico_Beneficios
+  · detectar_ofrecio_whatsapp() → Ofrecio_WhatsApp
+  · detectar_despedida_correcta() → Despedida_Correcta
+  · contar_objeciones()       → Num_Objeciones
         ↓
 BigQuery: desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas
         ↓
 Backend FastAPI (Cloud Run) → Frontend React (Firebase Hosting)
 ```
 
-### Categorías de duración (basadas en longitud de transcripción)
+## Campos calculados por el pipeline vs campos de la CUN
 
-| Categoría | Caracteres | Duración aprox. |
-|-----------|-----------|-----------------|
-| Buzón | < 50 | < 30 seg |
-| Muy Corta | 50 – 199 | 30 seg – 1 min |
-| Corta | 200 – 499 | 1 – 2 min |
-| Media | 500 – 1499 | 2 – 5 min |
-| Larga | 1500+ | 5+ min |
+| Campo | Origen | Cómo se calcula |
+|-------|--------|-----------------|
+| `Transcripcion_V4` | Pipeline V4 | `estructurar_dialogo()` — detección de hablantes con patrones |
+| `Resultado_Llamada` | Pipeline V4 | Regex sobre transcripción + conteo de turnos V4 |
+| `Plan_Mencionado` | Pipeline V4 | Regex con catálogo de planes |
+| `Asistencia` | Pipeline V4 | Catálogo de 35+ asistencias específicas |
+| `Duracion_Estimada` | Pipeline V4 | `Tiempo de Conversación` (HH:MM:SS) del SQL Server |
+| `Saludo_Completo` | Pipeline V4 | 3 de 4 frases clave detectadas (Sí / Parcial / No) |
+| `Motivo_Rechazo` | Pipeline V4 | Basado en Resultado_Llamada = 'Rechazado' |
+| `Tipo_Mascota` | Pipeline V4 | Regex (Perro / Gato / Ambos) — solo para Plan Mascotas |
+| `Tipo_Vehiculo` | Pipeline V4 | Regex (Carro / Moto / Ambos) — solo para Plan Movilidad |
+| `Explico_Beneficios` | Pipeline V4 | Regex sobre beneficios mencionados (Sí / Parcial / No) |
+| `Ofrecio_WhatsApp` | Pipeline V4 | Regex sobre oferta de WhatsApp |
+| `Despedida_Correcta` | Pipeline V4 | Regex sobre últimas 3 líneas de Transcripcion_V4 |
+| `Num_Objeciones` | Pipeline V4 | Conteo de patrones de objeción del cliente |
+| `Tipo_Llamada` | CUN | Campo directo del SQL Server (normalizado: Salientes → Saliente) |
+| `efectiva` | CUN | Campo directo del SQL Server (0 o 1) |
+| `saludo_inicial` | CUN | Campo directo del SQL Server (0 o 1) |
+| `palabras` | CUN | Cantidad de palabras por llamada |
+| `clasificacion` | CUN | ⚠️ 97.5% neutro — no se usa en gráficas |
+
+### Categorías de duración (tiempo real de conversación)
+
+| Categoría | Segundos | Duración |
+|-----------|---------|----------|
+| Buzón | ≤ 30 s | Menos de 30 segundos |
+| Muy Corta | 31 – 60 s | 30 segundos a 1 minuto |
+| Corta | 61 – 120 s | 1 a 2 minutos |
+| Media | 121 – 300 s | 2 a 5 minutos |
+| Larga | > 300 s | Más de 5 minutos |
+
+> **Cambio desde V3:** antes se calculaba por longitud de texto de la transcripción. Ahora usa el campo `Tiempo  de Conversacion` (HH:MM:SS) del SQL Server para mayor precisión.
 
 ## Cambiar la URL del backend
 
@@ -207,8 +229,12 @@ Editar ese archivo es suficiente — todos los componentes la importan desde ah�
 ### Backend (Cloud Run)
 
 ```bash
-# Desde la raíz del proyecto
-gcloud builds submit --config cloudbuild.yaml --project desarrollo-investigaciones
+cd back/
+gcloud run deploy cltiene-backend \
+  --source . \
+  --region us-central1 \
+  --project desarrollo-investigaciones \
+  --quiet
 ```
 
 ### Frontend (Firebase Hosting)
