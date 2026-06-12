@@ -195,13 +195,11 @@ export default function Inteligencia() {
           </CardGrafica>
         </div>
 
-        <CardGrafica titulo="Duración vs Efectividad">
-          <Duracion data={datosDuracion} />
-        </CardGrafica>
-
-        <CardGrafica titulo="Clasificación de Sentimiento">
-          <GraficaCircular data={datosSentimiento} />
-        </CardGrafica>
+        <div style={{ gridColumn: '1 / span 2' }}>
+          <CardGrafica titulo="Duración vs Efectividad">
+            <Duracion data={datosDuracion} />
+          </CardGrafica>
+        </div>
 
         <div style={{ gridColumn: '1 / span 2', marginTop: '20px' }}>
           <button
