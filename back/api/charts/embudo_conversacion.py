@@ -31,9 +31,9 @@ def embudo_conversacion(filters: FilterModel):
 
         SELECT
             "Conv > 30s" nombre,
-            COUNTIF(Duracion_Estimada IN ('Corta', 'Media', 'Larga')) valor,
+            COUNTIF(Duracion_Estimada IN ('Muy Corta', 'Corta', 'Media', 'Larga')) valor,
             ROUND(
-                SAFE_DIVIDE(COUNTIF(Duracion_Estimada IN ('Corta', 'Media', 'Larga')) * 100.0, COUNT(*)),
+                SAFE_DIVIDE(COUNTIF(Duracion_Estimada IN ('Muy Corta', 'Corta', 'Media', 'Larga')) * 100.0, COUNT(*)),
                 1
             ) porcentaje
         FROM base
