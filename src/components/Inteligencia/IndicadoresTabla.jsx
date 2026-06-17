@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useFilters } from '../../FiltersContext';
 
 const IndicadoresTabla = ({ data }) => {
+  const { filters } = useFilters();
+  const esServicio = filters.tipo_llamada?.toLowerCase() === 'servicio';
   const [busqueda, setBusqueda] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'efectividad', direction: 'desc' });
 
@@ -53,7 +56,7 @@ const IndicadoresTabla = ({ data }) => {
             <th style={headerStyle}>#</th>
             <th style={headerStyle}>Cuenta</th>
             <th style={headerStyle}>Total</th>
-            <th style={headerStyle}>Ventas</th>
+            {!esServicio && <th style={headerStyle}>Ventas</th>}
             <th style={headerStyle}>Efectividad_%</th>
             <th style={headerStyle}>Turnos_Asesor</th>
             <th style={headerStyle}>Turnos_Cliente</th>
@@ -85,7 +88,7 @@ const IndicadoresTabla = ({ data }) => {
                 <option value="menor">Menor a mayor</option>
               </select>
             </th>
-            <th style={{ padding: '5px' }}></th>
+            {!esServicio && <th style={{ padding: '5px' }}></th>}
             <th style={{ padding: '5px' }}>
               <select style={inputStyle} onChange={(e) => handleSortSelect(e, 'efectividad')}>
                 <option value="todos">Todos</option>
@@ -103,7 +106,7 @@ const IndicadoresTabla = ({ data }) => {
               <td style={{ padding: '10px', color: '#64748b' }}>{index + 1}</td>
               <td style={{ padding: '10px', textAlign: 'left', fontWeight: 'bold' }}>{row.nombre}</td>
               <td style={{ padding: '10px' }}>{row.total}</td>
-              <td style={{ padding: '10px' }}>{row.ventas}</td>
+              {!esServicio && <td style={{ padding: '10px' }}>{row.ventas}</td>}
               <td style={{ padding: '10px', color: '#fbbf24', fontWeight: 'bold' }}>{row.efectividad}%</td>
               <td style={{ padding: '10px' }}>{row.turnosAsesor}</td>
               <td style={{ padding: '10px' }}>{row.turnosCliente}</td>
