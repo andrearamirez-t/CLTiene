@@ -118,7 +118,7 @@ if error: return {"error": error}
 |----------|------------|-------------------|
 | `GET /ia/generar_insights` | `InsightsCard.jsx` | ✅ |
 | `GET /ia/inteligencia_operativa` | `Inteligencia.jsx` | ✅ |
-| `GET /ia/analizar_asesor?asesor=X` | `Rendimiento.jsx` | ⚠️ falta pasar filtros sidebar |
+| `GET /ia/analizar_asesor?asesor=X` | `Rendimiento.jsx` | ✅ |
 | `GET /ia/analizar_llamada?llamada_id=X` | `MetricasGrid.jsx` | ✅ |
 | `GET /ia/analisis_automatico?tipo_analisis=X` | `AnalisisAu.jsx` | revisar |
 | `GET /ia/reporte_completo` | `ReporteCompleto.jsx` | revisar |
@@ -167,6 +167,11 @@ firebase deploy --only hosting:cltiene-dashboard
 ---
 
 ## TAREAS PENDIENTES
+
+### Sesión 2026-06-19 (este chat)
+- ✅ `Rendimiento.jsx`: `analizar_asesor` ahora pasa filtros del sidebar con `buildQuery()`
+- ✅ `Rendimiento.jsx`: `estiloBadge` corregido — antes pasaba número como color CSS (bug), ahora usa `colorBadge(val)`: gris=0%, rojo<2%, naranja<5%, verde≥5%
+- ✅ Creado `CLAUDE.md` para mantener contexto entre sesiones (se actualiza automáticamente)
 
 ### Backlog
 - [ ] **Corregir detección de hablantes** en `estructurar_dialogo()` — Asesor/Cliente a veces invertidos

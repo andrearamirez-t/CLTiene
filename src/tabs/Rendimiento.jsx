@@ -81,7 +81,9 @@ const Rendimiento = () => {
 
         try {
 
-            const response = await fetch(`${API_BASE}/ia/analizar_asesor?asesor=${asesorSeleccionado}`);
+            const params = buildQuery();
+            const sep = params ? '&' : '?';
+            const response = await fetch(`${API_BASE}/ia/analizar_asesor?asesor=${encodeURIComponent(asesorSeleccionado)}${params ? sep + params : ''}`);
 
             const result = await response.json();
             const data = result.result
@@ -121,8 +123,15 @@ const Rendimiento = () => {
 
 
 
-    const estiloBadge = (color) => ({
-        backgroundColor: color,
+    const colorBadge = (val) => {
+        if (val === 0 || val === null || val === undefined) return '#94a3b8';
+        if (val < 2) return '#ef4444';
+        if (val < 5) return '#f97316';
+        return '#22c55e';
+    };
+
+    const estiloBadge = (val) => ({
+        backgroundColor: colorBadge(val),
         color: 'white',
         padding: '4px 8px',
         borderRadius: '4px',
