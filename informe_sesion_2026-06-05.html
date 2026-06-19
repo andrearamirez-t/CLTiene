@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Informe de Sesión — CLTiene Dashboard · 05 Jun 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; font-size: 11px; color: #1e293b; background: #fff; line-height: 1.6; }
+
+  /* ── Portada ── */
+  .cover {
+    width: 100%; min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 60px 40px; page-break-after: always;
+    position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: ''; position: absolute; top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(252,50,118,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: ''; position: absolute; bottom: -80px; right: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover-badge {
+    background: rgba(252,50,118,0.15); border: 1px solid rgba(252,50,118,0.4);
+    color: #FC3276; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; padding: 6px 18px; border-radius: 20px;
+    margin-bottom: 32px; z-index: 1;
+  }
+  .cover-logo-text { font-size: 52px; font-weight: 800; color: white; letter-spacing: -1px; z-index: 1; margin-bottom: 8px; }
+  .cover-logo-text span { color: #FC3276; }
+  .cover-subtitle { font-size: 16px; color: #94a3b8; font-weight: 400; margin-bottom: 48px; z-index: 1; }
+  .cover-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #FC3276, #818cf8); border-radius: 2px; margin: 0 auto 48px; z-index: 1; }
+  .cover-title { font-size: 28px; font-weight: 700; color: white; line-height: 1.3; max-width: 600px; margin-bottom: 16px; z-index: 1; }
+  .cover-description { font-size: 13px; color: #94a3b8; max-width: 500px; line-height: 1.7; margin-bottom: 60px; z-index: 1; }
+  .cover-meta { display: flex; gap: 48px; z-index: 1; }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; color: #cbd5e1; font-weight: 500; }
+
+  /* ── Layout ── */
+  .page { max-width: 780px; margin: 0 auto; padding: 48px 56px; }
+
+  /* ── Sección ── */
+  .section { margin-bottom: 40px; page-break-inside: avoid; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+  .section-number {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #FC3276, #db2777);
+    color: white; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+
+  /* ── Subsección ── */
+  .subsection { margin-bottom: 20px; }
+  .subsection-title { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+  /* ── Tabla ── */
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 8px; }
+  thead tr { background: #0f172a; }
+  thead th { color: white; font-weight: 600; padding: 9px 12px; text-align: left; font-size: 10px; letter-spacing: 0.3px; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:nth-child(odd) { background: #fff; }
+  tbody td { padding: 8px 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+
+  /* ── Cards ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .cards-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+  .card-label { font-size: 9px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-value { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .card-sub { font-size: 9.5px; color: #64748b; margin-top: 4px; }
+
+  /* ── Fix items ── */
+  .fix-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .fix-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .fix-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .fix-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .fix-text strong { color: #0f172a; font-weight: 600; }
+  .fix-text code { font-family: 'Courier New', monospace; font-size: 10px; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; color: #be123c; }
+  .fix-item.ok { background: #f0fdf4; border-color: #bbf7d0; }
+  .fix-item.fix { background: #fff7ed; border-color: #fed7aa; }
+  .fix-item.design { background: #fdf4ff; border-color: #e9d5ff; }
+  .fix-item.data { background: #eff6ff; border-color: #bfdbfe; }
+
+  /* ── Badge antes/después ── */
+  .before-after { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .badge-red { background: #fee2e2; color: #dc2626; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-arrow { color: #94a3b8; font-size: 12px; }
+
+  /* ── Código ── */
+  .code-block { background: #0f172a; border-radius: 8px; padding: 14px 16px; margin: 8px 0; overflow-x: auto; }
+  .code-block code { font-family: 'Courier New', monospace; font-size: 10px; color: #cbd5e1; white-space: pre; }
+
+  /* ── Timeline ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: flex; gap: 16px; }
+  .timeline-line { display: flex; flex-direction: column; align-items: center; }
+  .timeline-dot { width: 10px; height: 10px; background: #FC3276; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .timeline-connector { width: 2px; background: #f1f5f9; flex: 1; min-height: 20px; }
+  .timeline-content { padding-bottom: 20px; flex: 1; }
+  .timeline-label { font-size: 10px; font-weight: 600; color: #FC3276; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .timeline-desc { font-size: 11px; color: #475569; line-height: 1.5; }
+
+  /* ── Chip de estado ── */
+  .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
+  .chip-done { background: #dcfce7; color: #15803d; }
+  .chip-pending { background: #fff7ed; color: #c2410c; }
+  .chip-fix { background: #eff6ff; color: #1d4ed8; }
+
+  /* ── Footer ── */
+  .footer { border-top: 1px solid #f1f5f9; margin-top: 60px; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 9.5px; }
+
+  @media print {
+    .cover { min-height: 100vh; }
+    .page { padding: 32px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ PORTADA ══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Informe de Sesión de Desarrollo</div>
+  <div class="cover-logo-text">CL<span>Tiene</span></div>
+  <div class="cover-subtitle">Dashboard Analytics · DivergencyAI SAS</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">Resumen de Cambios<br>Sesión Interrumpida por Límite de Contexto</div>
+  <div class="cover-description">
+    Registro completo de todos los errores corregidos, mejoras implementadas y
+    funcionalidades nuevas desarrolladas entre el 5 y el 19 de junio de 2026
+    sobre el dashboard de análisis de call center.
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Inicio</div>
+      <div class="cover-meta-value">05 Jun 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Cierre</div>
+      <div class="cover-meta-value">19 Jun 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Total cambios</div>
+      <div class="cover-meta-value">22+ fixes</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Archivos modificados</div>
+      <div class="cover-meta-value">18 archivos</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Estado</div>
+      <div class="cover-meta-value">98% completado</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ CONTENIDO ══════════════════════════════ -->
+<div class="page">
+
+  <!-- ── Resumen ejecutivo ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title">Resumen Ejecutivo</div>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Bugs corregidos</div>
+        <div class="card-value">9</div>
+        <div class="card-sub">Errores en producción eliminados</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Mejoras visuales</div>
+        <div class="card-value">6</div>
+        <div class="card-sub">Diseño y UX mejorado</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Funcionalidades nuevas</div>
+        <div class="card-value">4</div>
+        <div class="card-sub">Chat, burbujas, filtros IA</div>
+      </div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7;">
+      Esta sesión se enfocó en estabilizar el dashboard eliminando errores críticos de React, corregir
+      métricas incorrectas en BigQuery, mejorar la experiencia del chat con el Agente IA, y estandarizar
+      el diseño de todos los resultados de inteligencia artificial con la paleta visual del proyecto.
+    </p>
+  </div>
+
+  <!-- ── Bugs críticos corregidos ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title">Bugs Críticos Corregidos</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item fix">
+        <div class="fix-icon">💥</div>
+        <div class="fix-text">
+          <strong>Error React removeChild — pantalla en blanco al abrir IA</strong><br>
+          Al hacer clic en cualquier botón de IA, la app se bloqueaba con un error de React
+          (<code>removeChild</code>). Causado por extensiones del navegador (Google Translate) que
+          modificaban el DOM entre renders.<br>
+          <strong>Solución:</strong> <code>translate="no"</code> en la etiqueta <code>&lt;html&gt;</code>
+          del <code>index.html</code>, <code>useRef + innerHTML</code> en lugar de
+          <code>dangerouslySetInnerHTML</code>, y <code>ErrorBoundary</code> en <code>App.jsx</code>.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">📊</div>
+        <div class="fix-text">
+          <strong>Porcentaje de Saludo mostrando 0.436% en vez de 43.6%</strong><br>
+          <code>AVG(saludo_inicial)</code> devuelve un decimal entre 0 y 1. Se estaba mostrando
+          directamente sin multiplicar por 100.
+          <div class="before-after">
+            <span class="badge badge-red">Antes: 0.436%</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">Ahora: 43.6%</span>
+          </div>
+          <strong>Archivo:</strong> <code>back/api/routes.py</code> — agregado <code>* 100</code> a los 7 indicadores del scorecard.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🤝</div>
+        <div class="fix-text">
+          <strong>SALUDO OK demasiado bajo (25.4% real vs 48.8% esperado)</strong><br>
+          17,491 de 34,974 llamadas no tienen transcripción y su <code>saludo_inicial = 0</code>
+          por defecto, bajando el promedio artificialmente. El equipo confirmó que prácticamente
+          todos los asesores saludan.
+          <div class="before-after">
+            <span class="badge badge-red">Antes: 25.4%</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">Ahora: 48.8%</span>
+          </div>
+          <strong>Solución:</strong> <code>SAFE_DIVIDE</code> filtrando solo llamadas con transcripción
+          (<code>LENGTH > 50</code>). Archivo: <code>back/api/charts/kpi.py</code>.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🗂️</div>
+        <div class="fix-text">
+          <strong>Error React #31 — Reporte Completo crash al generar</strong><br>
+          El campo <code>hallazgos</code> devuelto por la IA era un array de objetos
+          <code>&#123;llamada, comentario&#125;</code> en vez de un array de strings.
+          React no puede renderizar objetos directamente → pantalla en blanco.<br>
+          <strong>Solución:</strong> Prompt del backend corregido para exigir strings.
+          Archivo: <code>back/api/routes_new.py</code>.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🔗</div>
+        <div class="fix-text">
+          <strong>Resumir Llamadas — error 404 al consultar</strong><br>
+          El endpoint estaba mal construido: llamaba a <code>/api/resumir_llamada</code> sin el
+          parámetro <code>id</code> en la URL.<br>
+          <strong>Corrección:</strong> URL cambiada a <code>/api/resumir_llamada/&#123;id&#125;</code>.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">📐</div>
+        <div class="fix-text">
+          <strong>Warnings de Recharts — altura en porcentaje sin contenedor definido</strong><br>
+          <code>ResponsiveContainer</code> con <code>height="100%"</code> sin un padre con altura
+          fija generaba warnings en consola y gráficas que no renderizaban.<br>
+          <strong>Solución:</strong> Alturas fijas en píxeles en los contenedores padre.
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- ── Mejoras de datos y métricas ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title">Correcciones de Datos y Métricas</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item data">
+        <div class="fix-icon">🗑️</div>
+        <div class="fix-text">
+          <strong>Columna "Éxito" duplicada eliminada de Rendimiento Asesores</strong><br>
+          Los campos <code>efectivas</code> y <code>exito</code> en la query BigQuery calculaban
+          exactamente lo mismo. Se eliminó <code>exito</code>.
+          Archivo: <code>back/api/charts/rendimiento_agente.py</code>.
+        </div>
+      </li>
+
+      <li class="fix-item data">
+        <div class="fix-icon">✏️</div>
+        <div class="fix-text">
+          <strong>Renombrado de columnas de la tabla de asesores</strong><br>
+          Los nombres anteriores eran ambiguos para el equipo comercial.
+          <table style="margin-top:8px;">
+            <thead><tr><th>Antes</th><th>Ahora</th></tr></thead>
+            <tbody>
+              <tr><td>Turnos</td><td>Turnos Conv.</td></tr>
+              <tr><td>Palabras / Score</td><td>Calidad /100</td></tr>
+              <tr><td>Contacto</td><td>% Efectividad</td></tr>
+              <tr><td>Tasa Venta</td><td>% Ventas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+
+      <li class="fix-item data">
+        <div class="fix-icon">🎨</div>
+        <div class="fix-text">
+          <strong>Colores de badges por valor en columna % Ventas</strong><br>
+          Antes el badge mostraba un número como color CSS (bug visual). Ahora usa lógica de colores:
+          <table style="margin-top:8px;">
+            <thead><tr><th>Valor</th><th>Color</th><th>Significado</th></tr></thead>
+            <tbody>
+              <tr><td>0%</td><td>Gris</td><td>Sin ventas</td></tr>
+              <tr><td>0.1% – 2%</td><td>Rojo</td><td>Rendimiento bajo</td></tr>
+              <tr><td>2% – 5%</td><td>Naranja</td><td>Rendimiento medio</td></tr>
+              <tr><td>≥ 5%</td><td>Verde</td><td>Buen rendimiento</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+
+      <li class="fix-item data">
+        <div class="fix-icon">📛</div>
+        <div class="fix-text">
+          <strong>Renombrado de KPIs principales del dashboard</strong><br>
+          <table style="margin-top:8px;">
+            <thead><tr><th>Antes</th><th>Ahora</th></tr></thead>
+            <tbody>
+              <tr><td>CONTACTOS REALES</td><td>LLAMADAS EFECTIVAS</td></tr>
+              <tr><td>KPI sin nombre claro</td><td>VENTAS CERRADAS</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- ── Mejoras de UX y diseño ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title">Mejoras de UX y Diseño</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item design">
+        <div class="fix-icon">🎨</div>
+        <div class="fix-text">
+          <strong>Diseño estándar para resultados IA — tarjeta blanca con borde rosa</strong><br>
+          Se estandarizó el diseño de todos los resultados de IA con el estilo de
+          <code>ReporteCompleto.jsx</code>: fondo blanco, borde izquierdo <code>#FC3276</code>,
+          gradiente rosa suave en el header, tipografía clara.
+          <table style="margin-top:8px;">
+            <thead><tr><th>Componente</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><td>InsightsCard.jsx</td><td><span class="chip chip-done">✅ Completado</span></td></tr>
+              <tr><td>MetricasGrid.jsx (Transcripciones)</td><td><span class="chip chip-done">✅ Completado</span></td></tr>
+              <tr><td>Inteligencia.jsx</td><td><span class="chip chip-done">✅ Completado</span></td></tr>
+              <tr><td>Analisis.jsx</td><td><span class="chip chip-done">✅ Completado</span></td></tr>
+              <tr><td>Rendimiento.jsx</td><td><span class="chip chip-done">✅ Completado</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </li>
+
+      <li class="fix-item design">
+        <div class="fix-icon">💬</div>
+        <div class="fix-text">
+          <strong>Transcripciones rediseñadas como burbujas de chat</strong><br>
+          El visor de llamadas en "Resumir Llamadas" mostraba texto plano. Ahora usa burbujas
+          estilo chat: <strong>CLIENTE</strong> en naranja (#FD7751) alineado a la izquierda,
+          <strong>ASESOR</strong> en gris (#999999) alineado a la derecha.
+          Archivo: <code>src/components/CuerpoLlamada.jsx</code>.
+        </div>
+      </li>
+
+      <li class="fix-item design">
+        <div class="fix-icon">📐</div>
+        <div class="fix-text">
+          <strong>Sidebar expande/contrae el contenido principal</strong><br>
+          El <code>marginLeft</code> del contenido estaba hardcodeado. Ahora el estado
+          <code>sidebarOpen</code> se maneja en <code>Dashboard.jsx</code> y controla
+          dinámicamente el <code>marginLeft</code> con transición CSS.
+          <div class="code-block"><code>marginLeft: sidebarOpen ? "260px" : "0px"
+transition: "margin-left 0.3s ease"</code></div>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- ── Funcionalidades nuevas ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title">Funcionalidades Nuevas</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item ok">
+        <div class="fix-icon">🤖</div>
+        <div class="fix-text">
+          <strong>Chat del Agente IA responde de forma conversacional</strong><br>
+          Antes el chat devolvía tablas HTML oscuras incluso para saludos simples.
+          Se cambió el system prompt del backend para respuestas en texto plano, sin HTML ni markdown.
+          Ahora responde de forma natural como un asistente real.
+          Archivo: <code>back/api/chat.py</code>.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">🔗</div>
+        <div class="fix-text">
+          <strong>Todos los botones IA conectados a los filtros activos del sidebar</strong><br>
+          Los botones de análisis IA ignoraban los filtros del dashboard. Ahora todos pasan
+          los filtros activos al backend usando <code>buildQuery()</code> del contexto global.
+          <div class="code-block"><code>const params = buildQuery();
+const query = params ? `?${params}` : '';
+fetch(`${API_BASE}/ia/endpoint${query}`);</code></div>
+          Aplica a: InsightsCard, MetricasGrid, Inteligencia, Analisis, Rendimiento.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">🛡️</div>
+        <div class="fix-text">
+          <strong>Protección contra errores de extensiones del navegador</strong><br>
+          <code>ErrorBoundary</code> en <code>App.jsx</code> evita que un error en un componente
+          borre toda la pantalla. <code>translate="no"</code> en el HTML previene que Google
+          Translate modifique el DOM y rompa React.
+        </div>
+      </li>
+
+
+    </ul>
+  </div>
+
+  <!-- ── Archivos modificados ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title">Archivos Modificados</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Archivo</th>
+          <th>Tipo de cambio</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>index.html</code></td><td>Fix</td><td>Agregado <code>translate="no"</code> en <code>&lt;html&gt;</code></td></tr>
+        <tr><td><code>src/App.jsx</code></td><td>Feature</td><td>ErrorBoundary para prevenir pantalla en blanco</td></tr>
+        <tr><td><code>src/pages/Dashboard.jsx</code></td><td>Fix + Feature</td><td>Estado sidebarOpen, KPIs renombrados, marginLeft dinámico</td></tr>
+        <tr><td><code>src/layout/Sidebar.jsx</code></td><td>Refactor</td><td>Estado isOpen elevado a Dashboard (props)</td></tr>
+        <tr><td><code>src/tabs/Rendimiento.jsx</code></td><td>Fix + Design</td><td>Columnas renombradas, badge colorBadge, filtros IA, diseño rosa</td></tr>
+        <tr><td><code>src/tabs/Inteligencia.jsx</code></td><td>Design + Filtros</td><td>Diseño blanco/rosa, filtros conectados al sidebar</td></tr>
+        <tr><td><code>src/tabs/Analisis.jsx</code></td><td>Design + Filtros</td><td>Diseño blanco/rosa, filtros conectados al sidebar</td></tr>
+        <tr><td><code>src/components/ui/InsightsCard.jsx</code></td><td>Design + Filtros</td><td>Diseño blanco/rosa, useRef, filtros conectados</td></tr>
+        <tr><td><code>src/components/Transcripciones/MetricasGrid.jsx</code></td><td>Design + Filtros</td><td>Burbujas de chat, diseño blanco/rosa, filtros</td></tr>
+        <tr><td><code>src/components/CuerpoLlamada.jsx</code></td><td>Design</td><td>Rediseño como chat burbujas (cliente naranja / asesor gris)</td></tr>
+        <tr><td><code>back/api/routes.py</code></td><td>Fix</td><td>Scorecard: <code>× 100</code> a los 7 indicadores de porcentaje</td></tr>
+        <tr><td><code>back/api/charts/kpi.py</code></td><td>Fix</td><td>SALUDO OK: solo cuenta llamadas con transcripción</td></tr>
+        <tr><td><code>back/api/charts/rendimiento_agente.py</code></td><td>Fix</td><td>Eliminado campo duplicado <code>exito</code>, campos renombrados</td></tr>
+        <tr><td><code>back/api/routes_new.py</code></td><td>Fix</td><td>Prompt de hallazgos corregido para retornar strings</td></tr>
+        <tr><td><code>back/api/chat.py</code></td><td>Feature</td><td>System prompt conversacional, sin HTML, sin tablas</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Complementos 19 Jun ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <div class="section-title">Complementos — 19 Jun 2026</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item ok">
+        <div class="fix-icon">🔄</div>
+        <div class="fix-text">
+          <strong>Pipeline V4 integrado en producción — 36,969 llamadas procesadas</strong><br>
+          Se integró el motor <code>estructurar_dialogo()</code> en el pipeline diario <code>subir_datos.py</code>.
+          Ahora cada llamada genera automáticamente <code>Transcripcion_V4</code> con turnos diferenciados
+          por hablante (<code>[Asesor]</code> / <code>[Cliente]</code>), además de detectar el campo
+          <code>Asistencia</code> con un catálogo de 35+ servicios específicos de CL Tiene.
+          La duración se calcula desde el campo real <code>Tiempo de Conversacion</code> del SQL Server
+          (HH:MM:SS) en lugar de la longitud del texto.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">✅</div>
+        <div class="fix-text">
+          <strong>Columna "Ventas" oculta en Scorecard cuando el filtro es Servicio</strong><br>
+          En la tabla de indicadores por asesor (Inteligencia Operativa), la columna Ventas desaparece
+          automáticamente cuando el usuario activa el filtro "Tipo de Llamada = Servicio", manteniendo
+          coherencia con el resto del dashboard que ya ocultaba otros elementos de ventas.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">⚡</div>
+        <div class="fix-text">
+          <strong>Keep-alive ping + reconexión automática al volver a la pestaña</strong><br>
+          El frontend ahora envía un ping al backend cada 9 minutos mientras la pestaña está abierta,
+          evitando que Cloud Run apague el contenedor por inactividad (cold start). Además, al volver
+          a la pestaña después de 5+ minutos, se muestra un banner "Reconectando..." y se recargan
+          los KPIs automáticamente usando la Page Visibility API del navegador.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">🔍</div>
+        <div class="fix-text">
+          <strong>Fix filtro "Asistencia Mencionada" — resultados correctos</strong><br>
+          El filtro de asistencia estaba usando <code>LIKE 'valor%'</code>, que fallaba cuando el servicio
+          no era el primero en la lista separada por comas. Se corrigió a <code>LIKE '%valor%'</code> y el
+          dropdown ahora usa <code>UNNEST(SPLIT(Asistencia, ', '))</code> para mostrar cada servicio
+          por separado sin duplicados.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">✅</div>
+        <div class="fix-text">
+          <strong>Filtros del sidebar conectados al análisis por asesor</strong><br>
+          El análisis individual de cada asesor ahora respeta los filtros activos del dashboard
+          (fechas, tipo de llamada, módulo, etc.) al consultar la inteligencia artificial.
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">✅</div>
+        <div class="fix-text">
+          <strong>Indicadores de color por rendimiento en % Ventas</strong><br>
+          La columna % Ventas en la tabla de asesores ahora muestra colores según el nivel:
+          gris = sin ventas, rojo = bajo (&lt;2%), naranja = medio (2–5%), verde = buen rendimiento (≥5%).
+        </div>
+      </li>
+
+      <li class="fix-item ok">
+        <div class="fix-icon">📄</div>
+        <div class="fix-text">
+          <strong>CLAUDE.md — memoria de contexto entre sesiones</strong><br>
+          Se creó el archivo <code>CLAUDE.md</code> en la raíz del proyecto. Se carga automáticamente
+          en cada nueva sesión de desarrollo con Claude Code, manteniendo el estado del proyecto,
+          patrones de código establecidos, fixes importantes y tareas pendientes actualizadas.
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- ── Pendiente ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <div class="section-title">Trabajo Pendiente</div>
+    </div>
+
+    <ul class="fix-list">
+      <li class="fix-item fix">
+        <div class="fix-icon">⏳</div>
+        <div class="fix-text">
+          <strong>Verificar filtros en módulos de Agente IA PRO</strong><br>
+          Los módulos de análisis automático, ranking comparativo y reporte completo
+          deben validarse para confirmar que respetan los filtros activos del dashboard.
+        </div>
+      </li>
+      <li class="fix-item fix">
+        <div class="fix-icon">🔄</div>
+        <div class="fix-text">
+          <strong>Corregir detección de hablantes en transcripciones</strong><br>
+          En algunas llamadas el Asesor y el Cliente aparecen intercambiados en el visor de
+          transcripciones. Requiere ajuste en el algoritmo de procesamiento de audio.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    <div>CLTiene Dashboard · DivergencyAI SAS</div>
+    <div>Período: 05 Jun 2026 — 19 Jun 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
