@@ -1,5 +1,5 @@
 import { API_BASE } from '../config';
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 import Sidebar from '../layout/Sidebar.jsx';
 import {
@@ -23,6 +23,8 @@ const Dashboard = () => {
     const [kpi, setKpi] = useState(null);
     const [tabActiva, setTabActiva] = useState('Resumen Ejecutivo');
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [reconectando, setReconectando] = useState(false);
+    const lastHiddenAt = useRef(null);
     const tabs = [
         'Resumen Ejecutivo',
         'Rendimiento Asesores',
@@ -32,25 +34,56 @@ const Dashboard = () => {
         'Agente IA PRO'
     ];
 
+    const fetchKpi = useCallback(async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/kpi` + (params ? `?${params}` : ""));
+            const data = await res.json();
+            setKpi(data[0] || []);
+        } catch (err) {
+            console.error("Error cargando KPI:", err);
+        }
+    }, [params]);
+
+    useEffect(() => { fetchKpi(); }, [filters]);
+
+    // Ping cada 9 min para mantener Cloud Run activo mientras la pestaña está abierta
     useEffect(() => {
-        const fetchKpi = async () => {
-            try {
+        const ping = () => fetch(`${API_BASE}/api/kpi`).catch(() => {});
+        const intervalo = setInterval(ping, 9 * 60 * 1000);
+        return () => clearInterval(intervalo);
+    }, []);
 
-                const res = await fetch(`${API_BASE}/api/kpi` + (params ? `?${params}` : ""));
-                const data = await res.json();
-
-                setKpi(data[0] || []);
-
-            } catch (err) {
-                console.error("Error cargando KPI:", err);
+    // Detectar regreso a la pestaña después de inactividad larga
+    useEffect(() => {
+        const handleVisibility = async () => {
+            if (document.visibilityState === 'hidden') {
+                lastHiddenAt.current = Date.now();
+            } else if (document.visibilityState === 'visible' && lastHiddenAt.current) {
+                const minutos = (Date.now() - lastHiddenAt.current) / 60000;
+                if (minutos >= 5) {
+                    setReconectando(true);
+                    await fetchKpi();
+                    setReconectando(false);
+                }
             }
         };
-
-        fetchKpi();
-    }, [filters]);
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, [fetchKpi]);
 
     return (
         <div className="dashboard-container" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+
+            {reconectando && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+                    background: 'linear-gradient(90deg, #be123c, #7e22ce)',
+                    color: 'white', padding: '10px', textAlign: 'center',
+                    fontSize: '14px', fontWeight: '600', letterSpacing: '0.3px'
+                }}>
+                    ⏳ Reconectando con el servidor...
+                </div>
+            )}
 
             <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
 
