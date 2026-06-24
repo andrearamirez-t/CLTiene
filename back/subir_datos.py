@@ -459,12 +459,20 @@ SEÑALES INEQUÍVOCAS DEL CLIENTE:
 - "¿Cómo?" solo → CLIENTE (no escuchó, pide repetir)
 - "No, [nombre/corrección]" → CLIENTE corrigiendo un dato (p.ej. "No, Rosalía" cuando el asesor dijo mal el nombre)
 - "¿[nombre]?" sola como pregunta → CLIENTE repreguntando el nombre que dijo el asesor
+- "¿De dónde?" / "¿De dónde llaman?" / "¿De qué empresa?" → CLIENTE preguntando la procedencia
+- "¿Quién es?" / "¿Con quién habló?" → CLIENTE identificando al llamante
 - Respuestas muy cortas (Sí / No / Ok / Dale / Claro / Bien / Ya) tras pregunta del asesor
 
 TRANSCRIPCIÓN INICIADA EN MEDIO DE CONVERSACIÓN:
 Si el texto empieza con una conjunción ("y", "pero", "entonces"), minúscula, o fragmento sin
 contexto → es una transcripción cortada. Usa el CONTENIDO del texto para identificar hablantes:
 busca señales de asesor/cliente en el resto del texto y asigna en consecuencia.
+
+TEXTO MUY REPETITIVO (falla de STT):
+Si una frase corta se repite 5 o más veces seguidas ("bueno bueno bueno...", "Hola ¿cómo estás?
+Hola ¿cómo estás?...") → es un error del sistema de transcripción. Trata el bloque repetido como
+UN SOLO turno y asígnalo al hablante que corresponda por contexto. Si luego aparecen señales
+claras de asesor/cliente, divide normalmente. No dejes la llamada como irreconocible.
 
 PATRÓN SALIENTE (asesor llama al cliente — el más común):
 [Cliente]: Aló  ← cliente contesta primero
@@ -490,7 +498,7 @@ Frases que SIEMPRE cortan el bloque actual e inician [Asesor]:
   • "nuestro plan asistencial", "tiene soluciones", "CL Tiene"
 
 Frases que SIEMPRE cortan el bloque actual e inician [Cliente]:
-  • "Aló" (incluso en medio del texto)
+  • "Aló" (incluso en medio del texto), PERO si DESPUÉS del Aló aparece señal de asesor → corta de nuevo
   • "No me interesa", "Soy yo", "Con ella/él habla"
   • "Qué pena, no entendí", "No lo entiendo bien"
   • "¿Cómo?" solo (1 palabra) → cliente no escuchó
@@ -502,6 +510,21 @@ ERROR TÍPICO A EVITAR:
    [Asesor]: Me estoy comunicando con la señora María.
 
 EJEMPLOS CONCRETOS (úsalos como referencia):
+
+Entrada: "¿Aló? ¿Aló? Buenas. Mucho gusto, es que hace poco nos comunicamos con el señor Rodrigo."
+Salida correcta:
+[Cliente]: ¿Aló? ¿Aló? Buenas.
+[Asesor]: Mucho gusto, es que hace poco nos comunicamos con el señor Rodrigo.
+
+Entrada: "¿De dónde? ¿De dónde? ¿De dónde? ¿De dónde? Buenos días, bienvenida a la línea de asistencias, le habla Daniela, ¿en qué le colaboro?"
+Salida correcta:
+[Cliente]: ¿De dónde? ¿De dónde? ¿De dónde? ¿De dónde?
+[Asesor]: Buenos días, bienvenida a la línea de asistencias, le habla Daniela, ¿en qué le colaboro?
+
+Entrada: "Hola, ¿cómo estás? Hola, ¿cómo estás? Hola, ¿cómo estás? Hola, ¿cómo estás? Hola, ¿cómo estás? Hola, ¿cómo estás? Muy bien, señora, le llamo de CL Tiene soluciones."
+Salida correcta:
+[Cliente]: Hola, ¿cómo estás? (repetido por falla STT)
+[Asesor]: Muy bien, señora, le llamo de CL Tiene soluciones.
 
 Entrada: "Me estoy comunicando, por favor, con Rodalia. ¿Cómo? Me estoy contactando, por favor, con Rodalia. ¿Rodalia? No, Rosalía. ¿Qué pena? Rosalía Ángel. Sí. Mucho gusto, señora Rosalía."
 Salida correcta:
@@ -583,6 +606,11 @@ Entrada: "Aló. Aló. Aló. Buenas tardes. Señor Marvin, le habla Nicolás de C
 Salida correcta:
 [Cliente]: Aló. Aló. Aló. Buenas tardes.
 [Asesor]: Señor Marvin, le habla Nicolás de CL Tiene.
+
+REGLA ABSOLUTA — NUNCA INVENTES TEXTO:
+Solo usa las palabras que aparecen literalmente en la transcripción.
+Si la transcripción empieza con el cliente (sin texto del asesor antes), empieza con [Cliente]:
+No agregues frases como "[Asesor]: Bienvenido a la línea..." si eso no está en el texto.
 
 Formato de salida EXACTO (sin texto adicional, sin explicaciones):
 [Asesor]: texto
