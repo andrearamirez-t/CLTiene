@@ -5,17 +5,19 @@ Ejecutar desde un PC con sesión activa de la CUN (usa Windows Auth automáticam
 
 import sys
 import os
+import asyncio
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 
 from sqlalchemy import create_engine, text
 import pandas as pd
 import re
 from google.cloud import bigquery
+import openai
 
 # ─── Configuración ───────────────────────────────────────────────────────────────
 
@@ -403,6 +405,232 @@ def estructurar_dialogo(texto):
     return '\n'.join(f"[{b['hablante']}]: {' '.join(b['textos'])}" for b in bloques)
 
 
+# ─── Estructuración V4 con OpenAI ────────────────────────────────────────────────
+
+_PROMPT_HABLANTES = """Eres un analizador experto de transcripciones de call center colombiano.
+Tu tarea: separar el diálogo entre ASESOR y CLIENTE.
+
+DEFINICIONES:
+- ASESOR: agente del call center (ofrece servicios de asistencia: grúa, médico, etc.)
+- CLIENTE: persona natural que recibe o hace la llamada
+
+TIPO DE LLAMADA (se indica al inicio del texto del usuario):
+- [Tipo: saliente] → el ASESOR llamó al CLIENTE. El cliente contesta primero:
+  "Aló", "Hola", "Buenas tardes", etc. Si la transcripción empieza directamente
+  con frases del asesor (sin "Aló" previo), el "Aló" del cliente fue cortado por
+  el sistema y la llamada IGUAL es saliente — el primer hablante completo que ves
+  puede ser el Asesor presentándose.
+- [Tipo: entrante] → el CLIENTE llamó al call center. El ASESOR contesta primero:
+  "Bienvenido a la línea de asistencia", "Hablas con [Nombre]", etc.
+
+CASO ESPECIAL — BUZÓN DE VOZ:
+Si el texto comienza con "Este es el servicio de contestador" / "Por favor deja tu mensaje" /
+"deja tu mensaje después del tono" → es un buzón automático, NO hay diálogo real.
+En ese caso devuelve: [Asesor]: (toda la transcripción sin dividir)
+
+SEÑALES INEQUÍVOCAS DEL ASESOR:
+- "Mi nombre es [Nombre]" / "Mucho gusto, soy [Nombre]" seguido de empresa/servicio
+- "Me comunico con / nos comunicamos con / nos estamos pasando de la línea de..."
+- "Hablas con [Nombre]" / "Te habla [Nombre]" / "Le habla [Nombre]" presentándose
+- "Buenas tardes/días con [Nombre]" o "Buenas tardes/días, [Nombre]" al buscar al cliente → ASESOR
+- "Me gustaría/me gusta/quisiera/quiero hablar con [Nombre]" → ASESOR buscando al cliente
+- "Tengo el gusto de comunicarme / contactarme con [Nombre]" → ASESOR
+- "¿Con quién tengo el gusto de hablar?" / "¿Con quién hablo?" → SIEMPRE ASESOR
+- "Por favor, la señora/señor [Nombre]" / "Con la señora/señor [Nombre], por favor" → ASESOR
+- "Qué pena [Nombre], veo que se cortó" / "Qué pena la molestia" + nombre cliente → ASESOR
+- "El motivo de mi llamada/contacto es...", "Te llamo de parte de...", "Te contacto porque..."
+- "Bienvenido/a a la línea de...", "Bienvenidos con las asistencias de..."
+- "Te voy a explicar", "Te comento que", "Nosotros ofrecemos/manejamos/brindamos"
+- "¿Puedo hablar con [Nombre]?", "¿Me comunicas con [Nombre]?", "¿Se encuentra [Nombre]?"
+- "Señora/Señor [Nombre], mucho gusto" (saluda al cliente por nombre)
+- "Con todo gusto [Nombre]" / "Con mucho gusto" respondiendo a un "gracias" → ASESOR
+- "nuestro plan asistencial", "se le tiene soluciones", "CL Tiene / CLTiene" → ASESOR
+- "Es un placer saludarte/saludarle", "Somos una empresa/servicio de asistencias"
+
+SEÑALES INEQUÍVOCAS DEL CLIENTE:
+- "Aló", "Aló aló", "Diga", "Aquí es", "Aquí hola" → SIEMPRE Cliente contestando
+- Múltiples "Aló" repetidos seguidos → todos son del CLIENTE
+- "No me interesa", "No necesito eso", "No hice ningún registro", "Yo no pedí eso"
+- "¿De qué se trata?", "¿Quién habla?", "¿De dónde llaman?"
+- "Con ella/él habla", "Soy yo", "Con el/ella"
+- "No lo entiendo bien" / "No entendí" / "¿Qué pena, no escuché?" → CLIENTE
+- "Perfecto, muchas gracias" / "Gracias" sola al final de turno → CLIENTE
+- "Sí señora" / "Sí señor" solos (2-3 palabras, sin continuar hablando) → CLIENTE confirmando
+- "¿Cómo?" solo → CLIENTE (no escuchó, pide repetir)
+- "No, [nombre/corrección]" → CLIENTE corrigiendo un dato (p.ej. "No, Rosalía" cuando el asesor dijo mal el nombre)
+- "¿[nombre]?" sola como pregunta → CLIENTE repreguntando el nombre que dijo el asesor
+- Respuestas muy cortas (Sí / No / Ok / Dale / Claro / Bien / Ya) tras pregunta del asesor
+
+TRANSCRIPCIÓN INICIADA EN MEDIO DE CONVERSACIÓN:
+Si el texto empieza con una conjunción ("y", "pero", "entonces"), minúscula, o fragmento sin
+contexto → es una transcripción cortada. Usa el CONTENIDO del texto para identificar hablantes:
+busca señales de asesor/cliente en el resto del texto y asigna en consecuencia.
+
+PATRÓN SALIENTE (asesor llama al cliente — el más común):
+[Cliente]: Aló  ← cliente contesta primero
+[Asesor]: Hola señora [Nombre], le habla [Asesor] de [Empresa]...
+[Cliente]: Sí / ¿De qué se trata?
+[Asesor]: El motivo de mi llamada...
+
+PATRÓN ENTRANTE (cliente llama al call center):
+[Asesor]: Bienvenido a la línea de asistencia, hablas con [Nombre]
+[Cliente]: Hola, necesito coordinar una asistencia...
+
+REGLA CRÍTICA OBLIGATORIA — analiza frase por frase, NO bloque por bloque:
+Aunque el texto comience con "Hola" o "Buenos días" (→ Cliente), la SIGUIENTE FRASE
+que contenga señal de ASESOR DEBE comenzar un nuevo bloque [Asesor] inmediatamente.
+NUNCA acumules frases de asesor dentro de un bloque de cliente por inercia.
+
+Frases que SIEMPRE cortan el bloque actual e inician [Asesor]:
+  • "Me estoy comunicando", "estamos comunicando", "estamos hablando con [Nombre]"
+  • "Me comunico con", "Tengo el gusto de comunicarme/contactarme"
+  • "Mi nombre es", "Te habla", "Le habla", "Mucho gusto" + nombre propio
+  • "me gusta/quisiera/quiero hablar con [Nombre]"
+  • "Por favor, la señora/señor [Nombre]"
+  • "nuestro plan asistencial", "tiene soluciones", "CL Tiene"
+
+Frases que SIEMPRE cortan el bloque actual e inician [Cliente]:
+  • "Aló" (incluso en medio del texto)
+  • "No me interesa", "Soy yo", "Con ella/él habla"
+  • "Qué pena, no entendí", "No lo entiendo bien"
+  • "¿Cómo?" solo (1 palabra) → cliente no escuchó
+  • "No, [nombre]" cuando el asesor pronunció mal un nombre → cliente corrige
+
+ERROR TÍPICO A EVITAR:
+❌ [Cliente]: Hola, buenas tardes. Me estoy comunicando con la señora María.
+✅ [Cliente]: Hola, buenas tardes.
+   [Asesor]: Me estoy comunicando con la señora María.
+
+EJEMPLOS CONCRETOS (úsalos como referencia):
+
+Entrada: "Me estoy comunicando, por favor, con Rodalia. ¿Cómo? Me estoy contactando, por favor, con Rodalia. ¿Rodalia? No, Rosalía. ¿Qué pena? Rosalía Ángel. Sí. Mucho gusto, señora Rosalía."
+Salida correcta:
+[Asesor]: Me estoy comunicando, por favor, con Rodalia.
+[Cliente]: ¿Cómo?
+[Asesor]: Me estoy contactando, por favor, con Rodalia.
+[Cliente]: ¿Rodalia? No, Rosalía.
+[Asesor]: ¿Qué pena? Rosalía Ángel. Sí. Mucho gusto, señora Rosalía.
+
+Entrada: "Muy buenos días. Muy buenos días. Me estoy comunicando nuevamente. Bien. ¿De dónde?"
+Salida correcta:
+[Cliente]: Muy buenos días.
+[Asesor]: Muy buenos días. Me estoy comunicando nuevamente.
+[Cliente]: Bien. ¿De dónde?
+
+Entrada: "¿Tengo el gusto de comunicarme a la línea del señor Jarros? No. ¿Esta línea no le corresponde a él? No."
+Salida correcta:
+[Asesor]: ¿Tengo el gusto de comunicarme a la línea del señor Jarros?
+[Cliente]: No.
+[Asesor]: ¿Esta línea no le corresponde a él?
+[Cliente]: No.
+
+Entrada: "Hola, buenas tardes. Hola, muy buenas tardes. Me estoy comunicando con la señora Indira. Sí, con ella. Señora Indira, te habla Andrés."
+Salida correcta:
+[Cliente]: Hola, buenas tardes.
+[Asesor]: Hola, muy buenas tardes. Me estoy comunicando con la señora Indira.
+[Cliente]: Sí, con ella.
+[Asesor]: Señora Indira, te habla Andrés.
+
+Entrada: "Hola, buenas tardes. Estamos hablando con Liana, estamos comunicando para el médico de domicilio. Bien, ¿cómo estás?"
+Salida correcta:
+[Cliente]: Hola, buenas tardes.
+[Asesor]: Estamos hablando con Liana, estamos comunicando para el médico de domicilio. ¿Cómo estás?
+
+Entrada: "Hola, buenas tardes. Me estoy comunicando a la universidad de Lacuna. Sí, somos una empresa aliada."
+Salida correcta:
+[Cliente]: Hola, buenas tardes.
+[Asesor]: Me estoy comunicando a la universidad de Lacuna. Sí, somos una empresa aliada.
+
+Entrada: "¿Cómo? ¿Cómo? que se encontraba interesada en nuestro Plan Asistencial para Salud, ¿es correcto? No lo entiendo bien, qué pena."
+Salida correcta:
+[Cliente]: ¿Cómo?
+[Asesor]: ¿Cómo? que se encontraba interesada en nuestro Plan Asistencial para Salud, ¿es correcto?
+[Cliente]: No lo entiendo bien, qué pena.
+
+Entrada: "y comunicarse, ¿listo? Perfecto, muchas gracias. No, con todo gusto, Cristian. De todas maneras en unos minutos el profesional se comunicará."
+Salida correcta:
+[Asesor]: y comunicarse, ¿listo?
+[Cliente]: Perfecto, muchas gracias.
+[Asesor]: No, con todo gusto, Cristian. De todas maneras en unos minutos el profesional se comunicará.
+
+Entrada: "Aló. Muy buenas tardes. ¿Me comunico con la señora Sandra? Con ella. Señora Sandra, le habla Nicolás de CL Tiene."
+Salida correcta:
+[Cliente]: Aló.
+[Asesor]: Muy buenas tardes. ¿Me comunico con la señora Sandra?
+[Cliente]: Con ella.
+[Asesor]: Señora Sandra, le habla Nicolás de CL Tiene.
+
+Entrada: "Buenos días. Muy buenos días. Por favor, la señora Luz Adriana. Sí, señora. ¿Con ella hablan? Mi nombre es Melanie."
+Salida correcta:
+[Cliente]: Buenos días.
+[Asesor]: Muy buenos días. Por favor, la señora Luz Adriana.
+[Cliente]: Sí, señora. ¿Con ella hablan?
+[Asesor]: Mi nombre es Melanie.
+
+Entrada: "Buenas tardes. Buenas tardes, María Andrés. Sí, hablo por Andrés. Es que apenas me traté de comunicar contigo."
+Salida correcta:
+[Cliente]: Buenas tardes.
+[Asesor]: Buenas tardes, María Andrés.
+[Cliente]: Sí, hablo por Andrés.
+[Asesor]: Es que apenas me traté de comunicar contigo.
+
+Entrada: "A lo buenos días con Ana Celza Valencia. Ana, qué pena, veo que se nos cortó la llamada. ¿Puedes confirmar si estás interesada?"
+Salida correcta:
+[Cliente]: Aló, buenos días con Ana Celza Valencia.
+[Asesor]: Ana, qué pena, veo que se nos cortó la llamada. ¿Puedes confirmar si estás interesada?
+
+Entrada: "Aló. Aló. Aló. Buenas tardes. Señor Marvin, le habla Nicolás de CL Tiene."
+Salida correcta:
+[Cliente]: Aló. Aló. Aló. Buenas tardes.
+[Asesor]: Señor Marvin, le habla Nicolás de CL Tiene.
+
+Formato de salida EXACTO (sin texto adicional, sin explicaciones):
+[Asesor]: texto
+[Cliente]: texto
+[Asesor]: texto
+
+Agrupa oraciones consecutivas del mismo hablante en UN solo bloque."""
+
+
+async def _estructurar_ia_async(texto, client, sem, tipo='saliente'):
+    if pd.isna(texto) or not texto or len(str(texto).strip()) < 10:
+        return None
+    texto = str(texto).strip()
+    tipo_str = str(tipo).lower() if pd.notna(tipo) else 'saliente'
+    user_content = f"[Tipo: {tipo_str}]\n{texto[:3000]}"
+    async with sem:
+        try:
+            resp = await client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": _PROMPT_HABLANTES},
+                    {"role": "user",   "content": user_content},
+                ],
+                temperature=0,
+                max_tokens=2000,
+            )
+            return resp.choices[0].message.content.strip()
+        except Exception:
+            return estructurar_dialogo(texto)  # fallback a regex
+
+
+async def _batch_ia(textos, tipos=None, concurrencia=25):
+    api_key = os.getenv("OPENAI_API_MUNDIAL")
+    client  = openai.AsyncOpenAI(api_key=api_key)
+    sem     = asyncio.Semaphore(concurrencia)
+    if tipos is None:
+        tipos = ['saliente'] * len(textos)
+    tasks = [_estructurar_ia_async(t, client, sem, tp) for t, tp in zip(textos, tipos)]
+    return await asyncio.gather(*tasks)
+
+
+def estructurar_dialogos_ia(textos, tipos=None):
+    """Procesa una serie/lista de transcripciones con OpenAI en paralelo."""
+    t_list = list(textos)
+    tp_list = list(tipos) if tipos is not None else None
+    return asyncio.run(_batch_ia(t_list, tipos=tp_list))
+
+
 # ─── Funciones de detección ───────────────────────────────────────────────────────
 
 def detectar_duracion_estimada(tiempo_str):
@@ -472,7 +700,7 @@ def detectar_resultado_llamada(texto, transcripcion_v4):
     tl = str(texto).lower()
     if len(tl.strip()) < 50:
         return "Sin Contacto"
-    if re.search(r'buz[oó]n\s+de\s+voz|correo\s+de\s+voz|deje\s+su\s+mensaje', tl):
+    if re.search(r'buz[oó]n\s+de\s+voz|correo\s+de\s+voz|deje\s+su\s+mensaje|deja\s+tu\s+mensaje|servicio\s+de\s+contestador', tl):
         return "Buzón de Voz"
     turnos_cliente = transcripcion_v4.count('[Cliente]') if transcripcion_v4 else 0
     if turnos_cliente == 0 and len(tl.strip()) < 200:
@@ -613,8 +841,8 @@ def contar_objeciones(texto):
 def procesar(df):
     df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente'})
 
-    log("  Estructurando transcripciones V4...")
-    df['Transcripcion_V4']  = df['transcripcion'].apply(estructurar_dialogo)
+    log("  Estructurando transcripciones V4 con IA (async)...")
+    df['Transcripcion_V4'] = estructurar_dialogos_ia(df['transcripcion'], df.get('Tipo_Llamada'))
     df['Num_Turnos_V4']     = df['Transcripcion_V4'].apply(
         lambda x: x.count('[Asesor]') + x.count('[Cliente]') if pd.notna(x) else 0)
     df['Turnos_Asesor_V4']  = df['Transcripcion_V4'].apply(
