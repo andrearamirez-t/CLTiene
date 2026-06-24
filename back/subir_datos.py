@@ -16,6 +16,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 from sqlalchemy import create_engine, text
 import pandas as pd
 import re
+import hashlib
 from google.cloud import bigquery
 import openai
 
@@ -405,6 +406,31 @@ def estructurar_dialogo(texto):
     return '\n'.join(f"[{b['hablante']}]: {' '.join(b['textos'])}" for b in bloques)
 
 
+# ─── Cache incremental ───────────────────────────────────────────────────────────
+
+def _hash_tx(texto):
+    if pd.isna(texto) or not str(texto).strip():
+        return '__empty__'
+    return hashlib.md5(str(texto).strip().encode('utf-8')).hexdigest()
+
+def cargar_cache_bigquery():
+    """Devuelve {hash_transcripcion: Transcripcion_V4} de los datos ya procesados en BQ."""
+    try:
+        client = bigquery.Client(project=BQ_PROJECT)
+        query = f"""
+            SELECT transcripcion, Transcripcion_V4
+            FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLA}`
+            WHERE Transcripcion_V4 IS NOT NULL AND Transcripcion_V4 != ''
+        """
+        df_bq = client.query(query).to_dataframe()
+        cache = {_hash_tx(r['transcripcion']): r['Transcripcion_V4'] for _, r in df_bq.iterrows()}
+        log(f"  Cache BigQuery: {len(cache):,} transcripciones ya procesadas")
+        return cache
+    except Exception as e:
+        log(f"  (cache no disponible: {e})")
+        return {}
+
+
 # ─── Estructuración V4 con OpenAI ────────────────────────────────────────────────
 
 _PROMPT_HABLANTES = """Eres un analizador experto de transcripciones de call center colombiano.
@@ -643,20 +669,44 @@ async def _estructurar_ia_async(texto, client, sem, tipo='saliente'):
 
 
 async def _batch_ia(textos, tipos=None, concurrencia=25):
-    api_key = os.getenv("OPENAI_API_MUNDIAL")
-    client  = openai.AsyncOpenAI(api_key=api_key)
-    sem     = asyncio.Semaphore(concurrencia)
+    # Soporte para dos API keys (dobla la concurrencia)
+    keys = [k for k in [
+        os.getenv("OPENAI_API_MUNDIAL"),
+        os.getenv("OPENAI_API_MUNDIAL_2"),
+    ] if k]
+    clients = [openai.AsyncOpenAI(api_key=k) for k in keys]
+    sem = asyncio.Semaphore(concurrencia * len(clients))
     if tipos is None:
         tipos = ['saliente'] * len(textos)
-    tasks = [_estructurar_ia_async(t, client, sem, tp) for t, tp in zip(textos, tipos)]
+    tasks = [
+        _estructurar_ia_async(t, clients[i % len(clients)], sem, tp)
+        for i, (t, tp) in enumerate(zip(textos, tipos))
+    ]
     return await asyncio.gather(*tasks)
 
 
-def estructurar_dialogos_ia(textos, tipos=None):
-    """Procesa una serie/lista de transcripciones con OpenAI en paralelo."""
-    t_list = list(textos)
-    tp_list = list(tipos) if tipos is not None else None
-    return asyncio.run(_batch_ia(t_list, tipos=tp_list))
+def estructurar_dialogos_ia(textos, tipos=None, cache=None):
+    """Procesa transcripciones con OpenAI, reutilizando cache para las ya procesadas."""
+    t_list  = list(textos)
+    tp_list = list(tipos) if tipos is not None else ['saliente'] * len(t_list)
+
+    if not cache:
+        return asyncio.run(_batch_ia(t_list, tipos=tp_list))
+
+    hashes          = [_hash_tx(t) for t in t_list]
+    idx_nuevos      = [i for i, h in enumerate(hashes) if h not in cache]
+    log(f"  Nuevas/cambiadas: {len(idx_nuevos):,} | Reutilizadas: {len(t_list)-len(idx_nuevos):,}")
+
+    resultados = [cache.get(h) for h in hashes]  # None donde no hay cache
+
+    if idx_nuevos:
+        tx_nuevas  = [t_list[i]  for i in idx_nuevos]
+        tp_nuevas  = [tp_list[i] for i in idx_nuevos]
+        procesadas = asyncio.run(_batch_ia(tx_nuevas, tipos=tp_nuevas))
+        for pos, i in enumerate(idx_nuevos):
+            resultados[i] = procesadas[pos]
+
+    return resultados
 
 
 # ─── Funciones de detección ───────────────────────────────────────────────────────
@@ -869,8 +919,10 @@ def contar_objeciones(texto):
 def procesar(df):
     df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente'})
 
+    log("  Cargando cache de BigQuery...")
+    cache = cargar_cache_bigquery()
     log("  Estructurando transcripciones V4 con IA (async)...")
-    df['Transcripcion_V4'] = estructurar_dialogos_ia(df['transcripcion'], df.get('Tipo_Llamada'))
+    df['Transcripcion_V4'] = estructurar_dialogos_ia(df['transcripcion'], df.get('Tipo_Llamada'), cache=cache)
     df['Num_Turnos_V4']     = df['Transcripcion_V4'].apply(
         lambda x: x.count('[Asesor]') + x.count('[Cliente]') if pd.notna(x) else 0)
     df['Turnos_Asesor_V4']  = df['Transcripcion_V4'].apply(

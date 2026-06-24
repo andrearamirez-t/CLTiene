@@ -1,7 +1,7 @@
 """
-Compara detección de hablantes (Regex vs OpenAI) y precisión de efectividad.
-Uso: python back/comparar_metodos.py [N_MUESTRAS]
-     python back/comparar_metodos.py 100
+Compara detección de hablantes: Regex vs OpenAI vs Groq.
+Uso: python comparar_metodos.py [N_MUESTRAS]
+     python comparar_metodos.py 100
 """
 
 import sys
@@ -12,24 +12,28 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 
 import re
+import asyncio
 import pandas as pd
 import io
+import openai
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 from google.cloud import bigquery
 from subir_datos import (
     estructurar_dialogo,
     estructurar_dialogos_ia,
     detectar_resultado_llamada,
+    _PROMPT_HABLANTES,
     BQ_PROJECT, BQ_DATASET, BQ_TABLA,
 )
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 50
-
-
 MUESTRA_CSV = os.path.join(os.path.dirname(__file__), "muestra_fija.csv")
+GROQ_MODEL  = "llama-3.3-70b-versatile"
+
+
+# ─── Muestra ─────────────────────────────────────────────────────────────────
 
 def cargar_muestra(n):
-    # Reutiliza muestra fija si existe, para medir mejoras reales entre corridas
     if os.path.exists(MUESTRA_CSV):
         df = pd.read_csv(MUESTRA_CSV, encoding='utf-8-sig')
         print(f"  (muestra fija cargada desde {MUESTRA_CSV})")
@@ -38,8 +42,7 @@ def cargar_muestra(n):
     query = f"""
         SELECT transcripcion, efectiva, Resultado_Llamada AS resultado_original, Tipo_Llamada
         FROM `{BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLA}`
-        WHERE transcripcion IS NOT NULL
-          AND LENGTH(transcripcion) > 100
+        WHERE transcripcion IS NOT NULL AND LENGTH(transcripcion) > 100
         ORDER BY RAND()
         LIMIT {n}
     """
@@ -49,6 +52,46 @@ def cargar_muestra(n):
     return df
 
 
+# ─── Groq async ──────────────────────────────────────────────────────────────
+
+async def _groq_async(texto, client, sem, tipo='saliente'):
+    if pd.isna(texto) or not texto or len(str(texto).strip()) < 10:
+        return None
+    texto = str(texto).strip()
+    tipo_str = str(tipo).lower() if pd.notna(tipo) else 'saliente'
+    user_content = f"[Tipo: {tipo_str}]\n{texto[:3000]}"
+    async with sem:
+        try:
+            resp = await client.chat.completions.create(
+                model=GROQ_MODEL,
+                messages=[
+                    {"role": "system", "content": _PROMPT_HABLANTES},
+                    {"role": "user",   "content": user_content},
+                ],
+                temperature=0,
+                max_tokens=2000,
+            )
+            return resp.choices[0].message.content.strip()
+        except Exception as e:
+            return estructurar_dialogo(texto)  # fallback a regex
+
+
+async def _batch_groq(textos, tipos=None, concurrencia=10):
+    api_key = os.getenv("GROQ_API_KEY")
+    client  = openai.AsyncOpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+    sem     = asyncio.Semaphore(concurrencia)
+    if tipos is None:
+        tipos = ['saliente'] * len(textos)
+    tasks = [_groq_async(t, client, sem, tp) for t, tp in zip(textos, tipos)]
+    return await asyncio.gather(*tasks)
+
+
+def estructurar_dialogos_groq(textos, tipos=None):
+    return asyncio.run(_batch_groq(list(textos), tipos=list(tipos) if tipos is not None else None))
+
+
+# ─── Helpers ─────────────────────────────────────────────────────────────────
+
 def primer_hablante(v4):
     if not v4:
         return None
@@ -56,138 +99,120 @@ def primer_hablante(v4):
     return m.group(1) if m else None
 
 
+def acuerdo(a, b, df):
+    return (df[a] == df[b]).sum()
+
+
+def imprimir_metrica(label, col, n, df):
+    asesor = (df[col] == 'Asesor').sum()
+    print(f"  {label:<8} → primer hablante = Asesor : {asesor:>3}/{n}  ({asesor/n*100:5.1f}%)")
+
+
+# ─── Main ────────────────────────────────────────────────────────────────────
+
 def main():
-    sep = "=" * 62
+    sep  = "=" * 66
+    line = "─" * 66
 
     print(f"\n{sep}")
-    print(f"  COMPARACIÓN: Regex vs OpenAI  —  {N} llamadas")
+    print(f"  COMPARACIÓN: Regex vs OpenAI vs Groq ({GROQ_MODEL})  —  {N} llamadas")
     print(f"{sep}\n")
 
-    print("Cargando muestra de BigQuery...")
+    print("Cargando muestra...")
     df = cargar_muestra(N)
     print(f"  {len(df)} llamadas cargadas\n")
 
-    print("Aplicando regex...")
+    tipos = df['Tipo_Llamada'] if 'Tipo_Llamada' in df.columns else None
+
+    print("Aplicando Regex...")
     df['v4_regex'] = df['transcripcion'].apply(estructurar_dialogo)
 
-    print("Aplicando OpenAI (async, 25 simultáneas)...")
-    tipos = df['Tipo_Llamada'] if 'Tipo_Llamada' in df.columns else None
+    print("Aplicando OpenAI (async, hasta 50 simultáneas)...")
     df['v4_ia'] = estructurar_dialogos_ia(df['transcripcion'], tipos)
+
+    print(f"Aplicando Groq / {GROQ_MODEL} (async, 10 simultáneas)...")
+    df['v4_groq'] = estructurar_dialogos_groq(df['transcripcion'], tipos)
     print()
 
-    df['resultado_regex'] = df.apply(
-        lambda r: detectar_resultado_llamada(r['transcripcion'], r['v4_regex'] or ''), axis=1)
-    df['resultado_ia'] = df.apply(
-        lambda r: detectar_resultado_llamada(r['transcripcion'], r['v4_ia'] or ''), axis=1)
+    for col, v4_col in [('resultado_regex','v4_regex'), ('resultado_ia','v4_ia'), ('resultado_groq','v4_groq')]:
+        df[col] = df.apply(lambda r: detectar_resultado_llamada(r['transcripcion'], r[v4_col] or ''), axis=1)
 
-    df['primer_regex']       = df['v4_regex'].apply(primer_hablante)
-    df['primer_ia']          = df['v4_ia'].apply(primer_hablante)
-    df['acuerdan_hablante']  = df['primer_regex'] == df['primer_ia']
-    df['acuerdan_resultado'] = df['resultado_regex'] == df['resultado_ia']
+    df['primer_regex'] = df['v4_regex'].apply(primer_hablante)
+    df['primer_ia']    = df['v4_ia'].apply(primer_hablante)
+    df['primer_groq']  = df['v4_groq'].apply(primer_hablante)
 
     n = len(df)
-    line = "─" * 62
 
-    # ── Sección 1: Hablantes ──────────────────────────────────────
+    # ── 1. Hablantes ─────────────────────────────────────────────────
     print(f"{line}")
-    print("  1. DETECCIÓN DE HABLANTES (primer hablante de la llamada)")
+    print("  1. DETECCIÓN DE HABLANTES (primer hablante)")
     print(f"{line}")
+    imprimir_metrica("Regex",  'primer_regex', n, df)
+    imprimir_metrica("OpenAI", 'primer_ia',    n, df)
+    imprimir_metrica("Groq",   'primer_groq',  n, df)
+    print()
+    ac_re_ia   = acuerdo('primer_regex', 'primer_ia',   df)
+    ac_re_groq = acuerdo('primer_regex', 'primer_groq', df)
+    ac_ia_groq = acuerdo('primer_ia',   'primer_groq',  df)
+    print(f"  Acuerdo Regex  ↔ OpenAI : {ac_re_ia:>3}/{n}  ({ac_re_ia/n*100:5.1f}%)")
+    print(f"  Acuerdo Regex  ↔ Groq   : {ac_re_groq:>3}/{n}  ({ac_re_groq/n*100:5.1f}%)")
+    print(f"  Acuerdo OpenAI ↔ Groq   : {ac_ia_groq:>3}/{n}  ({ac_ia_groq/n*100:5.1f}%)")
 
-    regex_asesor  = (df['primer_regex'] == 'Asesor').sum()
-    ia_asesor     = (df['primer_ia']    == 'Asesor').sum()
-    acuerdo_hab   = df['acuerdan_hablante'].sum()
-    desacuerdo    = n - acuerdo_hab
-
-    print(f"  Regex  → primer hablante = Asesor : {regex_asesor:>3}/{n}  ({regex_asesor/n*100:5.1f}%)")
-    print(f"  OpenAI → primer hablante = Asesor : {ia_asesor:>3}/{n}  ({ia_asesor/n*100:5.1f}%)")
-    print(f"  Acuerdo entre métodos              : {acuerdo_hab:>3}/{n}  ({acuerdo_hab/n*100:5.1f}%)")
-    print(f"  Desacuerdo (regex probablemente mal): {desacuerdo:>3}/{n}  ({desacuerdo/n*100:5.1f}%)")
-
-    # ── Sección 2: Efectividad ────────────────────────────────────
+    # ── 2. Efectividad ───────────────────────────────────────────────
     print(f"\n{line}")
-    print("  2. EFECTIVIDAD  (Resultado_Llamada)")
+    print("  2. EFECTIVIDAD (Resultado_Llamada)")
     print(f"{line}")
-
-    ventas_regex = (df['resultado_regex'] == 'Venta').sum()
-    ventas_ia    = (df['resultado_ia']    == 'Venta').sum()
-    acuerdo_res  = df['acuerdan_resultado'].sum()
-
-    print(f"  Regex  → Ventas detectadas : {ventas_regex:>3}/{n}  ({ventas_regex/n*100:5.1f}%)")
-    print(f"  OpenAI → Ventas detectadas : {ventas_ia:>3}/{n}  ({ventas_ia/n*100:5.1f}%)")
-    print(f"  Acuerdo entre métodos      : {acuerdo_res:>3}/{n}  ({acuerdo_res/n*100:5.1f}%)")
+    for label, col in [("Regex", "resultado_regex"), ("OpenAI", "resultado_ia"), ("Groq", "resultado_groq")]:
+        v = (df[col] == 'Venta').sum()
+        print(f"  {label:<8} → Ventas : {v:>3}/{n}  ({v/n*100:5.1f}%)")
 
     if 'resultado_original' in df.columns:
-        ventas_orig = (df['resultado_original'] == 'Venta').sum()
-        print(f"\n  Resultado_Llamada original (BigQuery) :")
+        print(f"\n  BigQuery original:")
         for val, cnt in df['resultado_original'].value_counts().items():
-            print(f"    {val:<25}: {cnt:>3}  ({cnt/n*100:5.1f}%)")
+            print(f"    {val:<22}: {cnt:>3}  ({cnt/n*100:5.1f}%)")
 
-    if 'efectiva' in df.columns:
-        ef = df['efectiva'].fillna(0).astype(int).sum()
-        print(f"\n  Campo 'efectiva' original (SQL Server) : {ef}/{n}  ({ef/n*100:.1f}%)")
-
-    # ── Sección 3: Concordancia vs BigQuery original ──────────────
+    # ── 3. Concordancia vs BigQuery ──────────────────────────────────
     if 'resultado_original' in df.columns:
         print(f"\n{line}")
-        print("  3. CONCORDANCIA VS BIGQUERY ORIGINAL (ground truth)")
+        print("  3. CONCORDANCIA VS BIGQUERY ORIGINAL")
         print(f"{line}")
-
         orig = df['resultado_original']
-        r_regex = df['resultado_regex']
-        r_ia    = df['resultado_ia']
+        for label, col in [("Regex", "resultado_regex"), ("OpenAI", "resultado_ia"), ("Groq", "resultado_groq")]:
+            ok = (df[col] == orig).sum()
+            print(f"  {label:<8} coincide con BigQuery : {ok:>3}/{n}  ({ok/n*100:5.1f}%)")
 
-        # Acuerdo global
-        reg_ok = (r_regex == orig).sum()
-        ia_ok  = (r_ia    == orig).sum()
-        print(f"  Regex  coincide con BigQuery : {reg_ok:>3}/{n}  ({reg_ok/n*100:5.1f}%)")
-        print(f"  OpenAI coincide con BigQuery : {ia_ok:>3}/{n}  ({ia_ok/n*100:5.1f}%)")
-
-        # Ventaja
-        regex_gana = ((r_regex == orig) & (r_ia != orig)).sum()
-        ia_gana    = ((r_ia    == orig) & (r_regex != orig)).sum()
-        ambos_mal  = ((r_regex != orig) & (r_ia != orig)).sum()
-        ambos_bien = ((r_regex == orig) & (r_ia == orig)).sum()
-        print(f"\n  Ambos correctos            : {ambos_bien:>3}/{n}  ({ambos_bien/n*100:5.1f}%)")
-        print(f"  Solo Regex correcto        : {regex_gana:>3}/{n}  ({regex_gana/n*100:5.1f}%)")
-        print(f"  Solo OpenAI correcto       : {ia_gana:>3}/{n}  ({ia_gana/n*100:5.1f}%)")
-        print(f"  Ambos incorrectos          : {ambos_mal:>3}/{n}  ({ambos_mal/n*100:5.1f}%)")
-
-        # Desglose por categoría
-        print(f"\n  Desglose por categoría (BigQuery original):")
+        print(f"\n  Desglose por categoría:")
         for cat in orig.value_counts().index:
             mask = orig == cat
             cnt  = mask.sum()
-            rg   = (r_regex[mask] == cat).sum()
-            ia   = (r_ia[mask]    == cat).sum()
-            print(f"    {cat:<20}: {cnt:>3} filas  |  Regex {rg}/{cnt} ({rg/cnt*100:.0f}%)  |  IA {ia}/{cnt} ({ia/cnt*100:.0f}%)")
+            rg   = (df['resultado_regex'][mask] == cat).sum()
+            ia   = (df['resultado_ia'][mask]    == cat).sum()
+            gr   = (df['resultado_groq'][mask]  == cat).sum()
+            print(f"    {cat:<20}: {cnt:>3} filas  |  Regex {rg}/{cnt} ({rg/cnt*100:.0f}%)  |  OpenAI {ia}/{cnt} ({ia/cnt*100:.0f}%)  |  Groq {gr}/{cnt} ({gr/cnt*100:.0f}%)")
 
-    # ── Sección 4: Casos donde difieren ──────────────────────────
+    # ── 4. Casos donde difieren los 3 ────────────────────────────────
     print(f"\n{line}")
-    print("  4. CASOS DONDE DIFIEREN (primeros 8)")
+    print("  4. CASOS DONDE LOS 3 DIFIEREN (primeros 6)")
     print(f"{line}")
-
-    difieren = df[~df['acuerdan_hablante'] | ~df['acuerdan_resultado']].head(8)
+    mask_dif = (df['primer_regex'] != df['primer_ia']) | (df['primer_ia'] != df['primer_groq'])
+    difieren = df[mask_dif].head(6)
     if difieren.empty:
-        print("  ¡Ambos métodos coinciden en todos los casos!")
+        print("  ¡Todos coinciden!")
     else:
         for idx, (_, row) in enumerate(difieren.iterrows(), 1):
-            print(f"\n  [{idx}] Primer hablante — Regex: {row['primer_regex']}  |  IA: {row['primer_ia']}")
-            print(f"       Resultado       — Regex: {row['resultado_regex']}  |  IA: {row['resultado_ia']}")
-            if row['v4_regex']:
-                print(f"       Regex : {str(row['v4_regex'])[:180]}")
-            if row['v4_ia']:
-                print(f"       IA    : {str(row['v4_ia'])[:180]}")
+            print(f"\n  [{idx}] Regex={row['primer_regex']}  OpenAI={row['primer_ia']}  Groq={row['primer_groq']}")
+            print(f"       Resultado: Regex={row['resultado_regex']}  OpenAI={row['resultado_ia']}  Groq={row['resultado_groq']}")
+            print(f"       Regex : {str(row['v4_regex'])[:150]}")
+            print(f"       OpenAI: {str(row['v4_ia'])[:150]}")
+            print(f"       Groq  : {str(row['v4_groq'])[:150]}")
 
-    # ── CSV ───────────────────────────────────────────────────────
+    # ── CSV ───────────────────────────────────────────────────────────
     out = os.path.join(os.path.dirname(__file__), "comparacion_metodos.csv")
-    df[[
-        'transcripcion', 'Tipo_Llamada',
-        'primer_regex', 'primer_ia', 'acuerdan_hablante',
-        'resultado_regex', 'resultado_ia', 'acuerdan_resultado',
-        'resultado_original',
-    ]].to_csv(out, index=False, encoding='utf-8-sig')
-
-    print(f"\n  Detalle completo guardado en: comparacion_metodos.csv")
+    df[['transcripcion','Tipo_Llamada',
+        'primer_regex','primer_ia','primer_groq',
+        'resultado_regex','resultado_ia','resultado_groq',
+        'resultado_original']].to_csv(out, index=False, encoding='utf-8-sig')
+    print(f"\n  Detalle guardado en: comparacion_metodos.csv")
     print(f"\n{sep}\n")
 
 

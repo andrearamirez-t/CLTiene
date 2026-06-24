@@ -161,20 +161,74 @@ firebase deploy --only hosting:cltiene-dashboard
 - `IndicadoresTabla.jsx`: columna **Ventas** oculta cuando `tipo_llamada = 'servicio'` (mismo patrón `esServicio` que el resto del dashboard)
 - `Dashboard.jsx`: **keep-alive ping** cada 9 min (evita cold start de Cloud Run mientras la pestaña está abierta) + **Page Visibility API** que muestra banner "Reconectando..." y recarga KPIs al volver a la pestaña tras 5+ min
 
-### Problema identificado (pendiente de fix)
-- `estructurar_dialogo()` en `subir_datos.py` detecta hablantes incorrectamente en algunas llamadas — Asesor y Cliente aparecen intercambiados en el ChatVisor de Transcripciones
+---
+
+## Cambios sesión 2026-06-23
+
+### Pipeline — Detección de hablantes con OpenAI (`back/subir_datos.py`)
+- **Reemplazado regex por OpenAI `gpt-4o-mini`** para separar `[Asesor]` / `[Cliente]` en `Transcripcion_V4`
+- `estructurar_dialogos_ia()`: procesamiento async con `asyncio.gather`, 25–50 llamadas simultáneas
+- `_PROMPT_HABLANTES` (v14): prompt con 14 ejemplos few-shot, señales inequívocas, REGLA CRÍTICA frase por frase
+  - Pasa `[Tipo: saliente/entrante]` al prompt → resuelve ambigüedad del primer hablante
+  - Detecta interjecciones cortas del cliente (`¿Cómo?`, `No, [corrección]`) dentro de bloques del asesor
+  - Prohíbe inventar texto no presente en la transcripción
+  - Maneja texto repetitivo por falla STT como un solo turno
+- Fallback automático a regex si OpenAI falla
+- **37,879 filas** en BigQuery (última actualización 2026-06-23)
+
+### Cache incremental — `cargar_cache_bigquery()`
+- Al arrancar, carga `{hash_md5(transcripcion): Transcripcion_V4}` de BigQuery
+- Solo llama a OpenAI para transcripciones **nuevas o cambiadas**
+- Costo: ~$20 primera vez → ~$0.50–1 en runs posteriores (solo registros nuevos)
+
+### Soporte dos API keys — `.env`
+```
+OPENAI_API_MUNDIAL=sk-proj-...
+OPENAI_API_MUNDIAL_2=sk-proj-...
+```
+- `_batch_ia()` rota entre ambas keys automáticamente
+- Concurrencia: 25 por key → 50 total cuando hay dos keys activas
+- Tiempo de run completo: ~65 min (1 key) → ~35 min (2 keys)
+
+### Scripts de comparación (`back/`)
+- `comparar_metodos.py`: compara regex vs OpenAI en muestra fija de 100 llamadas
+  - Sección 1: acuerdo en primer hablante
+  - Sección 2: acuerdo en `Resultado_Llamada` + ventas
+  - Sección 3: concordancia vs BigQuery original (ground truth)
+  - Sección 4: casos donde difieren (primeros 8)
+- `muestra_fija.csv`: muestra fija de 100 llamadas para comparación reproducible
+- Ejecutar: `$env:PYTHONIOENCODING="utf-8"; python comparar_metodos.py 100`
+
+### Métricas del prompt v14 (muestra fija 100 llamadas)
+| Métrica | Valor |
+|---------|-------|
+| Acuerdo hablantes (IA vs regex) | 60% |
+| Acuerdo efectividad | 80% |
+| Ventas detectadas | 100% ✅ |
+| IA vs BigQuery | 76% |
+
+> El 40% de "desacuerdo" en hablantes es en su mayoría **IA más correcta** que regex
+> (regex asignaba Asesor en llamadas salientes donde el cliente contesta primero)
 
 ---
 
 ## TAREAS PENDIENTES
 
-### Sesión 2026-06-19 (este chat)
+### Sesión 2026-06-19
 - ✅ `Rendimiento.jsx`: `analizar_asesor` ahora pasa filtros del sidebar con `buildQuery()`
-- ✅ `Rendimiento.jsx`: `estiloBadge` corregido — antes pasaba número como color CSS (bug), ahora usa `colorBadge(val)`: gris=0%, rojo<2%, naranja<5%, verde≥5%
-- ✅ Creado `CLAUDE.md` para mantener contexto entre sesiones (se actualiza automáticamente)
+- ✅ `Rendimiento.jsx`: `estiloBadge` corregido
+- ✅ Creado `CLAUDE.md`
+
+### Sesión 2026-06-23
+- ✅ Detección de hablantes reemplazada por OpenAI (prompt v14)
+- ✅ Cache incremental implementado
+- ✅ Soporte dos API keys con rotación automática
+- ✅ Script `comparar_metodos.py` + `muestra_fija.csv`
+- ✅ 37,879 filas actualizadas en BigQuery
 
 ### Backlog
-- [ ] **Corregir detección de hablantes** en `estructurar_dialogo()` — Asesor/Cliente a veces invertidos
-- [ ] Validar que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (en Agente IA PRO) pasen filtros sidebar
+- [ ] Verificar ChatVisor con el nuevo prompt v14 tras completar el pipeline actual
+- [ ] Validar que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasen filtros sidebar
 - [ ] Separar métricas Ventas vs Servicio en reportes
 - [ ] Pipeline V4: registrar tarea automática en PC con sesión CUN
+- [ ] Reunión pendiente: clarificar qué mide `efectiva` vs `Resultado_Llamada = 'Venta'`
