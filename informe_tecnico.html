@@ -354,13 +354,13 @@
 
 <!-- ═══════════════════════════════ PORTADA ═══════════════════════════════ -->
 <div class="cover">
-  <div class="cover-badge">Informe Técnico · Versión 2.0</div>
+  <div class="cover-badge">Informe Técnico · Versión 3.0</div>
   <div class="cover-logo-text"><span>CL</span>TIENE</div>
   <div class="cover-subtitle">Soluciones</div>
   <div class="cover-divider"></div>
   <div class="cover-title">Dashboard Analytics de Call Center con Inteligencia Artificial</div>
   <div class="cover-description">
-    Sistema de análisis en tiempo real del rendimiento de asesores, conversiones y calidad de servicio. Pipeline V4 con estructuración automática de transcripciones y 7 módulos de IA generativa.
+    Sistema de análisis en tiempo real del rendimiento de asesores, conversiones y calidad de servicio. Pipeline V4 con detección de hablantes por OpenAI, historial por cliente, y 7 módulos de IA generativa.
   </div>
   <div class="cover-meta">
     <div class="cover-meta-item">
@@ -369,15 +369,15 @@
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Versión pipeline</div>
-      <div class="cover-meta-value">V4</div>
+      <div class="cover-meta-value">V4 · Prompt v15</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Llamadas procesadas</div>
-      <div class="cover-meta-value">36,969</div>
+      <div class="cover-meta-value">37,879</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Fecha</div>
-      <div class="cover-meta-value">12 de Junio 2026</div>
+      <div class="cover-meta-value">25 de Junio 2026</div>
     </div>
   </div>
 </div>
@@ -395,7 +395,7 @@
     <div class="cards-grid">
       <div class="card">
         <div class="card-label">Llamadas procesadas</div>
-        <div class="card-value">36,969</div>
+        <div class="card-value">37,879</div>
         <div class="card-desc">Historial completo en BigQuery</div>
       </div>
       <div class="card accent">
@@ -467,12 +467,12 @@
       <div class="flow-step">
         <div class="flow-step-icon">⚙️</div>
         <div class="flow-step-label">subir_datos.py</div>
-        <div class="flow-step-sub">Pipeline V4<br/>36,969 filas</div>
+        <div class="flow-step-sub">Pipeline V4<br/>37,879 filas</div>
       </div>
       <div class="flow-step">
         <div class="flow-step-icon">🔬</div>
         <div class="flow-step-label">Procesamiento</div>
-        <div class="flow-step-sub">Regex + detección<br/>de hablantes V4</div>
+        <div class="flow-step-sub">OpenAI v15 +<br/>cache incremental</div>
       </div>
       <div class="flow-step">
         <div class="flow-step-icon">☁️</div>
@@ -695,6 +695,108 @@
     </div>
   </div>
 
+  <!-- ─── 5b. MÓDULO TRANSCRIPCIONES — ENDPOINTS DE DATOS ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">5b</div>
+      <div class="section-title">Módulo Transcripciones — Endpoints de Datos</div>
+    </div>
+
+    <div class="highlight">
+      <p><strong>Invariante crítico:</strong> todos los endpoints del módulo de Transcripciones que asignan un ID a una llamada deben usar exactamente el mismo <code>WHERE</code>:
+      <code>COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL AND {filtros}</code>.
+      Cualquier divergencia causa que el ID #N del dropdown apunte a una llamada diferente en métricas, IA o historial.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Archivo</th><th>Rol</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GET /api/transcripcion/llamadas</code></td>
+          <td><code>llamadas.py</code></td>
+          <td>Dropdown: opciones con ID global. Muestra <code>FECHA · Resultado · Asesor · Teléfono</code></td>
+        </tr>
+        <tr>
+          <td><code>GET /api/transcripcion/llamada/{id}</code></td>
+          <td><code>llamada.py</code></td>
+          <td>Transcripción completa + <code>info</code> con resultado, asesor, teléfono (FLOAT64 → INT64 → STRING)</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/transcripcion/metricas/{id}</code></td>
+          <td><code>metricas.py</code></td>
+          <td>Panel métrico: Resultado, Duración Real, Duración, Plan, Turnos (desde V4), Saludo, WhatsApp. Acepta <code>FilterModel</code></td>
+        </tr>
+        <tr>
+          <td><code>GET /api/transcripcion/historial/{telefono}</code></td>
+          <td><code>historial_telefono.py</code></td>
+          <td>Todas las llamadas al número dado con IDs globales. Sin filtros de sidebar (muestra historial completo del cliente)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection" style="margin-top:16px;">
+      <div class="subsection-title">Patrón ROW_NUMBER — sincronización de IDs</div>
+      <div class="code"><span class="comment"># Todos los endpoints usan este mismo CTE base:</span>
+WITH id_provisional AS (
+  SELECT ROW_NUMBER() OVER (ORDER BY Fecha ASC) AS id, *
+  FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+  WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
+    AND <span class="keyword">{filtros.get_query()}</span>   <span class="comment">-- MISMO filtro en los 3 endpoints</span>
+)
+SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Historial de llamadas por teléfono — flujo</div>
+      <table>
+        <thead>
+          <tr><th>Disparador</th><th>Condición en FiltrosLateral.jsx</th><th>Resultado</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Usuario escribe número</td>
+            <td><code>esTelefono(inputValue)</code> — regex <code>/^\d{7,15}$/</code></td>
+            <td>Fetch a <code>/historial/{numero}</code>; oculta dropdown de llamadas</td>
+          </tr>
+          <tr>
+            <td>Selección en dropdown</td>
+            <td><code>cuentaActual</code> ≠ null (viene de <code>info.telefono</code> de la llamada seleccionada)</td>
+            <td>Fetch automático a <code>/historial/{telefono_de_llamada}</code></td>
+          </tr>
+          <tr>
+            <td>Clic en tarjeta del historial</td>
+            <td><code>changeAgent(h.id)</code> donde <code>h.id</code> es el ID global de BigQuery</td>
+            <td>Carga esa transcripción en ChatVisor + métricas actualizadas</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:9.5px; color:#64748b; margin-top:6px;">
+        ⚠️ <code>Telefono</code> se almacena como FLOAT64 en BigQuery (ej. <code>3017384481.0</code>).
+        La comparación requiere <code>CAST(CAST(Telefono AS INT64) AS STRING) = '{tel}'</code>.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Métricas del panel de transcripción</div>
+      <table>
+        <thead>
+          <tr><th>Orden</th><th>Métrica</th><th>Origen BigQuery</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Resultado</td><td><code>Resultado_Llamada</code></td></tr>
+          <tr><td>2</td><td>Duración Real</td><td><code>Tiempo__de_Conversacion</code> (HH:MM:SS, doble guión por doble espacio en SQL Server)</td></tr>
+          <tr><td>3</td><td>Duración</td><td><code>Duracion_Estimada</code> (Corta / Media / Larga)</td></tr>
+          <tr><td>4</td><td>Plan</td><td><code>Plan_Mencionado</code></td></tr>
+          <tr><td>5</td><td>Turnos</td><td><code>ARRAY_LENGTH(REGEXP_EXTRACT_ALL(Transcripcion_V4, r'\[(Asesor|Cliente)\]'))</code></td></tr>
+          <tr><td>6</td><td>Saludo</td><td><code>Saludo_Completo</code></td></tr>
+          <tr><td>7</td><td>WhatsApp</td><td><code>Ofrecio_WhatsApp</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ─── 6. FILTROS DEL SIDEBAR ─── -->
   <div class="section">
     <div class="section-header">
@@ -773,10 +875,15 @@
 │   │   ├── <span class="dir">charts/</span>             <span class="comment"># Queries BigQuery por gráfica</span>
 │   │   ├── <span class="dir">ia/</span>                 <span class="comment"># Módulos IA — prompt_html() + call()</span>
 │   │   └── <span class="dir">filters/</span>            <span class="comment"># Endpoints de opciones para dropdowns</span>
+│   │       └── <span class="dir">transcripcion/</span>
+│   │           ├── <span class="file">llamadas.py</span>     <span class="comment"># Dropdown con fecha·resultado·asesor·teléfono</span>
+│   │           ├── <span class="file">llamada.py</span>      <span class="comment"># Transcripción + info (telefono incluido)</span>
+│   │           ├── <span class="file">metricas.py</span>     <span class="comment"># Panel métrico sincronizado + Turnos desde V4</span>
+│   │           └── <span class="file">historial_telefono.py</span>  <span class="comment"># Historial de llamadas por número de teléfono</span>
 │   ├── <span class="dir">IA/</span>
 │   │   └── <span class="file">Open_AI.py</span>          <span class="comment"># call(system, user) → (content, error)</span>
 │   └── <span class="dir">helpers/</span>
-│       └── <span class="file">utils.py</span>            <span class="comment"># Contextos de datos para todos los módulos IA</span>
+│       └── <span class="file">utils.py</span>            <span class="comment"># get_llamada_context — misma WHERE que llamadas.py</span>
 │
 ├── <span class="file">cloudbuild.yaml</span>             <span class="comment"># CI/CD — deploy automático backend</span>
 └── <span class="file">firebase.json</span>               <span class="comment"># Configuración Firebase Hosting</span>
@@ -832,11 +939,11 @@
     </div>
   </div>
 
-  <!-- ─── 9. ACTUALIZACIONES RECIENTES ─── -->
+  <!-- ─── 9. ACTUALIZACIONES RECIENTES — 19 Jun ─── -->
   <div class="section">
     <div class="section-header">
       <div class="section-number">9</div>
-      <div class="section-title">Actualizaciones Recientes — 19 Jun 2026</div>
+      <div class="section-title">Actualizaciones — 19 Jun 2026</div>
     </div>
 
     <table>
@@ -857,36 +964,113 @@
         <tr>
           <td><strong>Columna Ventas condicional</strong></td>
           <td><code>src/components/Inteligencia/IndicadoresTabla.jsx</code></td>
-          <td>La columna Ventas del Scorecard se oculta automáticamente cuando el filtro Tipo de Llamada = Servicio. Coherente con el resto del dashboard.</td>
+          <td>La columna Ventas del Scorecard se oculta automáticamente cuando el filtro Tipo de Llamada = Servicio.</td>
         </tr>
         <tr>
           <td><strong>Keep-alive + reconexión</strong></td>
           <td><code>src/pages/Dashboard.jsx</code></td>
-          <td>Ping al backend cada 9 min para mantener Cloud Run activo. Page Visibility API recarga KPIs y muestra banner "Reconectando..." al volver a la pestaña tras 5+ min de inactividad.</td>
+          <td>Ping al backend cada 9 min. Page Visibility API recarga KPIs y muestra "Reconectando..." al volver tras 5+ min.</td>
         </tr>
         <tr>
           <td><strong>Análisis IA por asesor con filtros</strong></td>
           <td><code>src/tabs/Rendimiento.jsx</code></td>
-          <td>El endpoint <code>/ia/analizar_asesor</code> ahora recibe los filtros activos del sidebar. Badge de colores por rendimiento: gris=0%, rojo&lt;2%, naranja&lt;5%, verde≥5%.</td>
+          <td>Endpoint <code>/ia/analizar_asesor</code> recibe filtros activos del sidebar. Badge de colores por rendimiento.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── 10. ACTUALIZACIONES RECIENTES — 23 Jun ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">10</div>
+      <div class="section-title">Actualizaciones — 23 Jun 2026 (Detección de hablantes por IA)</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Mejora</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Detección de hablantes por OpenAI — prompt v14</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td>Reemplaza regex por GPT-4o-mini para separar [Asesor]/[Cliente]. 14 ejemplos few-shot, 25–50 llamadas simultáneas (asyncio). Fallback a regex si OpenAI falla.</td>
         </tr>
         <tr>
-          <td><strong>Memoria de contexto</strong></td>
-          <td><code>CLAUDE.md</code></td>
-          <td>Archivo de contexto automático para sesiones de desarrollo. Documenta arquitectura, patrones de código, fixes aplicados y tareas pendientes. Se carga en cada sesión nueva.</td>
+          <td><strong>Cache incremental BigQuery</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td><code>cargar_cache_bigquery()</code>: carga <code>{hash_md5(transcripcion): Transcripcion_V4}</code> al iniciar. Solo llama a OpenAI para registros nuevos o modificados. Costo: ~$20 primera vez, ~$0.50 en runs posteriores.</td>
+        </tr>
+        <tr>
+          <td><strong>Soporte 2 API keys con rotación</strong></td>
+          <td><code>back/subir_datos.py</code>, <code>.env</code></td>
+          <td><code>OPENAI_API_MUNDIAL_2</code>: segunda key opcional. <code>_batch_ia()</code> rota automáticamente. Tiempo total: ~65 min (1 key) → ~35 min (2 keys).</td>
+        </tr>
+        <tr>
+          <td><strong>37,879 llamadas en BigQuery</strong></td>
+          <td>BigQuery</td>
+          <td>910 nuevas llamadas procesadas con prompt v14.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── 11. ACTUALIZACIONES RECIENTES — 25 Jun ─── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">11</div>
+      <div class="section-title">Actualizaciones — 25 Jun 2026 (Historial, Métricas, Sincronización)</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Mejora</th><th>Archivos</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Historial por teléfono</strong></td>
+          <td><code>historial_telefono.py</code><br><code>FiltrosLateral.jsx</code></td>
+          <td>Nuevo panel debajo del buscador que muestra todas las llamadas del número de teléfono activo. Dos disparadores: escribir número manualmente o seleccionar llamada con teléfono. Clic carga transcripción en ChatVisor.</td>
+        </tr>
+        <tr>
+          <td><strong>Métricas: Duración Real + Turnos desde V4</strong></td>
+          <td><code>metricas.py</code></td>
+          <td>Añade campo <code>Tiempo__de_Conversacion</code> como "Duración Real". Turnos calculados con <code>REGEXP_EXTRACT_ALL</code> desde <code>Transcripcion_V4</code> (ya no depende de <code>Num_Turnos_V4</code>). Orden fijo con columna <code>ord</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Dropdown: fecha + teléfono</strong></td>
+          <td><code>llamadas.py</code></td>
+          <td>Las opciones ahora muestran <code>FECHA · Resultado · Asesor · Teléfono</code> en lugar de <code>#ID · Resultado · Asesor</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Sincronización ROW_NUMBER entre endpoints</strong></td>
+          <td><code>metricas.py</code>, <code>utils.py</code></td>
+          <td>Los tres endpoints que numeran llamadas (<code>llamadas.py</code>, <code>metricas.py</code>, <code>get_llamada_context</code>) usan ahora el mismo <code>WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL AND {filtros}</code>. Elimina el bug de "No se encontró la llamada" y métricas de llamada incorrecta.</td>
+        </tr>
+        <tr>
+          <td><strong>Prompt v15 — regla nombre propio</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td>Nueva regla: el CLIENTE nunca se dirige a sí mismo por su nombre propio. "Correcto/Exacto, señora/señor [Nombre]" → siempre ASESOR. Corrige caso "Correcto, señora Rosalía" que v14 asignaba erróneamente al cliente.</td>
+        </tr>
+        <tr>
+          <td><strong>Fix: campo Telefono vs cuenta</strong></td>
+          <td><code>llamada.py</code>, <code>Transcripciones.jsx</code></td>
+          <td><code>Telefono</code> (FLOAT64) es el teléfono del cliente. <code>cuenta</code>/<code>Cuenta</code> es el nombre del asesor. El estado <code>cuentaActual</code> siempre se actualiza (incluso a null) para evitar historial obsoleto.</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="subsection-title" style="margin-top:20px;">Pendiente en backlog</div>
+    <div class="subsection-title" style="margin-top:20px;">Backlog actualizado</div>
     <table>
       <thead>
         <tr><th>Tarea</th><th>Prioridad</th><th>Detalle</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>Corrección de hablantes en transcripciones</strong></td>
+          <td><strong>Re-procesar BigQuery con prompt v15</strong></td>
           <td><span class="pill yellow">Media</span></td>
-          <td>En algunas llamadas el Asesor y el Cliente aparecen intercambiados en el visor. Requiere ajuste en los patrones de detección de <code>estructurar_dialogo()</code>.</td>
+          <td>Limpiar cache e iniciar pipeline completo para aplicar la nueva regla de nombres propios a todas las llamadas existentes.</td>
         </tr>
         <tr>
           <td><strong>Filtros en módulos Agente IA PRO</strong></td>
@@ -898,6 +1082,11 @@
           <td><span class="pill green">Baja</span></td>
           <td>Registrar <code>registrar_tarea.ps1</code> en el Programador de Windows del PC con sesión CUN activa para ejecución automática a las 7:00 AM.</td>
         </tr>
+        <tr>
+          <td><strong>Reunión: efectiva vs Resultado_Llamada = Venta</strong></td>
+          <td><span class="pill green">Baja</span></td>
+          <td>Clarificar con el cliente qué mide cada campo para definir la métrica correcta de conversión.</td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -905,7 +1094,7 @@
   <!-- ─── FOOTER ─── -->
   <div class="footer">
     <div class="footer-brand">Desarrollado por <strong>DivergencyAI SAS</strong> · contacto@divergencyai.com</div>
-    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 de Junio 2026 · Actualizado 19 de Junio 2026</div>
+    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 25 Jun 2026 · v3.0</div>
   </div>
 
 </div>

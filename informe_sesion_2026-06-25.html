@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Informe de Sesión — CLTiene Dashboard · 25 Jun 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; font-size: 11px; color: #1e293b; background: #fff; line-height: 1.6; }
+
+  .cover {
+    width: 100%; min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 60px 40px; page-break-after: always;
+    position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: ''; position: absolute; top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(252,50,118,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: ''; position: absolute; bottom: -80px; right: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover-badge {
+    background: rgba(252,50,118,0.15); border: 1px solid rgba(252,50,118,0.4);
+    color: #FC3276; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; padding: 6px 18px; border-radius: 20px;
+    margin-bottom: 32px; z-index: 1;
+  }
+  .cover-logo-text { font-size: 52px; font-weight: 800; color: white; letter-spacing: -1px; z-index: 1; margin-bottom: 8px; }
+  .cover-logo-text span { color: #FC3276; }
+  .cover-subtitle { font-size: 16px; color: #94a3b8; font-weight: 400; margin-bottom: 48px; z-index: 1; }
+  .cover-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #FC3276, #818cf8); border-radius: 2px; margin: 0 auto 48px; z-index: 1; }
+  .cover-title { font-size: 28px; font-weight: 700; color: white; line-height: 1.3; max-width: 600px; margin-bottom: 16px; z-index: 1; }
+  .cover-description { font-size: 13px; color: #94a3b8; max-width: 500px; line-height: 1.7; margin-bottom: 60px; z-index: 1; }
+  .cover-meta { display: flex; gap: 48px; z-index: 1; }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; color: #cbd5e1; font-weight: 500; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 48px 56px; }
+
+  .section { margin-bottom: 40px; page-break-inside: avoid; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+  .section-number {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #FC3276, #db2777);
+    color: white; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+
+  .subsection { margin-bottom: 20px; }
+  .subsection-title { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 8px; }
+  thead tr { background: #0f172a; }
+  thead th { color: white; font-weight: 600; padding: 9px 12px; text-align: left; font-size: 10px; letter-spacing: 0.3px; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:nth-child(odd) { background: #fff; }
+  tbody td { padding: 8px 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .cards-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+  .card-label { font-size: 9px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-value { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .card-sub { font-size: 9.5px; color: #64748b; margin-top: 4px; }
+
+  .fix-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .fix-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .fix-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .fix-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .fix-text strong { color: #0f172a; font-weight: 600; }
+  .fix-text code { font-family: 'Courier New', monospace; font-size: 10px; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; color: #be123c; }
+  .fix-item.ok { background: #f0fdf4; border-color: #bbf7d0; }
+  .fix-item.fix { background: #fff7ed; border-color: #fed7aa; }
+  .fix-item.feature { background: #fdf4ff; border-color: #e9d5ff; }
+  .fix-item.data { background: #eff6ff; border-color: #bfdbfe; }
+
+  .before-after { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .badge-red { background: #fee2e2; color: #dc2626; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-arrow { color: #94a3b8; font-size: 12px; }
+
+  .code-block { background: #0f172a; border-radius: 8px; padding: 14px 16px; margin: 8px 0; overflow-x: auto; }
+  .code-block code { font-family: 'Courier New', monospace; font-size: 10px; color: #cbd5e1; white-space: pre; }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
+  .chip-done { background: #dcfce7; color: #15803d; }
+  .chip-pending { background: #fff7ed; color: #c2410c; }
+  .chip-fix { background: #eff6ff; color: #1d4ed8; }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: flex; gap: 16px; }
+  .timeline-line { display: flex; flex-direction: column; align-items: center; }
+  .timeline-dot { width: 10px; height: 10px; background: #FC3276; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .timeline-connector { width: 2px; background: #f1f5f9; flex: 1; min-height: 20px; }
+  .timeline-content { padding-bottom: 20px; flex: 1; }
+  .timeline-label { font-size: 10px; font-weight: 600; color: #FC3276; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .timeline-desc { font-size: 11px; color: #475569; line-height: 1.5; }
+
+  .footer { border-top: 1px solid #f1f5f9; margin-top: 60px; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 9.5px; }
+
+  @media print {
+    .cover { min-height: 100vh; }
+    .page { padding: 32px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <div class="cover-badge">Informe de Sesión de Desarrollo</div>
+  <div class="cover-logo-text">CL<span>Tiene</span></div>
+  <div class="cover-subtitle">Dashboard Analytics · DivergencyAI SAS</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">Historial de Cliente, Métricas Reales<br>y Sincronización de IDs</div>
+  <div class="cover-description">
+    Implementación del historial de llamadas por teléfono, corrección de métricas en el
+    panel de transcripciones, sincronización de row numbers entre endpoints, y mejora
+    del prompt de detección de hablantes a la versión 15.
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fecha</div>
+      <div class="cover-meta-value">25 Jun 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Funcionalidades nuevas</div>
+      <div class="cover-meta-value">3</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Bugs críticos</div>
+      <div class="cover-meta-value">7</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Archivos modificados</div>
+      <div class="cover-meta-value">9</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Despliegues</div>
+      <div class="cover-meta-value">10</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="page">
+
+  <!-- 1. Resumen ejecutivo -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title">Resumen Ejecutivo</div>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Funcionalidades nuevas</div>
+        <div class="card-value">3</div>
+        <div class="card-sub">Historial, duración real, turnos reales</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Bugs críticos corregidos</div>
+        <div class="card-value">7</div>
+        <div class="card-sub">IDs desincronizados, columna inexistente, estado obsoleto…</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Prompt hablantes</div>
+        <div class="card-value">v15</div>
+        <div class="card-sub">Regla: cliente no se llama a sí mismo</div>
+      </div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7;">
+      La sesión se centró en el módulo de <strong>Transcripciones</strong>: se añadió un panel de
+      historial de llamadas por número de teléfono (nuevo endpoint BigQuery con IDs globales),
+      se corrigió la sincronización de <code>ROW_NUMBER()</code> entre todos los endpoints que
+      numeran llamadas, se agregaron las métricas de Duración Real y Turnos, y se mejoró el
+      dropdown para mostrar fecha y teléfono del cliente. Adicionalmente se refinó el prompt de
+      detección de hablantes a la versión 15.
+    </p>
+  </div>
+
+  <!-- 2. Funcionalidades nuevas -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title">Funcionalidades Nuevas</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item feature">
+        <div class="fix-icon">📋</div>
+        <div class="fix-text">
+          <strong>Historial de llamadas por teléfono — <code>historial_telefono.py</code></strong><br>
+          Nuevo endpoint <code>GET /api/transcripcion/historial/{telefono}</code> que devuelve todas
+          las llamadas realizadas a un número de teléfono específico con fecha, resultado, asesor,
+          duración real y flag de transcripción disponible.<br>
+          <strong>Frontend:</strong> <code>FiltrosLateral.jsx</code> detecta automáticamente si se
+          está escribiendo un teléfono (regex <code>/^\d{7,15}$/</code>) o si la llamada seleccionada
+          tiene teléfono asociado, y muestra el historial debajo del buscador. Hacer clic en
+          cualquier llamada del historial carga su transcripción en el ChatVisor.<br>
+          <strong>IDs globales:</strong> el historial usa <code>ROW_NUMBER()</code> sobre el mismo
+          dataset filtrado que el dropdown, garantizando que el ID del historial coincida con el
+          ID que carga la transcripción correcta.
+        </div>
+      </li>
+
+      <li class="fix-item feature">
+        <div class="fix-icon">⏱️</div>
+        <div class="fix-text">
+          <strong>Duración Real en panel de métricas</strong><br>
+          Se añadió la métrica <strong>Duración Real</strong> al grid de Análisis Detallado mostrando
+          el tiempo exacto de la llamada (<code>Tiempo__de_Conversacion</code> en formato HH:MM:SS)
+          proveniente del campo <code>[Tiempo de Conversacion]</code> de SQL Server.<br>
+          Anteriormente solo existía <strong>Duración</strong> con valor cualitativo
+          (Corta / Media / Larga / Buzón). Ambas métricas coexisten en el panel.
+        </div>
+      </li>
+
+      <li class="fix-item feature">
+        <div class="fix-icon">💬</div>
+        <div class="fix-text">
+          <strong>Turnos contado desde Transcripcion_V4 + Dropdown con fecha y teléfono</strong><br>
+          La métrica <strong>Turnos</strong> ahora se calcula en tiempo real desde
+          <code>Transcripcion_V4</code> contando ocurrencias de <code>[Asesor]</code> y
+          <code>[Cliente]</code> con <code>REGEXP_EXTRACT_ALL</code>, en vez del campo
+          pre-calculado <code>Num_Turnos_V4</code> (que era 0 en muchos registros anteriores al campo).<br>
+          El dropdown "Seleccionar llamada" ahora muestra
+          <code>FECHA · Resultado · Asesor · Teléfono</code> en lugar de <code>#ID · Resultado · Asesor</code>.
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- 3. Bugs críticos corregidos -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title">Bugs Críticos Corregidos</div>
+    </div>
+
+    <ul class="fix-list">
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🔢</div>
+        <div class="fix-text">
+          <strong>IDs desincronizados entre dropdown, métricas y análisis IA</strong><br>
+          El dropdown (<code>llamadas.py</code>) filtraba con
+          <code>COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL</code>, pero
+          <code>metricas.py</code> y <code>get_llamada_context</code> numeraban
+          <em>todas las llamadas sin filtro</em>. Resultado: seleccionar la llamada #39
+          del dropdown cargaba métricas de la llamada #39 global (distinta).<br>
+          <strong>Solución:</strong> los tres endpoints ahora usan el mismo
+          <code>WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL AND {filtros}</code>,
+          garantizando que los <code>ROW_NUMBER()</code> coincidan.
+          <div class="before-after">
+            <span class="badge badge-red">Métricas de llamada equivocada</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">Siempre la llamada seleccionada</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🗂️</div>
+        <div class="fix-text">
+          <strong>"No se encontró la llamada" al usar Analizar con IA (#1961)</strong><br>
+          <code>get_llamada_context</code> en <code>helpers/utils.py</code> usaba
+          <code>WHERE Transcripcion_V4 IS NOT NULL</code> (sin <code>COALESCE</code> ni filtros del
+          sidebar). Sus <code>ROW_NUMBER()</code> no coincidían con los del dropdown, por lo que la
+          IA buscaba la llamada #1961 en un universo distinto y no la encontraba.<br>
+          <strong>Solución:</strong> alineado el filtro con el mismo criterio que los demás endpoints.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">📵</div>
+        <div class="fix-text">
+          <strong>Historial siempre mostraba "No se encontraron llamadas"</strong><br>
+          La query <code>historial_telefono.py</code> referenciaba la columna <code>asesor</code>
+          que no existe en BigQuery (el nombre real es <code>Cuenta</code>). BigQuery lanzaba un error
+          silencioso; el frontend capturaba la excepción y mostraba lista vacía.<br>
+          Luego, al usar <code>replace_all</code> para corregirlo, quedó <code>cuenta</code> +
+          <code>Cuenta</code> duplicados (BigQuery es case-insensitive → nuevo error). Se resolvió
+          dejando una sola referencia a <code>Cuenta</code> correctamente.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">📞</div>
+        <div class="fix-text">
+          <strong>Historial usaba <code>Cuenta</code> (nombre del asesor) como teléfono</strong><br>
+          El campo <code>cuenta</code> de BigQuery almacena el nombre del asesor
+          (ej. "Jenifer Andrea Rodriguez Cespedes"), no el teléfono del cliente.
+          El campo correcto es <code>Telefono</code> (FLOAT64, ej. <code>3017384481.0</code>).<br>
+          <strong>Solución:</strong> <code>llamada.py</code> ahora retorna
+          <code>CAST(CAST(Telefono AS INT64) AS STRING) AS telefono</code> en
+          <code>info.telefono</code>, y el frontend usa ese valor para disparar el historial.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🔄</div>
+        <div class="fix-text">
+          <strong>Estado <code>cuentaActual</code> obsoleto al cambiar de llamada</strong><br>
+          Al seleccionar una nueva llamada, si su <code>telefono</code> era nulo, el estado
+          <code>cuentaActual</code> no se limpiaba y el historial mostraba el teléfono de la
+          llamada anterior.<br>
+          <strong>Solución:</strong>
+          <code>setCuentaActual(data?.info?.telefono ? String(data.info.telefono) : null)</code>
+          — siempre actualiza el estado, incluso a <code>null</code>.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">📐</div>
+        <div class="fix-text">
+          <strong>Orden de métricas aleatorio en BigQuery</strong><br>
+          <code>UNION ALL</code> sin <code>ORDER BY</code> no garantiza orden en BigQuery.
+          Las métricas aparecían en distinto orden en cada carga.<br>
+          <strong>Solución:</strong> añadida columna <code>ord</code> (1–7) y
+          <code>ORDER BY ord</code> al final de la query. Orden fijo:
+          Resultado → Duración Real → Duración → Plan → Turnos → Saludo → WhatsApp.
+        </div>
+      </li>
+
+      <li class="fix-item fix">
+        <div class="fix-icon">🤖</div>
+        <div class="fix-text">
+          <strong>Prompt v14: "Correcto, señora Rosalía" asignado a CLIENTE</strong><br>
+          El modelo asignaba <em>[CLIENTE]: Correcto, señora Rosalía.</em> porque interpretaba
+          "Correcto" como respuesta del cliente. Sin embargo, un cliente nunca se dirige a sí mismo
+          por su propio nombre — esa frase siempre es del ASESOR confirmando y dirigiéndose al cliente.<br>
+          <strong>Prompt v15:</strong> nueva regla explícita
+          <em>"EL CLIENTE NUNCA SE LLAMA A SÍ MISMO POR NOMBRE"</em> + señal
+          <em>"Correcto/Exacto/Entendido, señora/señor [Nombre] → ASESOR"</em> +
+          ejemplo concreto del caso.
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- 4. Flujo de historial -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title">Flujo del Historial por Teléfono</div>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-line"><div class="timeline-dot"></div><div class="timeline-connector"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-label">Opción A — Búsqueda manual</div>
+          <div class="timeline-desc">El usuario escribe un número (7–15 dígitos) en el campo de búsqueda → <code>esTelefono()</code> retorna true → se hace fetch a <code>/api/transcripcion/historial/{tel}</code> → aparece el historial.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line"><div class="timeline-dot"></div><div class="timeline-connector"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-label">Opción B — Selección del dropdown</div>
+          <div class="timeline-desc">El usuario elige una llamada del dropdown → <code>agentID</code> cambia → useEffect fetcha <code>/api/transcripcion/llamada/{id}</code> → respuesta incluye <code>info.telefono</code> → <code>setCuentaActual(telefono)</code> → el historial se carga automáticamente.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line"><div class="timeline-dot"></div><div class="timeline-connector"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-label">Clic en llamada del historial</div>
+          <div class="timeline-desc">El usuario hace clic en una tarjeta del historial → <code>changeAgent(h.id)</code> con ID global → se cargan transcripción + métricas de esa llamada específica en el ChatVisor y el panel de métricas.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Archivos modificados -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title">Archivos Modificados</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Archivo</th>
+          <th>Tipo</th>
+          <th>Cambio principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>back/api/filters/transcripcion/historial_telefono.py</code></td>
+          <td><span class="chip chip-done">NUEVO</span></td>
+          <td>Endpoint historial por teléfono con IDs globales</td>
+        </tr>
+        <tr>
+          <td><code>back/api/filters/transcripcion/metricas.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Añade Duración Real, Turnos desde V4, ORDER BY, filtros sincronizados</td>
+        </tr>
+        <tr>
+          <td><code>back/api/filters/transcripcion/llamadas.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Dropdown muestra fecha + asesor + teléfono en vez de #ID</td>
+        </tr>
+        <tr>
+          <td><code>back/api/filters/transcripcion/llamada.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Retorna <code>info.telefono</code> (campo real <code>Telefono</code>)</td>
+        </tr>
+        <tr>
+          <td><code>back/api/routes.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Registra endpoint historial; metricas recibe FilterModel</td>
+        </tr>
+        <tr>
+          <td><code>back/helpers/utils.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>get_llamada_context usa COALESCE igual que llamadas.py</td>
+        </tr>
+        <tr>
+          <td><code>back/subir_datos.py</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Prompt v15: regla nombre propio + señal Correcto/señora X + ejemplo</td>
+        </tr>
+        <tr>
+          <td><code>src/components/Transcripciones/FiltrosLateral.jsx</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Panel historial dinámico; detección teléfono; oculta dropdown al buscar por tel</td>
+        </tr>
+        <tr>
+          <td><code>src/tabs/Transcripciones.jsx</code></td>
+          <td><span class="chip chip-fix">MODIFICADO</span></td>
+          <td>Extrae y pasa <code>cuentaActual</code> desde info.telefono; limpia al cambiar</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6. Pendientes -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title">Pendientes para Próxima Sesión</div>
+    </div>
+    <ul class="fix-list">
+      <li class="fix-item data">
+        <div class="fix-icon">🔄</div>
+        <div class="fix-text">
+          <strong>Re-procesar BigQuery con prompt v15</strong><br>
+          El prompt v15 solo afectará llamadas nuevas. Para corregir las existentes (caso
+          "Correcto, señora Rosalía") se necesita limpiar el cache y correr el pipeline completo
+          cuando haya suficiente crédito en las API keys.
+        </div>
+      </li>
+      <li class="fix-item data">
+        <div class="fix-icon">📊</div>
+        <div class="fix-text">
+          <strong>Validar filtros sidebar en AnalisisAu, RankingIA, ReporteCompleto</strong><br>
+          Los endpoints del tab Agente IA PRO posiblemente también tengan IDs desincronizados.
+          Revisar y aplicar el mismo patrón de sincronización.
+        </div>
+      </li>
+      <li class="fix-item data">
+        <div class="fix-icon">📋</div>
+        <div class="fix-text">
+          <strong>Reunión pendiente</strong><br>
+          Clarificar con el cliente qué mide el campo <code>efectiva</code> vs
+          <code>Resultado_Llamada = 'Venta'</code> para definir la métrica correcta de conversión.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>CLTiene Dashboard · DivergencyAI SAS</span>
+    <span>Informe de Sesión — 25 de Junio de 2026</span>
+    <span>Confidencial</span>
+  </div>
+
+</div>
+</body>
+</html>
