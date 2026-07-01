@@ -168,7 +168,7 @@ firebase deploy --only hosting:cltiene-dashboard
 ### Pipeline — Detección de hablantes con OpenAI (`back/subir_datos.py`)
 - **Reemplazado regex por OpenAI `gpt-4o-mini`** para separar `[Asesor]` / `[Cliente]` en `Transcripcion_V4`
 - `estructurar_dialogos_ia()`: procesamiento async con `asyncio.gather`, 25–50 llamadas simultáneas
-- `_PROMPT_HABLANTES` (v14): prompt con 14 ejemplos few-shot, señales inequívocas, REGLA CRÍTICA frase por frase
+- `_PROMPT_HABLANTES` (v15): prompt con 15 ejemplos few-shot, señales inequívocas, REGLA CRÍTICA frase por frase
   - Pasa `[Tipo: saliente/entrante]` al prompt → resuelve ambigüedad del primer hablante
   - Detecta interjecciones cortas del cliente (`¿Cómo?`, `No, [corrección]`) dentro de bloques del asesor
   - Prohíbe inventar texto no presente en la transcripción
@@ -226,8 +226,17 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - ✅ Script `comparar_metodos.py` + `muestra_fija.csv`
 - ✅ 37,879 filas actualizadas en BigQuery
 
+### Sesión 2026-06-25
+- ✅ Prompt v15: regla "CLIENTE nunca se llama a sí mismo por nombre" + ejemplo `Correcto, señora Rosalía → ASESOR`
+- ✅ `metricas.py`: añade **Duración Real** (`Tiempo__de_Conversacion` HH:MM:SS) + **Turnos** (REGEXP desde V4) + ORDER BY
+- ✅ Sincronización IDs: `llamadas.py`, `metricas.py`, `get_llamada_context` usan mismo WHERE → ROW_NUMBER coincide
+- ✅ Dropdown `llamadas.py`: fecha + resultado + asesor + teléfono (en vez de `#id`)
+- ✅ `llamada.py`: retorna `info.telefono` (campo real `Telefono` de SQL Server, no `Cuenta`)
+- ✅ Nuevo `historial_telefono.py`: endpoint `/api/transcripcion/historial/{telefono}` con IDs globales
+- ✅ `FiltrosLateral.jsx`: historial dinámico al seleccionar llamada o escribir teléfono; clic carga transcripción
+
 ### Backlog
-- [ ] Verificar ChatVisor con el nuevo prompt v14 tras completar el pipeline actual
+- [ ] Prompt v15: re-procesar BigQuery con nuevo prompt (actualmente solo afecta llamadas nuevas)
 - [ ] Validar que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasen filtros sidebar
 - [ ] Separar métricas Ventas vs Servicio en reportes
 - [ ] Pipeline V4: registrar tarea automática en PC con sesión CUN
