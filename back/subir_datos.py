@@ -469,7 +469,10 @@ SEÑALES INEQUÍVOCAS DEL ASESOR:
 - "Te voy a explicar", "Te comento que", "Nosotros ofrecemos/manejamos/brindamos"
 - "¿Puedo hablar con [Nombre]?", "¿Me comunicas con [Nombre]?", "¿Se encuentra [Nombre]?"
 - "Señora/Señor [Nombre], mucho gusto" (saluda al cliente por nombre)
+- "Correcto/Exacto/Entendido/Perfecto, señora/señor [Nombre]" → ASESOR confirmando y dirigiéndose al cliente
 - "Con todo gusto [Nombre]" / "Con mucho gusto" respondiendo a un "gracias" → ASESOR
+- REGLA GENERAL: el CLIENTE NUNCA se dirige a sí mismo por su propio nombre.
+  Si aparece "señora X" o "señor X" como vocativo en una frase, el hablante es el ASESOR.
 - "nuestro plan asistencial", "se le tiene soluciones", "CL Tiene / CLTiene" → ASESOR
 - "Es un placer saludarte/saludarle", "Somos una empresa/servicio de asistencias"
 
@@ -632,6 +635,11 @@ Entrada: "Aló. Aló. Aló. Buenas tardes. Señor Marvin, le habla Nicolás de C
 Salida correcta:
 [Cliente]: Aló. Aló. Aló. Buenas tardes.
 [Asesor]: Señor Marvin, le habla Nicolás de CL Tiene.
+
+Entrada: "¿vale? Correcto, señora Rosalía. Soy Jennifer, me contacto por este medio para brindarte la información, ¿vale? Sí."
+Salida correcta:
+[Asesor]: ¿vale? Correcto, señora Rosalía. Soy Jennifer, me contacto por este medio para brindarte la información, ¿vale?
+[Cliente]: Sí.
 
 REGLA ABSOLUTA — NUNCA INVENTES TEXTO:
 Solo usa las palabras que aparecen literalmente en la transcripción.

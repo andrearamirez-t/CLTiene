@@ -21,6 +21,7 @@ const Transcripciones = () => {
 
     const [metricas, setMetricas] = useState([])
     const [llamada, setLlamada] = useState([])
+    const [cuentaActual, setCuentaActual] = useState(null)
 
     useEffect(() => {
         if (agentID != 0) {
@@ -33,6 +34,7 @@ const Transcripciones = () => {
                 .then(data => {
                     setLlamada(Array.isArray(data) ? data : [])
                     setChatData(Array.isArray(data?.mensajes) ? data.mensajes : [])
+                    setCuentaActual(data?.info?.telefono ? String(data.info.telefono) : null)
                 })
         }
     }, [agentID, filters]);
@@ -80,6 +82,7 @@ const Transcripciones = () => {
                     changeFilter={setInputValue}
                     setClasificacion={setClasificacion}
                     setFiltroPalabra={setFiltroPalabra}
+                    cuentaActual={cuentaActual}
                 />
                 <ChatVisor chat={chatData} resaltar={filtroPalabra} />
             </div>

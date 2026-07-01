@@ -3,6 +3,7 @@ from api.chat import api_chat_logic, ChatRequest
 from api.filters.transcripcion.metricas import metricas
 from api.filters.transcripcion.llamadas import llamadas
 from api.filters.transcripcion.llamada import llamada
+from api.filters.transcripcion.historial_telefono import historial_telefono
 import pandas as pd
 import numpy as np
 
@@ -79,8 +80,13 @@ def api_llamada(id: int, buscar: str | None = None, filters: FilterModel = Depen
 
 
 @router.get("/api/transcripcion/metricas/{id}")
-def api_metricas(id):
-    return metricas(id)
+def api_metricas(id, filters: FilterModel = Depends()):
+    return metricas(id, filters)
+
+
+@router.get("/api/transcripcion/historial/{telefono}")
+def api_historial_telefono(telefono: str):
+    return historial_telefono(telefono)
 
 
 # ------------------------------------------------------- #

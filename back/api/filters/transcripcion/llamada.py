@@ -22,7 +22,8 @@ def llamada(id=None, buscar="", filters=FilterModel):
                 ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
                 Resultado_Llamada,
                 COALESCE(Transcripcion_V4, transcripcion) AS transcripcion_text,
-                cuenta
+                cuenta,
+                CAST(CAST(Telefono AS INT64) AS STRING) AS telefono
             FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
             WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
             {filtro} and {filters.get_query()}
@@ -65,6 +66,7 @@ def llamada(id=None, buscar="", filters=FilterModel):
         "info": {
             "resultado": row.get("Resultado_Llamada"),
             "cuenta": row.get("cuenta"),
+            "telefono": row.get("telefono"),
         },
         "metricas": {
             "turnos": turnos,

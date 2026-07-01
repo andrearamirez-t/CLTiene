@@ -506,7 +506,7 @@ def get_llamada_context(filters, llamada_id):
             Ofrecio_WhatsApp,
             Transcripcion_V4
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
-        WHERE Transcripcion_V4 IS NOT NULL
+        WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
         AND {where}
     )
     SELECT * FROM numeradas
