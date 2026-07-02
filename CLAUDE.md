@@ -29,6 +29,27 @@ Desarrollado por **DivergencyAI SAS**.
 - `Resultado_Llamada = 'Venta'` (BigQuery es case-sensitive)
 - `saludo_inicial` (CUN, 0/1) ≠ `Saludo_Completo` (pipeline, "Sí"/"Parcial"/"No")
 
+## Columnas de la CUN — cómo se calculan (código de Heider/Juan Manuel, notebook `Proceso llamadas CL Tiene.ipynb`)
+
+> Confirmado en reunión BD 2026-07-01. El proceso de la CUN es **independiente** de nuestro pipeline V4.
+
+- **Motor:** Ollama local con modelo `qwen2.5:7b-instruct` (temperature 0). NO es GPT-4o-mini.
+- **7 categorías de calidad (cada una 0/1)**, el LLM devuelve JSON con 1 si aparece claramente:
+  `saludo_inicial`, `identificacion_cliente`, `comprension_problema`, `ofrecimiento_solucion`, `manejo_inquietudes`, `cierre_servicio`, `proximo_paso`
+- **`efectiva` NO es venta.** Es score de calidad: `puntaje = sum(7 categorías)/7`; `efectiva = 1 if puntaje >= 0.8 else 0` (mínimo 6 de 7 categorías cumplidas).
+  - ⚠️ NO usar `efectiva` como sinónimo de `Resultado_Llamada = 'Venta'`. Miden cosas distintas: `efectiva` = calidad del asesor; `Venta` = si hubo venta real (lo detecta nuestro pipeline).
+- **`polarity`, `subjectivity`, `clasificacion`, `confianza`** → vienen de TextBlob/NaiveBayes, NO del LLM.
+  - `clasificacion` = `positivo` si polarity≥0.1, `negativo` si ≤−0.1, `neutro` en medio.
+- **`palabras`** = conteo regex `\b\w+\b` sobre la transcripción.
+- **`Tiempo de Conversacion` sale del Excel de la CUN, NO se calcula del audio** → por eso puede no coincidir con la duración real de la transcripción.
+- **Transcripciones entrecortadas** = llamadas de pocos segundos; el STT solo alcanza a capturar el saludo. Es esperado, no un bug.
+
+### Hallazgos reunión 2026-07-01 (pendientes del lado CUN)
+- **Edwin Cendales sin datos desde 3-feb:** su carpeta en el servidor se llama `ecendales` (su nombre), no `agenteN`. El algoritmo solo extrae carpetas con la palabra "agente". → La CUN debe renombrar todas las carpetas a `agenteN`.
+- **`Salientes` vs `Saliente`:** error de Juan Manuel, lo corregirá en la BD (dejar una sola nomenclatura).
+- **`Agente` vs `Cuenta` truncado:** hay dos formatos de Excel (entrante/saliente) con estructura distinta; en uno la info viene truncada. Se alinea en reunión del martes.
+- **Reunión martes 2026-07-07 9am** ("Revisión de procesos de llamadas"): objetivo = eliminar los Excel y automatizar con **Airflow** (lo desarrolla Santamaría). Diego agendado por Sofía.
+
 ## Arquitectura clave
 
 ```

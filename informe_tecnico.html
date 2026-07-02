@@ -354,7 +354,7 @@
 
 <!-- ═══════════════════════════════ PORTADA ═══════════════════════════════ -->
 <div class="cover">
-  <div class="cover-badge">Informe Técnico · Versión 3.0</div>
+  <div class="cover-badge">Informe Técnico · Versión 3.1</div>
   <div class="cover-logo-text"><span>CL</span>TIENE</div>
   <div class="cover-subtitle">Soluciones</div>
   <div class="cover-divider"></div>
@@ -513,8 +513,8 @@
           <tr><td><code>Turnos_Asesor_V4</code></td><td>Pipeline V4</td><td>Número de turnos del asesor en Transcripcion_V4</td></tr>
           <tr><td><code>Turnos_Cliente_V4</code></td><td>Pipeline V4</td><td>Número de turnos del cliente en Transcripcion_V4</td></tr>
           <tr><td><code>Tipo_Llamada</code></td><td>SQL Server CUN</td><td>Entrante / Saliente (normalizado: Salientes → Saliente)</td></tr>
-          <tr><td><code>efectiva</code></td><td>SQL Server CUN</td><td>0 o 1 — campo directo de la CUN</td></tr>
-          <tr><td><code>saludo_inicial</code></td><td>SQL Server CUN</td><td>0 o 1 — campo directo de la CUN</td></tr>
+          <tr><td><code>efectiva</code></td><td>Ollama CUN</td><td>0 o 1 — <strong>score de calidad ≥80%</strong>, NO es venta (ver sección 12)</td></tr>
+          <tr><td><code>saludo_inicial</code></td><td>Ollama CUN</td><td>0 o 1 — el LLM detecta saludo/presentación del asesor</td></tr>
           <tr><td><code>palabras</code></td><td>SQL Server CUN</td><td>Cantidad de palabras por llamada (métrica CUN)</td></tr>
         </tbody>
       </table>
@@ -621,7 +621,7 @@
         </thead>
         <tbody>
           <tr><td>Total Llamadas</td><td><code>COUNT(*)</code></td><td>–</td></tr>
-          <tr><td>Llamadas Efectivas</td><td><code>SUM(efectiva)</code></td><td>Campo CUN (0/1)</td></tr>
+          <tr><td>Llamadas Efectivas</td><td><code>SUM(efectiva)</code></td><td>Score calidad ≥80% (CUN) — no es venta</td></tr>
           <tr><td>Ventas Cerradas</td><td><code>Resultado_Llamada = 'Venta'</code></td><td>Oculto con filtro Servicio</td></tr>
           <tr><td>Hora Pico</td><td><code>AVG(timestamp)</code></td><td>–</td></tr>
           <tr><td>Día Pico</td><td><code>GROUP BY día</code></td><td>–</td></tr>
@@ -1083,18 +1083,96 @@ SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
           <td>Registrar <code>registrar_tarea.ps1</code> en el Programador de Windows del PC con sesión CUN activa para ejecución automática a las 7:00 AM.</td>
         </tr>
         <tr>
-          <td><strong>Reunión: efectiva vs Resultado_Llamada = Venta</strong></td>
-          <td><span class="pill green">Baja</span></td>
-          <td>Clarificar con el cliente qué mide cada campo para definir la métrica correcta de conversión.</td>
+          <td><strong>✅ efectiva vs Resultado_Llamada = Venta</strong></td>
+          <td><span class="pill green">Resuelto</span></td>
+          <td>Aclarado en reunión BD 2026-07-01: son métricas distintas (ver sección 12).</td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- ─── 12. PROCESO DE CALIFICACIÓN DE LA CUN ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);">12</div>
+      <div class="section-title">Cómo se Calculan las Columnas de la CUN</div>
+    </div>
+
+    <p style="font-size:11px; color:#334155; line-height:1.8; margin-bottom:14px;">
+      Aclarado en la <strong>reunión de BD del 1 de julio de 2026</strong> con Juan Manuel Marín (COE analítica).
+      Estas columnas provienen de un proceso <strong>independiente</strong> del pipeline V4 de DivergencyAI:
+      un notebook (<code>Proceso llamadas CL Tiene.ipynb</code>) que corre un LLM local con Ollama sobre las
+      transcripciones. <strong>No usa GPT-4o-mini</strong> — usa <code>qwen2.5:7b-instruct</code> con temperatura 0.
+    </p>
+
+    <div class="highlight" style="border-left:4px solid #dc2626; background:#fef2f2;">
+      <p><strong>⚠️ Hallazgo crítico:</strong> <code>efectiva = 1</code> <strong>NO significa venta</strong>. Es un
+      score de calidad del asesor: la llamada cumplió ≥80% de un checklist de 7 categorías. Es completamente
+      distinto de <code>Resultado_Llamada = 'Venta'</code> (que sí detecta ventas reales, generado por nuestro
+      pipeline). No deben usarse como sinónimos en ningún KPI.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Las 7 categorías de calidad (Ollama, cada una 0/1)</div>
+      <p style="font-size:10.5px; color:#475569; margin-bottom:8px;">
+        El LLM lee la transcripción y devuelve un JSON con <code>1</code> si la categoría aparece de forma clara, <code>0</code> si no:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Columna</th><th>Qué evalúa el LLM</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>saludo_inicial</code></td><td>El asesor saluda / se presenta</td></tr>
+          <tr><td><code>identificacion_cliente</code></td><td>Pide o confirma datos del cliente (nombre, documento, titularidad)</td></tr>
+          <tr><td><code>comprension_problema</code></td><td>Explora el motivo / necesidad del cliente</td></tr>
+          <tr><td><code>ofrecimiento_solucion</code></td><td>Propone servicios o soluciones concretas</td></tr>
+          <tr><td><code>manejo_inquietudes</code></td><td>Atiende dudas / objeciones (precio, cobertura, condiciones)</td></tr>
+          <tr><td><code>cierre_servicio</code></td><td>Cierre / agradecimiento / confirmación final</td></tr>
+          <tr><td><code>proximo_paso</code></td><td>Indica la acción siguiente (agendamiento, WhatsApp, técnico se comunica)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Fórmula de <code>efectiva</code></div>
+      <div class="code"><span class="comment"># % de categorías cumplidas</span>
+puntaje  = sum(7_categorias) / 7
+<span class="comment"># efectiva = 1 solo si cumple 80% o más (mínimo 6 de 7)</span>
+efectiva = <span class="keyword">1 if</span> puntaje >= 0.8 <span class="keyword">else</span> 0</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Columnas de sentimiento (TextBlob / NaiveBayes, NO el LLM)</div>
+      <table>
+        <thead>
+          <tr><th>Columna</th><th>Cómo se calcula</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>polarity</code></td><td>Sentimiento con TextBlob (−1 a 1)</td></tr>
+          <tr><td><code>subjectivity</code></td><td>Subjetividad con TextBlob (0 a 1)</td></tr>
+          <tr><td><code>clasificacion</code></td><td><code>positivo</code> si polarity≥0.1, <code>negativo</code> si ≤−0.1, <code>neutro</code> en medio</td></tr>
+          <tr><td><code>confianza</code></td><td>Probabilidad del clasificador NaiveBayes</td></tr>
+          <tr><td><code>palabras</code></td><td>Conteo de palabras con regex <code>\b\w+\b</code> sobre la transcripción</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Otros hallazgos de la reunión</div>
+      <ul style="font-size:10.5px; color:#334155; line-height:1.8; padding-left:18px;">
+        <li><strong>Tiempo de Conversación viene del Excel de la CUN</strong>, no se calcula del audio → puede no coincidir con la duración real de la conversación.</li>
+        <li><strong>Transcripciones entrecortadas</strong> = llamadas de pocos segundos donde el STT solo alcanza a capturar el saludo. Es esperado, no un bug. Se puede acordar un umbral mínimo de duración para descartarlas.</li>
+        <li><strong>Edwin Cendales sin datos desde 3-feb</strong> = su carpeta en el servidor se llama <code>ecendales</code> (su nombre) en vez de <code>agenteN</code>. El algoritmo solo extrae carpetas con la palabra "agente". La CUN debe renombrar las carpetas.</li>
+        <li><strong>Salientes vs Saliente</strong> = error de nomenclatura del lado CUN, lo corregirá Juan Manuel.</li>
+        <li><strong>Migración a Airflow</strong> = se busca eliminar los Excel intermedios y automatizar todo el proceso. Reunión de definición: martes 7-jul-2026.</li>
+      </ul>
+    </div>
+  </div>
+
   <!-- ─── FOOTER ─── -->
   <div class="footer">
     <div class="footer-brand">Desarrollado por <strong>DivergencyAI SAS</strong> · contacto@divergencyai.com</div>
-    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 25 Jun 2026 · v3.0</div>
+    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 2 Jul 2026 · v3.1</div>
   </div>
 
 </div>
