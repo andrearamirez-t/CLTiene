@@ -41,7 +41,7 @@ Desarrollado por **DivergencyAI SAS**.
 - **`polarity`, `subjectivity`, `clasificacion`, `confianza`** → vienen de TextBlob/NaiveBayes, NO del LLM.
   - `clasificacion` = `positivo` si polarity≥0.1, `negativo` si ≤−0.1, `neutro` en medio.
 - **`palabras`** = conteo regex `\b\w+\b` sobre la transcripción.
-- **`Tiempo de Conversacion` sale del Excel de la CUN, NO se calcula del audio** → por eso puede no coincidir con la duración real de la transcripción.
+- **`Tiempo de Conversacion` sale del Excel que envía CL Tiene, NO se calcula del audio** → por eso puede no coincidir con la duración real de la transcripción. Juan Manuel solo cruza (join) ese Excel con la transcripción por fecha + agente.
 - **Transcripciones entrecortadas** = llamadas de pocos segundos; el STT solo alcanza a capturar el saludo. Es esperado, no un bug.
 
 ### Hallazgos reunión 2026-07-01 (pendientes del lado CUN)
