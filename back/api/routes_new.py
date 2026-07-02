@@ -6,7 +6,6 @@ import json
 import os
 import pandas as pd
 from google.cloud import bigquery
-from openai import OpenAI
 from dotenv import load_dotenv
 from api.database import client as bq_client
 from api.models import FilterModel
@@ -14,16 +13,6 @@ from api.models import FilterModel
 load_dotenv()
 
 router = APIRouter()
-
-_openai_client = None
-
-
-def _get_openai() -> OpenAI:
-    global _openai_client
-    if _openai_client is None:
-        api_key = os.getenv("OPENAI_API_MUNDIAL") or os.getenv("OPENAI_API_KEY")
-        _openai_client = OpenAI(api_key=api_key)
-    return _openai_client
 
 
 def fetch_bigquery_data(query: str):
@@ -45,17 +34,15 @@ async def generar_reporte_ia(payload: dict = Body(...)):
         for _, row in df.iterrows():
             texto_contexto += f"Asesor: {row['cuenta']} | Resultado: {row['Resultado_Llamada']} | Transcripción: {row['transcripcion'][:300]}...\n\n"
 
-        response = _get_openai().chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Eres un Consultor de Calidad en Call Center. Responde únicamente en JSON."},
-                {"role": "user",
-                    "content": f"Analiza estas llamadas y genera un JSON con exactamente estas 3 llaves: 'resumen' (string), 'hallazgos' (array de strings, cada elemento es una frase), 'recomendaciones' (array de strings, cada elemento es una frase). NO uses objetos dentro de los arrays, solo strings. Datos: {texto_contexto}"}
-            ],
-            response_format={"type": "json_object"}
+        contenido, error = call(
+            "Eres un Consultor de Calidad en Call Center. Responde únicamente en JSON.",
+            f"Analiza estas llamadas y genera un JSON con exactamente estas 3 llaves: 'resumen' (string), 'hallazgos' (array de strings, cada elemento es una frase), 'recomendaciones' (array de strings, cada elemento es una frase). NO uses objetos dentro de los arrays, solo strings. Datos: {texto_contexto}",
+            response_format={"type": "json_object"},
         )
+        if error:
+            return {"resultado": None, "error": error}
 
-        return {"resultado": json.loads(response.choices[0].message.content)}
+        return {"resultado": json.loads(contenido)}
     except Exception as e:
         return {"resultado": None, "error": str(e)}
 
@@ -137,14 +124,13 @@ async def ranking_ia():
 async def chat_asistente(payload: dict = Body(...)):
     pregunta = payload.get("pregunta")
     try:
-        response = _get_openai().chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Eres un asistente de soporte para el dashboard de Call Center."},
-                {"role": "user", "content": pregunta}
-            ]
+        contenido, error = call(
+            "Eres un asistente de soporte para el dashboard de Call Center.",
+            pregunta,
         )
-        return {"respuesta": response.choices[0].message.content}
+        if error:
+            return {"error": error}
+        return {"respuesta": contenido}
     except Exception as e:
         return {"error": str(e)}
 
@@ -194,25 +180,21 @@ async def analisis_ranking_ia(payload: dict = Body(...)):
             for a in asesores
         ])
 
-        response = _get_openai().chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Eres un experto en Call Center. Tu respuesta DEBE ser un JSON con 3 llaves estrictas:\n"
-                        "1. 'analisis_top': Un string con el Informe del TOP 3, justificaciones y '¿Qué hacen bien?'.\n"
-                        "2. 'mejoras': Una LISTA DE STRINGS (Array) donde cada elemento sea un hallazgo o análisis individual.\n"
-                        "3. 'mentoria': Un string con Brechas, Plan de Mentoría, Metas a 30 días y Perfil Ganador.\n"
-                        "IMPORTANTE: 'mejoras' debe ser siempre una lista []. Usa emojis y Markdown."
-                    )
-                },
-                {"role": "user", "content": f"Genera el informe detallado para estos datos:\n{contexto}"}
-            ],
-            response_format={"type": "json_object"}
+        contenido, error = call(
+            (
+                "Eres un experto en Call Center. Tu respuesta DEBE ser un JSON con 3 llaves estrictas:\n"
+                "1. 'analisis_top': Un string con el Informe del TOP 3, justificaciones y '¿Qué hacen bien?'.\n"
+                "2. 'mejoras': Una LISTA DE STRINGS (Array) donde cada elemento sea un hallazgo o análisis individual.\n"
+                "3. 'mentoria': Un string con Brechas, Plan de Mentoría, Metas a 30 días y Perfil Ganador.\n"
+                "IMPORTANTE: 'mejoras' debe ser siempre una lista []. Usa emojis y Markdown."
+            ),
+            f"Genera el informe detallado para estos datos:\n{contexto}",
+            response_format={"type": "json_object"},
         )
+        if error:
+            return {"resultado": {"analisis_top": "Error", "mejoras": ["Error al procesar"], "mentoria": error}}
 
-        data = json.loads(response.choices[0].message.content)
+        data = json.loads(contenido)
 
         if not isinstance(data.get("mejoras"), list):
             data["mejoras"] = [str(data.get("mejoras", ""))]

@@ -27,32 +27,35 @@ def _keys_balanceadas():
     return mundial + fallback
 
 
-def call(system_prompt, user_message):
+def call(system_prompt, user_message, response_format=None, temperature=None, model=None):
     # Balanceo con failover: baraja las dos keys para repartir el consumo y,
     # si la elegida se queda sin cupo (429), reintenta con la otra.
     # Otros errores no se recuperan cambiando de key.
     keys = _keys_balanceadas()
     max_tokens = int(os.getenv("MAX_TOKENS") or 4000)
-    model = os.getenv("MODEL") or "gpt-4o-mini"
+    model = model or os.getenv("MODEL") or "gpt-4o-mini"
 
     if not keys:
         return None, "⚠️ Configura el API Key"
+
+    kwargs = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+    }
+    if response_format is not None:
+        kwargs["response_format"] = response_format
+    if temperature is not None:
+        kwargs["temperature"] = temperature
 
     ultimo_error = None
     for api_key in keys:
         try:
             client = OpenAI(api_key=api_key)
-
-            response = client.chat.completions.create(
-                model=model, max_tokens=max_tokens, messages=[
-                    {
-                        "role": "system", "content": system_prompt
-                    }, {
-                        "role": "user", "content": user_message
-                    }
-                ]
-            )
-
+            response = client.chat.completions.create(**kwargs)
             return response.choices[0].message.content, None
         except Exception as e:
             ultimo_error = f"❌ Error: {str(e)}"
