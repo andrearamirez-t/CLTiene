@@ -275,7 +275,7 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 
 ### Backlog
 - [ ] Prompt v15: re-procesar BigQuery con nuevo prompt (actualmente solo afecta llamadas nuevas)
-- [ ] Validar que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasen filtros sidebar
+- ✅ Validado que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasan filtros sidebar (frontend `buildQuery()` → backend `FilterModel` → `filters.get_query()`; verificado en prod: reporte con filtro fecha 2026-06-16 mostró 245 llamadas, no los ~38k)
 - ✅ Separar métricas Ventas vs Servicio en reportes (dashboard vía `esServicio` + reportes IA vía `contexto_tipo_llamada()` — ver patrón abajo)
 - [ ] Pipeline V4: registrar tarea automática en PC con sesión CUN
 - ✅ Aclarado qué mide `efectiva` vs `Resultado_Llamada = 'Venta'` (reunión BD 2026-07-01 — ver sección "Columnas de la CUN")
