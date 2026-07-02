@@ -392,7 +392,9 @@ def get_asesor_context(where, asesor=""):
     return ctx
 
 
-def get_ranking_context(where="1=1"):
+def get_ranking_context(where="1=1", es_servicio=False):
+
+    orden = "efectividad_pct" if es_servicio else "exito_pct"
 
     query = f"""
     WITH base AS (
@@ -429,12 +431,13 @@ def get_ranking_context(where="1=1"):
         contactadas,
         ventas,
         ROUND(SAFE_DIVIDE(ventas,llamadas)*100,2) exito_pct,
+        ROUND(SAFE_DIVIDE(contactadas,llamadas)*100,2) efectividad_pct,
         saludo,
         beneficios,
         whatsapp,
         despedida
     FROM asesores
-    ORDER BY exito_pct DESC
+    ORDER BY {orden} DESC
     """
 
     job = client.query(query)
@@ -443,7 +446,22 @@ def get_ranking_context(where="1=1"):
     ctx = "RANKING DE ASESORES CALL CENTER CL TIENE SOLUCIONES\n\n"
 
     for r in rows:
-        ctx += f"""
+        if es_servicio:
+            ctx += f"""
+        ASESOR: {r.Cuenta}
+        - Llamadas: {r.llamadas}
+        - Contactadas (efectivas): {r.contactadas}
+        - Efectividad de servicio: {r.efectividad_pct}%
+
+        CALIDAD:
+        - Saludo correcto: {r.saludo}
+        - Gestionó la solicitud: {r.beneficios}
+        - Ofreció WhatsApp: {r.whatsapp}
+        - Despedida correcta: {r.despedida}
+        --------------------------------
+        """
+        else:
+            ctx += f"""
         ASESOR: {r.Cuenta}
         - Llamadas: {r.llamadas}
         - Contactadas (efectivas): {r.contactadas}
