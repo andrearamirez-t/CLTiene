@@ -1,6 +1,7 @@
 import pandas as pd
 from api.database import client
 from api.ia.llm import generar_respuesta_ia
+from helpers.utils import contexto_tipo_llamada
 
 
 def analizar_patrones_dashboard(filters=None):
@@ -65,7 +66,7 @@ def analizar_patrones_dashboard(filters=None):
     # -----------------------------
     # Prompt para la IA
     # -----------------------------
-    prompt = f"""
+    prompt = contexto_tipo_llamada(filters) + f"""
 Analiza los siguientes datos de un call center.
 
 Total llamadas: {total_llamadas}

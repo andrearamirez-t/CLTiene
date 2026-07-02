@@ -1,11 +1,12 @@
 from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
-from helpers.utils import get_data_context
+from helpers.utils import get_data_context, contexto_tipo_llamada
 
 
 def generar_reporte_completo(filters: FilterModel):
     content, error = call(
         prompt_html(
+            contexto_tipo_llamada(filters) +
             "Consultor senior. Genera REPORTE EJECUTIVO COMPLETO con estas secciones:\n"
             "1. Resumen Ejecutivo (3-4 párrafos)\n"
             "2. KPIs Principales (tabla con estado)\n"

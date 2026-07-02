@@ -1,11 +1,11 @@
 from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
-from helpers.utils import get_ranking_context
+from helpers.utils import get_ranking_context, contexto_tipo_llamada
 
 
 def analisis_comparativo_ranking(filters: FilterModel):
     content, error = call(
-        prompt_html("""Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
+        prompt_html(contexto_tipo_llamada(filters) + """Eres Director de Operaciones de un call center en Colombia. Genera un informe COMPLETO y ACCIONABLE.
 
             ESTRUCTURA OBLIGATORIA:
             1. 🏆 TOP 3 ASESORES - Por qué son los mejores, qué hacen bien

@@ -122,6 +122,22 @@ content, error = call(system_prompt, user_message)
 if error: return {"error": error}
 ```
 
+### Backend — adaptar reportes IA al filtro Servicio
+`contexto_tipo_llamada(filters)` (en `helpers/utils.py`) devuelve una instrucción que se antepone al
+system prompt. Cuando `tipo_llamada == 'servicio'` le dice a la IA que NO hable de ventas/conversión y
+se enfoque en calidad de atención. Para cualquier otro caso devuelve `''` (sin cambios).
+```python
+from helpers.utils import get_data_context, contexto_tipo_llamada
+content, error = call(
+    prompt_html(contexto_tipo_llamada(filters) + "System prompt original..."),
+    f"...\n{get_data_context(filters.get_query())}"
+)
+```
+Aplicado en: `generar_insights`, `analisis_automatico`, `generar_reporte_completo`,
+`analisis_comparativo_ranking`, `analizar_inteligencia_operativa`, `analizar_patrones_ventas`,
+`analizar_patrones_dashboard`. El frontend (`esServicio = filters.tipo_llamada === 'servicio'`) ya
+oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e IndicadoresTabla.
+
 ## Tabs del dashboard
 
 | Tab | Archivo | Estado |
@@ -260,6 +276,12 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 ### Backlog
 - [ ] Prompt v15: re-procesar BigQuery con nuevo prompt (actualmente solo afecta llamadas nuevas)
 - [ ] Validar que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasen filtros sidebar
-- [ ] Separar métricas Ventas vs Servicio en reportes
+- ✅ Separar métricas Ventas vs Servicio en reportes (dashboard vía `esServicio` + reportes IA vía `contexto_tipo_llamada()` — ver patrón abajo)
 - [ ] Pipeline V4: registrar tarea automática en PC con sesión CUN
-- [ ] Reunión pendiente: clarificar qué mide `efectiva` vs `Resultado_Llamada = 'Venta'`
+- ✅ Aclarado qué mide `efectiva` vs `Resultado_Llamada = 'Venta'` (reunión BD 2026-07-01 — ver sección "Columnas de la CUN")
+
+### Reunión pendiente 2026-07-07 (martes 9am — "Revisión de procesos de llamadas")
+- [ ] Migración a Airflow: eliminar Excel intermedios, automatizar el proceso (lo desarrolla Santamaría)
+- [ ] CL Tiene: renombrar carpetas de agentes a formato `agenteN` (caso Edwin Cendales sin datos desde 3-feb)
+- [ ] CUN/Juan Manuel: corregir nomenclatura `Salientes` → `Saliente` en la BD
+- [ ] Alinear formatos de Excel (entrante/saliente traen `Agente`/`Cuenta` con estructura distinta)

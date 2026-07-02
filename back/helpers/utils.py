@@ -74,6 +74,27 @@ def filters(filters: dict) -> dict:
     return result
 
 
+def contexto_tipo_llamada(filters=None):
+    """
+    Instrucción de contexto para la IA según el filtro tipo_llamada.
+    Evita que los reportes hablen de ventas cuando se están viendo llamadas de servicio.
+    Devuelve '' cuando no hay filtro de servicio → comportamiento sin cambios.
+    """
+    tipo = ""
+    if filters is not None:
+        tipo = (getattr(filters, "tipo_llamada", None) or "").lower()
+
+    if tipo == "servicio":
+        return (
+            "CONTEXTO CRÍTICO: Estás analizando ÚNICAMENTE llamadas de SERVICIO/ATENCIÓN, "
+            "NO de ventas. NO menciones ventas, conversión, tasa de cierre, 'perfil ganador de ventas' "
+            "ni metas comerciales. Enfócate en calidad de atención, resolución de solicitudes, "
+            "asistencias gestionadas, efectividad del contacto y satisfacción del cliente. "
+            "La métrica de éxito es la efectividad del servicio, no la venta.\n\n"
+        )
+    return ""
+
+
 def get_data_context(where="1=1"):
 
     query = f"""

@@ -1,6 +1,6 @@
 from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
-from helpers.utils import get_data_context
+from helpers.utils import get_data_context, contexto_tipo_llamada
 
 
 def analisis_automatico(filters: FilterModel, tipo_analisis: str):
@@ -17,6 +17,7 @@ def analisis_automatico(filters: FilterModel, tipo_analisis: str):
 
     content, error = call(
         prompt_html(
+            contexto_tipo_llamada(filters) +
             "Consultor senior de call centers en Colombia. Analiza los datos y genera un informe profesional."),
         f"{prompts[tipo_analisis]}\n\nDATOS:\n{get_data_context(filters.get_query())}"
     )
