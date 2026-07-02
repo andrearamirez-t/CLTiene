@@ -1,4 +1,5 @@
 import os
+import random
 from openai import OpenAI
 
 import dotenv
@@ -6,18 +7,31 @@ import dotenv
 dotenv.load_dotenv()
 
 
-
-
-def call(system_prompt, user_message):
-    # Rotación con failover: intenta la key 1 y, si se queda sin cupo (429),
-    # reintenta con la key 2. Otros errores no se recuperan cambiando de key.
-    keys = [
+def _keys_balanceadas():
+    """
+    Reparte el consumo entre las dos keys MUNDIAL barajando su orden en cada
+    petición (~50/50). Si una se queda sin cupo, el failover en call() sigue
+    con la otra. OPENAI_API_KEY queda como último recurso.
+    """
+    mundial = [
         k for k in (
             os.getenv("OPENAI_API_MUNDIAL"),
             os.getenv("OPENAI_API_MUNDIAL_2"),
-            os.getenv("OPENAI_API_KEY"),
         ) if k and len(k) > 20
     ]
+    random.shuffle(mundial)
+
+    fallback = [
+        k for k in (os.getenv("OPENAI_API_KEY"),) if k and len(k) > 20
+    ]
+    return mundial + fallback
+
+
+def call(system_prompt, user_message):
+    # Balanceo con failover: baraja las dos keys para repartir el consumo y,
+    # si la elegida se queda sin cupo (429), reintenta con la otra.
+    # Otros errores no se recuperan cambiando de key.
+    keys = _keys_balanceadas()
     max_tokens = int(os.getenv("MAX_TOKENS") or 4000)
     model = os.getenv("MODEL") or "gpt-4o-mini"
 
