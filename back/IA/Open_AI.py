@@ -9,29 +9,46 @@ dotenv.load_dotenv()
 
 
 def call(system_prompt, user_message):
-    api_key = os.getenv("OPENAI_API_MUNDIAL") or os.getenv("OPENAI_API_KEY")
+    # Rotación con failover: intenta la key 1 y, si se queda sin cupo (429),
+    # reintenta con la key 2. Otros errores no se recuperan cambiando de key.
+    keys = [
+        k for k in (
+            os.getenv("OPENAI_API_MUNDIAL"),
+            os.getenv("OPENAI_API_MUNDIAL_2"),
+            os.getenv("OPENAI_API_KEY"),
+        ) if k and len(k) > 20
+    ]
     max_tokens = int(os.getenv("MAX_TOKENS") or 4000)
     model = os.getenv("MODEL") or "gpt-4o-mini"
-    
-    if not api_key or len(api_key) < 20:
+
+    if not keys:
         return None, "⚠️ Configura el API Key"
 
-    try:
-        client = OpenAI(api_key=api_key)
+    ultimo_error = None
+    for api_key in keys:
+        try:
+            client = OpenAI(api_key=api_key)
 
-        response = client.chat.completions.create(
-            model=model, max_tokens=max_tokens, messages=[
-                {
-                    "role": "system", "content": system_prompt
-                }, {
-                    "role": "user", "content": user_message
-                }
-            ]
-        )
+            response = client.chat.completions.create(
+                model=model, max_tokens=max_tokens, messages=[
+                    {
+                        "role": "system", "content": system_prompt
+                    }, {
+                        "role": "user", "content": user_message
+                    }
+                ]
+            )
 
-        return response.choices[0].message.content, None
-    except Exception as e:
-        return None, f"❌ Error: {str(e)}"
+            return response.choices[0].message.content, None
+        except Exception as e:
+            ultimo_error = f"❌ Error: {str(e)}"
+            texto = str(e).lower()
+            # Solo rota de key si es error de cupo / rate limit
+            if "insufficient_quota" in texto or "429" in texto or "rate limit" in texto:
+                continue
+            return None, ultimo_error
+
+    return None, ultimo_error
 
 
 def prompt_html(system_prompt: str) -> str:
