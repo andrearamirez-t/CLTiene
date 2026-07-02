@@ -1162,7 +1162,7 @@ efectiva = <span class="keyword">1 if</span> puntaje >= 0.8 <span class="keyword
       <ul style="font-size:10.5px; color:#334155; line-height:1.8; padding-left:18px;">
         <li><strong>Tiempo de Conversación viene del Excel de la CUN</strong>, no se calcula del audio → puede no coincidir con la duración real de la conversación.</li>
         <li><strong>Transcripciones entrecortadas</strong> = llamadas de pocos segundos donde el STT solo alcanza a capturar el saludo. Es esperado, no un bug. Se puede acordar un umbral mínimo de duración para descartarlas.</li>
-        <li><strong>Edwin Cendales sin datos desde 3-feb</strong> = su carpeta en el servidor se llama <code>ecendales</code> (su nombre) en vez de <code>agenteN</code>. El algoritmo solo extrae carpetas con la palabra "agente". La CUN debe renombrar las carpetas.</li>
+        <li><strong>Edwin Cendales sin datos desde 3-feb</strong> = su carpeta en el servidor se llama <code>ecendales</code> (su nombre) en vez de <code>agenteN</code>. El algoritmo solo extrae carpetas con la palabra "agente". <strong>CL Tiene</strong> (Sergio Nieto / admin del call center) debe renombrar las carpetas — no es tarea de la CUN ni de DivergencyAI.</li>
         <li><strong>Salientes vs Saliente</strong> = error de nomenclatura del lado CUN, lo corregirá Juan Manuel.</li>
         <li><strong>Migración a Airflow</strong> = se busca eliminar los Excel intermedios y automatizar todo el proceso. Reunión de definición: martes 7-jul-2026.</li>
       </ul>

@@ -45,7 +45,7 @@ Desarrollado por **DivergencyAI SAS**.
 - **Transcripciones entrecortadas** = llamadas de pocos segundos; el STT solo alcanza a capturar el saludo. Es esperado, no un bug.
 
 ### Hallazgos reunión 2026-07-01 (pendientes del lado CUN)
-- **Edwin Cendales sin datos desde 3-feb:** su carpeta en el servidor se llama `ecendales` (su nombre), no `agenteN`. El algoritmo solo extrae carpetas con la palabra "agente". → La CUN debe renombrar todas las carpetas a `agenteN`.
+- **Edwin Cendales sin datos desde 3-feb:** su carpeta en el servidor se llama `ecendales` (su nombre), no `agenteN`. El algoritmo solo extrae carpetas con la palabra "agente". → **CL Tiene** (Sergio Nieto / admin del call center) debe renombrar todas las carpetas a `agenteN`. NO es tarea de la CUN/COE ni de DivergencyAI.
 - **`Salientes` vs `Saliente`:** error de Juan Manuel, lo corregirá en la BD (dejar una sola nomenclatura).
 - **`Agente` vs `Cuenta` truncado:** hay dos formatos de Excel (entrante/saliente) con estructura distinta; en uno la info viene truncada. Se alinea en reunión del martes.
 - **Reunión martes 2026-07-07 9am** ("Revisión de procesos de llamadas"): objetivo = eliminar los Excel y automatizar con **Airflow** (lo desarrolla Santamaría). Diego agendado por Sofía.
