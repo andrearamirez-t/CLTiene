@@ -13,10 +13,10 @@ Dashboard web que procesa, analiza y visualiza el rendimiento de los asesores de
 | Frontend | React 19 + Vite 7 |
 | Backend | Python 3.11 + FastAPI |
 | Base de datos | Google BigQuery |
-| IA / LLM | OpenAI (gpt-4o-mini) |
+| IA / LLM | OpenAI — `gpt-4o` (detección de hablantes) + `gpt-4o-mini` (reportes). 2 API keys con balanceo + failover |
 | Despliegue backend | Google Cloud Run + Cloud Build |
 | Despliegue frontend | Firebase Hosting |
-| Fuente de datos | SQL Server (CUN) → BigQuery |
+| Fuente de datos | FTP (audio) → CUN (STT + Ollama) → SQL Server → BigQuery |
 
 ## URLs de producción
 
@@ -48,7 +48,7 @@ CLTiene/
 │   │   ├── ReporteCompleto.jsx # Reporte ejecutivo en 9 secciones con descarga PDF
 │   │   └── ui/InsightsCard.jsx # Insights rápidos del período
 │   ├── FiltersContext.jsx      # Estado global de filtros (Context API)
-│   └── layout/Sidebar.jsx      # Barra lateral con 11 filtros
+│   └── layout/Sidebar.jsx      # Barra lateral con 11 filtros + botón "Borrar filtros"
 │
 ├── back/                       # Backend FastAPI
 │   ├── main.py                 # App principal
@@ -74,7 +74,7 @@ CLTiene/
 | KPI | Campo BigQuery | Descripción |
 |-----|---------------|-------------|
 | TOTAL LLAMADAS | `COUNT(*)` | Todas las llamadas en el período |
-| LLAMADAS EFECTIVAS | `SUM(efectiva)` | Campo `efectiva` de la CUN (0 o 1) |
+| LLAMADAS EFECTIVAS | `SUM(efectiva)` | `efectiva` = score de calidad ≥80% de la CUN (⚠️ NO es venta) |
 | VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Ventas detectadas por transcripción. Se oculta con filtro Servicio |
 | HORA PICO | `AVG(timestamp)` | Hora promedio de mayor actividad |
 | DÍA PICO | `GROUP BY día` | Día con más llamadas |
@@ -91,7 +91,7 @@ CLTiene/
 2. **Rendimiento Asesores** — Tabla de asesores con filtros, análisis IA individual por asesor
 3. **Análisis Detallado** — Planes mencionados, motivos de rechazo, tipo de cliente + análisis IA de patrones
 4. **Inteligencia Operativa** — Gráficas de horas/días/scorecard + análisis IA operativo
-5. **Transcripciones** — Visor de llamadas con chat, búsqueda inteligente y análisis IA por llamada
+5. **Transcripciones** — Visor de llamadas con chat, historial de llamadas por teléfono del cliente, búsqueda/resaltado de palabras y análisis IA por llamada
 6. **Agente IA PRO** — Chat + 8 análisis automáticos + ranking comparativo + reporte completo PDF
 
 ## Embudo de conversión
@@ -118,6 +118,8 @@ CLTiene/
 
 > Todos los módulos usan `prompt_html()` → retornan HTML renderizable directamente.
 > `call()` siempre retorna tupla `(content, error)` — siempre desempaquetar: `content, error = call(...)`.
+> `call()` **balancea el consumo entre las 2 API keys (~50/50) y hace failover** si una topa cupo.
+> Con el filtro **Tipo de Llamada = Servicio**, los reportes se adaptan (vía `contexto_tipo_llamada()`): la IA no habla de ventas/conversión y se enfoca en calidad de atención.
 > `MAX_TOKENS` default: **4000** (configurable via variable de entorno en Cloud Run).
 > El HTML de los resultados pasa por `src/utils/cleanHtml.js` para convertir fondos oscuros a claros.
 
@@ -154,36 +156,57 @@ Todos los endpoints aceptan `FilterModel` como query params. El componente `Sele
 
 > **Comportamiento especial — filtro Tipo de Llamada = "Servicio":** oculta automáticamente el KPI "Ventas Cerradas", el paso del embudo, la columna "% Ventas" en Rendimiento, la línea Ventas en evolución temporal, y la barra "Venta" en distribución de resultados. Los títulos de las gráficas también se adaptan.
 
-## Pipeline de datos — V4
+## Flujo de datos completo
+
+El dato pasa por **dos procesos distintos** antes de llegar al dashboard: el de la **CUN** (upstream, no es nuestro) y el nuestro (**Pipeline V4**).
 
 ```
+CL Tiene
+  ├── FTP (SFTP): AUDIO de las llamadas, en carpetas por agente (ContactVox)
+  └── Excel: metadata (Tiempo de Conversacion, agente, fecha)
+        ↓
+Código de la CUN (Juan Manuel) — notebook "Proceso llamadas CL Tiene.ipynb":
+  · STT (audio → texto) con faster-whisper (modelo "medium")   ← aquí se pierden/entrecortan textos
+  · cruce con el Excel por fecha + agente
+  · Ollama qwen2.5 → 7 categorías de calidad + efectiva (score, no venta)
+        ↓
 SQL Server CUN (172.16.1.33)
         ↓  (Windows Auth — cuenta CUN)
+```
+
+### Pipeline V4 — `subir_datos.py` (nuestro)
+
+```
 subir_datos.py  ←  Programador de Tareas Windows (diario 7:00 AM)
         ↓
 Procesamiento V4:
-  · estructurar_dialogo()     → Transcripcion_V4 (turnos [Asesor] / [Cliente])
-  · detectar_plan()           → Plan_Mencionado
-  · detectar_asistencia()     → Asistencia (catálogo 35+ servicios)
+  · estructurar_dialogos_ia()  → Transcripcion_V4 (turnos [Asesor]/[Cliente])
+                                  con OpenAI gpt-4o + prompt v16 y cache incremental
+  · detectar_plan()            → Plan_Mencionado
+  · detectar_asistencia()      → Asistencia (catálogo 35+ servicios)
   · detectar_resultado_llamada() → Resultado_Llamada
-  · detectar_motivo_rechazo() → Motivo_Rechazo
+  · detectar_motivo_rechazo()  → Motivo_Rechazo
   · detectar_duracion_estimada() → Duracion_Estimada (desde Tiempo de Conversación)
   · detectar_saludo_completo() → Saludo_Completo
-  · detectar_explico_beneficios() → Explico_Beneficios
   · detectar_ofrecio_whatsapp() → Ofrecio_WhatsApp
   · detectar_despedida_correcta() → Despedida_Correcta
-  · contar_objeciones()       → Num_Objeciones
+  · contar_objeciones()        → Num_Objeciones
         ↓
 BigQuery: desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas
         ↓
 Backend FastAPI (Cloud Run) → Frontend React (Firebase Hosting)
 ```
 
+- **Cache incremental:** al arrancar carga de BigQuery las transcripciones ya procesadas; solo pasa por OpenAI las nuevas/cambiadas. Costo típico: ~$0.50 por corrida diaria.
+- **Re-proceso completo:** `python subir_datos.py --full` (o env `REPROCESO_COMPLETO=1`) ignora el cache y vuelve a procesar TODAS las transcripciones con el prompt actual.
+- **Modelo de detección de hablantes:** configurable con env `MODELO_HABLANTES` (default `gpt-4o`).
+- ⚠️ **La separación [Asesor]/[Cliente] solo puede ser tan buena como el texto del STT.** Si el STT de la CUN llega deforme o entrecortado, ningún prompt lo recupera — eso es upstream (audio del FTP + config de faster-whisper).
+
 ## Campos calculados por el pipeline vs campos de la CUN
 
 | Campo | Origen | Cómo se calcula |
 |-------|--------|-----------------|
-| `Transcripcion_V4` | Pipeline V4 | `estructurar_dialogo()` — detección de hablantes con patrones |
+| `Transcripcion_V4` | Pipeline V4 | `estructurar_dialogos_ia()` — separación [Asesor]/[Cliente] con OpenAI `gpt-4o` + prompt v16 (con cache incremental; ya no usa regex) |
 | `Resultado_Llamada` | Pipeline V4 | Regex sobre transcripción + conteo de turnos V4 |
 | `Plan_Mencionado` | Pipeline V4 | Regex con catálogo de planes |
 | `Asistencia` | Pipeline V4 | Catálogo de 35+ asistencias específicas |
@@ -197,10 +220,10 @@ Backend FastAPI (Cloud Run) → Frontend React (Firebase Hosting)
 | `Despedida_Correcta` | Pipeline V4 | Regex sobre últimas 3 líneas de Transcripcion_V4 |
 | `Num_Objeciones` | Pipeline V4 | Conteo de patrones de objeción del cliente |
 | `Tipo_Llamada` | CUN | Campo directo del SQL Server (normalizado: Salientes → Saliente) |
-| `efectiva` | CUN | Campo directo del SQL Server (0 o 1) |
-| `saludo_inicial` | CUN | Campo directo del SQL Server (0 o 1) |
-| `palabras` | CUN | Cantidad de palabras por llamada |
-| `clasificacion` | CUN | ⚠️ 97.5% neutro — no se usa en gráficas |
+| `efectiva` | CUN (Ollama) | ⚠️ **NO es venta.** Score de calidad: `sum(7 categorías)/7 ≥ 0.8`. Lo calcula Ollama `qwen2.5` en el proceso de la CUN |
+| `saludo_inicial` | CUN (Ollama) | 0/1 — el LLM de la CUN detecta saludo/presentación (≠ `Saludo_Completo` del pipeline) |
+| `palabras` | CUN | Conteo regex de palabras de la transcripción |
+| `clasificacion` | CUN (TextBlob) | positivo/negativo/neutro por polaridad — ⚠️ 97.5% neutro, no se usa en gráficas |
 
 ### Categorías de duración (tiempo real de conversación)
 
@@ -248,10 +271,12 @@ firebase deploy --only hosting:cltiene-dashboard
 
 | Variable | Descripción |
 |----------|-------------|
-| `OPENAI_API_MUNDIAL` | API key de OpenAI (configurada como secret) |
+| `OPENAI_API_MUNDIAL` | API key de OpenAI (secret) — key 1 |
+| `OPENAI_API_MUNDIAL_2` | Segunda API key (secret) — `call()` balancea el consumo ~50/50 y hace failover si una topa cupo |
 | `GOOGLE_CLOUD_PROJECT` | ID del proyecto GCP |
 | `MAX_TOKENS` | Máximo de tokens por respuesta IA (default: 4000) |
-| `MODEL` | Modelo OpenAI a usar (default: gpt-4o-mini) |
+| `MODEL` | Modelo OpenAI para reportes (default: gpt-4o-mini) |
+| `MODELO_HABLANTES` | Modelo para separar [Asesor]/[Cliente] en el pipeline (default: gpt-4o) |
 
 ## Automatización de carga de datos
 
