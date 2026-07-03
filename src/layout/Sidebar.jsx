@@ -9,8 +9,11 @@ import logo from "../assets/logo_cl_tiene.png";
 
 
 function Sidebar({ isOpen, onToggle }) {
-    const { filters, setFilters } = useFilters();
+    const { filters, setFilters, resetFilters } = useFilters();
     const navigate = useNavigate();
+
+    // Cambiar esta key re-monta los inputs/selects no controlados para limpiarlos visualmente
+    const [resetKey, setResetKey] = useState(0);
 
     const [fechas, setFechas] = useState({ primera_fecha: "", ultima_fecha: "" })
     useEffect(() => {
@@ -69,6 +72,14 @@ function Sidebar({ isOpen, onToggle }) {
         }));
     };
 
+    const handleReset = () => {
+        resetFilters();
+        setResetKey((k) => k + 1);
+    };
+
+    // ¿Hay algún filtro activo? (para habilitar/deshabilitar el botón)
+    const hayFiltros = Object.values(filters).some((v) => v !== null && v !== "");
+
     return (
         <>
             <button
@@ -124,7 +135,7 @@ function Sidebar({ isOpen, onToggle }) {
                 </div>
 
 
-                <div className="scroll-filters" style={{
+                <div key={resetKey} className="scroll-filters" style={{
                     fontSize: '12px',
                     flexGrow: 1,
                     overflowY: 'auto',
@@ -207,8 +218,35 @@ function Sidebar({ isOpen, onToggle }) {
                     </div>
                 </div>
 
-                {/* CERRAR SESION */}
-                <div style={{ flexShrink: 0, paddingTop: '20px', marginTop: '10px', borderTop: '1px solid #1e293b' }}>
+                {/* ACCIONES */}
+                <div style={{ flexShrink: 0, paddingTop: '20px', marginTop: '10px', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {/* BORRAR FILTROS */}
+                    <button
+                        onClick={handleReset}
+                        disabled={!hayFiltros}
+                        style={{
+                            width: '100%',
+                            padding: '11px',
+                            background: 'transparent',
+                            color: hayFiltros ? '#cbd5e1' : '#475569',
+                            border: `1px solid ${hayFiltros ? '#334155' : '#1e293b'}`,
+                            borderRadius: '8px',
+                            cursor: hayFiltros ? 'pointer' : 'not-allowed',
+                            fontWeight: '600',
+                            fontSize: '13px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            transition: 'background 0.2s, border-color 0.2s'
+                        }}
+                        onMouseOver={(e) => { if (hayFiltros) { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.borderColor = '#FC3276'; } }}
+                        onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = hayFiltros ? '#334155' : '#1e293b'; }}
+                    >
+                        🧹 Borrar filtros
+                    </button>
+
+                    {/* CERRAR SESION */}
                     <button
                         onClick={handleLogout}
                         style={{
