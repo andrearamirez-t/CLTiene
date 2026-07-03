@@ -22,6 +22,40 @@ Desarrollado por **DivergencyAI SAS**.
 - **Backend:** `https://cltiene-backend-293865702055.us-central1.run.app`
   - Centralizado en `src/config.js` como `API_BASE`
 
+## Flujo de datos completo (confirmado con Diego 2026-07-03)
+
+```
+CL Tiene
+  ├── FTP: AUDIO de las llamadas (en carpetas por agente → por eso importa el nombre "agenteN")
+  └── Excel: metadata (Tiempo de Conversacion, agente, fecha)
+         │
+         ▼
+   Código de Juan Manuel (COE) — notebook `Proceso llamadas CL Tiene.ipynb`:
+     1. EXTRACCIÓN: baja el audio del FTP y hace el STT (audio → texto)  ← el STT vive AQUÍ
+     2. cruce con el Excel por fecha + agente
+     3. EVALUACIÓN: Ollama qwen2.5 (7 categorías de calidad + efectiva)
+         │
+         ▼
+   SQL Server (CUN, 172.16.1.33) → BigQuery (nuestro pipeline subir_datos.py) → Dashboard
+```
+
+- **El audio vive en un FTP** (de CL Tiene), en carpetas por agente. El **cruce** con el Excel es por **fecha + agente** (frágil → tema del martes / Airflow).
+- **El STT (audio → texto) se hace DENTRO del código de Juan** con **`faster-whisper`** (modelo Whisper de OpenAI, local en GPU/CUDA), en la parte de "extracción" del notebook. NO es un servicio de un tercero. (La parte que revisamos, "evaluación de llamadas", es solo el Ollama de calidad.)
+  - Fuente audio: **SFTP** `/u01/bk/ftp/telefonia/ContactVox_CLTIENE` (marcador **ContactVox**), recorrido por carpeta agente → año → fecha (por eso importa `agenteN`).
+  - **Config actual del STT (verificada en el notebook 2026-07-03) — explica las transcripciones malas:**
+    | Parámetro | Valor actual | Problema / mejora |
+    |---|---|---|
+    | `MODEL_NAME` | `"medium"` | Modelo mediano → palabras deformes. Subir a `large-v3` mejora mucho. |
+    | `beam_size` | `1` | El más rápido pero menos preciso. Subir a `5`. |
+    | `vad_filter` | `True` (min_silence 400ms) | **Recorta silencios/voz baja → causa probable de "se entrecortan".** Revisar/ajustar. |
+- **Ahí es donde se pierden/entrecortan las transcripciones.** Dos causas, con responsables distintos:
+  - **Audio malo/cortado en el FTP** → lo genera CL Tiene (grabación).
+  - **STT débil (faster-whisper `medium` + `beam_size=1` + VAD agresivo)** → es config del código de Juan (COE); se puede mejorar.
+  - Llamada muy corta → el STT solo capta el saludo (esperado).
+- **Es el cuello de botella real y está upstream de nosotros.** La separación cliente/asesor (nuestra, con OpenAI) solo puede ser tan buena como el texto del STT — si llega mal, ningún prompt lo arregla.
+- **Caso Edwin Cendales:** su carpeta de audio en el FTP se llama `ecendales` (no `agenteN`) y el código de Juan solo lee carpetas con la palabra "agente" → por eso no aparece. Lo corrige CL Tiene renombrando la carpeta.
+- Nuestro pipeline V4 **solo separa cliente/asesor** (Transcripcion_V4); NO hace STT ni el cruce — eso es del lado de la CUN.
+
 ## BigQuery
 
 - Tabla: `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
