@@ -30,6 +30,16 @@ BQ_PROJECT = "desarrollo-investigaciones"
 BQ_DATASET = "call_center"
 BQ_TABLA   = "cltiene_llamadas_procesadas"
 
+# Re-proceso completo: ignora el cache y vuelve a pasar TODAS las
+# transcripciones por OpenAI con el prompt actual (v16).
+# Activar con `python subir_datos.py --full` o env REPROCESO_COMPLETO=1
+REPROCESO_COMPLETO = ("--full" in sys.argv) or (os.getenv("REPROCESO_COMPLETO") == "1")
+
+# Modelo para la detección de hablantes (separación Asesor/Cliente).
+# gpt-4o es ~5-6x más preciso que gpt-4o-mini en llamadas con STT deforme
+# (validado: ~2% vs ~7% de error de atribución). Override con env MODELO_HABLANTES.
+MODELO_HABLANTES = os.getenv("MODELO_HABLANTES") or "gpt-4o"
+
 LOG_FILE = os.path.join(os.path.dirname(__file__), "subir_datos.log")
 
 
@@ -436,6 +446,24 @@ def cargar_cache_bigquery():
 _PROMPT_HABLANTES = """Eres un analizador experto de transcripciones de call center colombiano.
 Tu tarea: separar el diálogo entre ASESOR y CLIENTE.
 
+════════════════════════════════════════════════════════════
+REGLA #1 — MÁXIMA PRIORIDAD (por encima de cualquier otra):
+El CLIENTE JAMÁS pronuncia un nombre propio como vocativo.
+Si una frase contiene "señora [Nombre]" o "señor [Nombre]"
+dirigiéndose a alguien → el hablante es SIEMPRE el ASESOR.
+
+Esto aplica AUNQUE la frase empiece con una confirmación:
+  "Correcto, señora Rosalía"       → ASESOR (NO cliente)
+  "Exacto, señor Pedro"            → ASESOR
+  "Perfecto, señora Ana, entonces" → ASESOR
+  "Vale, correcto, señora María"   → ASESOR
+La palabra Correcto/Sí/Exacto/Perfecto/Vale NO convierte la
+frase en cliente si va acompañada del nombre propio del
+interlocutor. EL NOMBRE MANDA sobre la palabra de confirmación.
+Única excepción cliente: "Sí, señora" / "Sí, señor" SOLOS
+(2-3 palabras y se detiene, SIN nombre propio).
+════════════════════════════════════════════════════════════
+
 DEFINICIONES:
 - ASESOR: agente del call center (ofrece servicios de asistencia: grúa, médico, etc.)
 - CLIENTE: persona natural que recibe o hace la llamada
@@ -663,7 +691,7 @@ async def _estructurar_ia_async(texto, client, sem, tipo='saliente'):
     async with sem:
         try:
             resp = await client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=MODELO_HABLANTES,
                 messages=[
                     {"role": "system", "content": _PROMPT_HABLANTES},
                     {"role": "user",   "content": user_content},
@@ -927,8 +955,12 @@ def contar_objeciones(texto):
 def procesar(df):
     df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente'})
 
-    log("  Cargando cache de BigQuery...")
-    cache = cargar_cache_bigquery()
+    if REPROCESO_COMPLETO:
+        log("  ⚠️ RE-PROCESO COMPLETO: ignorando cache; se re-procesan TODAS con el prompt actual (v15)")
+        cache = {}
+    else:
+        log("  Cargando cache de BigQuery...")
+        cache = cargar_cache_bigquery()
     log("  Estructurando transcripciones V4 con IA (async)...")
     df['Transcripcion_V4'] = estructurar_dialogos_ia(df['transcripcion'], df.get('Tipo_Llamada'), cache=cache)
     df['Num_Turnos_V4']     = df['Transcripcion_V4'].apply(
@@ -989,6 +1021,7 @@ def subir_bigquery(df):
 if __name__ == "__main__":
     log("=" * 60)
     log("INICIO DE CARGA AUTOMÁTICA")
+    log(f"  Modelo hablantes: {MODELO_HABLANTES} | Re-proceso completo: {REPROCESO_COMPLETO}")
     log("=" * 60)
 
     try:

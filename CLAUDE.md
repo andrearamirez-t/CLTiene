@@ -274,7 +274,12 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - ✅ Creados `informe_sesion_2026-06-25.html` + `informe_tecnico.html` (v3.0 con secciones 10 y 11)
 
 ### Backlog
-- [ ] Prompt v15: re-procesar BigQuery con nuevo prompt (actualmente solo afecta llamadas nuevas)
+- [ ] **Re-procesar BigQuery con `--full`** (prompt v16 + `gpt-4o`) — LISTO PARA CORRER, esperando OK del usuario
+  - Prompt **v16** aplicado (`subir_datos.py`): regla del vocativo como REGLA #1 al inicio ("el cliente jamás dice un nombre propio como vocativo → siempre ASESOR").
+  - Modelo configurable: `MODELO_HABLANTES` (default **`gpt-4o`**; override a `gpt-4o-mini`). El pipeline diario y `--full` usan `gpt-4o`.
+  - Flag `--full` (o env `REPROCESO_COMPLETO=1`) ignora el cache y reprocesa las ~38k con el prompt actual.
+  - **Validación (banco de pruebas aislado, sin tocar prod):** `gpt-4o`+v16 = ~2% error de atribución vs `mini`+v15 (prod) = ~7%, sobre 85 transcripciones aleatorias. En 5 casos difíciles: 0 fallos en 14 corridas.
+  - Costo estimado re-proceso completo con `gpt-4o`: **~$300** (una vez). Antes de correr: **backup de la tabla BigQuery**.
 - ✅ Validado que `AnalisisAu`, `RankingIA`, `ReporteCompleto` (Agente IA PRO) pasan filtros sidebar (frontend `buildQuery()` → backend `FilterModel` → `filters.get_query()`; verificado en prod: reporte con filtro fecha 2026-06-16 mostró 245 llamadas, no los ~38k)
 - ✅ Separar métricas Ventas vs Servicio en reportes (dashboard vía `esServicio` + reportes IA vía `contexto_tipo_llamada()` — ver patrón abajo)
 - [ ] Pipeline V4: registrar tarea automática en PC con sesión CUN
@@ -285,3 +290,18 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - [ ] CL Tiene: renombrar carpetas de agentes a formato `agenteN` (caso Edwin Cendales sin datos desde 3-feb)
 - [ ] CUN/Juan Manuel: corregir nomenclatura `Salientes` → `Saliente` en la BD
 - [ ] Alinear formatos de Excel (entrante/saliente traen `Agente`/`Cuenta` con estructura distinta)
+- [ ] **Calidad del STT (voz a texto) de la CUN** — tema aparte de la separación de hablantes
+
+## Dos tipos de error en las transcripciones (NO confundir)
+
+Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y soluciones diferentes:
+
+1. **Error de ATRIBUCIÓN de hablante** (quién habla) → lo genera nuestro pipeline con OpenAI.
+   - Ejemplo: `[CLIENTE]: Correcto, señora Rosalía.` cuando debería ser `[ASESOR]` (el cliente no se dirige a sí mismo por su nombre).
+   - **Solución:** prompt v16 (regla del vocativo como REGLA #1 en `_PROMPT_HABLANTES`) + modelo `gpt-4o`. Se corrige al **re-procesar BigQuery con `--full`**. Nota: incluso `gpt-4o`+v16 falla ~2% en llamadas con STT muy deforme (no es 100%).
+
+2. **Error de STT (voz a texto)** (qué palabras) → lo genera el motor de transcripción de la CUN, upstream.
+   - Ejemplos: "Celetines Aluciones"/"usted le tiene soluciones" → "CL Tiene Soluciones"; "Rodalia"/"DSLTN" → nombres deformados; "mi feliz tía" → "un feliz día".
+   - **NO se corrige con ningún prompt** (el texto de origen ya viene deformado). Depende de mejorar el STT en la CUN → **tema para la reunión del martes**.
+
+> Antes de reportar una transcripción "mal", distinguir cuál de los dos es: si quién habla está bien pero las palabras están deformes → es STT (no nuestro). Si quién habla está intercambiado → es atribución (v15).
