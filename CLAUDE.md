@@ -325,6 +325,7 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - [ ] CUN/Juan Manuel: corregir nomenclatura `Salientes` → `Saliente` en la BD
 - [ ] Alinear formatos de Excel (entrante/saliente traen `Agente`/`Cuenta` con estructura distinta)
 - [ ] **Calidad del STT (voz a texto) de la CUN** — tema aparte de la separación de hablantes
+- [ ] **Audio / "S3"** (reunión aparte que agenda Sergio Nieto): las transcripciones llegan incompletas/entrecortadas porque el audio de origen puede venir cortado o de baja calidad. "S3" = área/equipo cuyo encargado está en **gestiones de auditoría** (Sergio pidió redactar la pregunta y enviarla a ese encargado). Preguntas abiertas: dónde se guardan las grabaciones (¿es "S3"?), si el audio queda completo en el origen, si cambió la calidad/formato, y quién es el responsable técnico de las grabaciones. Ataca el lado **audio/origen** (CL Tiene); el lado STT (faster-whisper) es con Juan/COE.
 - [ ] **Duplicados en la tabla origen `coe.CLTIENE_LLAMADAS`** (verificado 2026-07-03): ~**5.321 filas (~10%)** son el **mismo audio cargado más de una vez** (misma `fecha+cuenta+telefono+transcripcion+archivo`). Inflaban los conteos del dashboard ~10%. El proceso de carga de la CUN debería **insertar con deduplicación** (Airflow). Nosotros ya blindamos el dashboard con dedup en `subir_datos.py` (ver abajo), pero la raíz está en la carga.
   - Nota: `IDENTIFICACION` NO es clave de fila — es el documento del agente (solo ~13 distintos) y tiene formato inconsistente (`...053.0` float vs `...053` int).
 
