@@ -7,6 +7,16 @@
 Dashboard de análisis de llamadas de call center para **CL Tiene Soluciones** (Colombia).
 Desarrollado por **DivergencyAI SAS**.
 
+## Actores del ecosistema (aclarado 2026-07-03)
+
+| Actor | Qué es | Rol |
+|---|---|---|
+| **CL Tiene Soluciones** | Empresa de asistencias (hogar/salud/vehículo) — cltiene.com | **El cliente**, dueño de las llamadas y del dashboard. **Sergio Nieto** (admin del call center) es quien **envía/coordina los datos** desde CL Tiene: el Excel de metadata y las carpetas de audio (`agenteN`) |
+| **DivergencyAI SAS** | Nosotros — **spinoff de la CUN** (vicerrectoría de innovación, investigación y extensión). divergencyai.com | Desarrollamos el dashboard (pipeline V4 + BigQuery + frontend) |
+| **CUN** | Corporación Unificada Nacional de Educación Superior — universidad (Bogotá) | Su **COE de analítica** (Juan Manuel Marín) hace el STT + Ollama y hostea el SQL Server intermedio (`CUN_REPOSITORIO`, 172.16.1.33). DivergencyAI es spinoff de su vicerrectoría de innovación |
+| **S3 Simple Smart Speedy S.A.S.** | Proveedor de telecom/datacenter/hosting (Bogotá) — s3.com.co. **NO es AWS S3** | Maneja la **infraestructura del audio/grabaciones** (el origen). Con ellos se habla la calidad del audio; su encargado está en gestiones de auditoría |
+| **ContactVox** | Marcador/dialer | Genera las grabaciones (carpeta `ContactVox_CLTIENE` en el FTP) |
+
 ## Stack
 
 | Capa | Tecnología |
