@@ -102,6 +102,20 @@ def cargar_desde_sql():
     with engine.connect() as conn:
         df = pd.read_sql_query(sql, conn)
 
+    # Deduplicación: la tabla origen (CUN) trae ~10% de filas duplicadas
+    # (el mismo audio cargado más de una vez → inflaba los conteos del dashboard).
+    # Clave: fecha + cuenta + teléfono + transcripción + archivo.
+    # `archivo` (nombre del audio) es lo que identifica la llamada: sin él se
+    # borraban por error llamadas distintas sin transcripción que comparten
+    # fecha+cuenta+teléfono. Con él solo se quitan audios idénticos repetidos.
+    antes = len(df)
+    subset = [c for c in ["Fecha", "Cuenta", "Telefono", "transcripcion", "archivo"] if c in df.columns]
+    if subset:
+        df = df.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
+    quitadas = antes - len(df)
+    if quitadas:
+        log(f"  Duplicados eliminados: {quitadas:,} ({quitadas/antes*100:.1f}%) → {len(df):,} filas únicas")
+
     return df
 
 

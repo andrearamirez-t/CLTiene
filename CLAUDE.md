@@ -325,6 +325,13 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - [ ] CUN/Juan Manuel: corregir nomenclatura `Salientes` → `Saliente` en la BD
 - [ ] Alinear formatos de Excel (entrante/saliente traen `Agente`/`Cuenta` con estructura distinta)
 - [ ] **Calidad del STT (voz a texto) de la CUN** — tema aparte de la separación de hablantes
+- [ ] **Duplicados en la tabla origen `coe.CLTIENE_LLAMADAS`** (verificado 2026-07-03): ~**5.321 filas (~10%)** son el **mismo audio cargado más de una vez** (misma `fecha+cuenta+telefono+transcripcion+archivo`). Inflaban los conteos del dashboard ~10%. El proceso de carga de la CUN debería **insertar con deduplicación** (Airflow). Nosotros ya blindamos el dashboard con dedup en `subir_datos.py` (ver abajo), pero la raíz está en la carga.
+  - Nota: `IDENTIFICACION` NO es clave de fila — es el documento del agente (solo ~13 distintos) y tiene formato inconsistente (`...053.0` float vs `...053` int).
+
+## Deduplicación en el pipeline (`subir_datos.py`, sesión 2026-07-03)
+- `cargar_desde_sql()` aplica `drop_duplicates(subset=[Fecha, Cuenta, Telefono, transcripcion, archivo])` tras leer de SQL Server.
+- **`archivo` es clave**: sin él se borraban por error llamadas distintas sin transcripción que comparten `fecha+cuenta+telefono` (el dedup de 4 columnas quitaba 7.863 en vez de 5.321). Con `archivo` solo se quitan audios idénticos repetidos.
+- Loguea cuántos duplicados quitó en cada corrida.
 
 ## Dos tipos de error en las transcripciones (NO confundir)
 
