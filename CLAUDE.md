@@ -19,6 +19,10 @@ Desarrollado por **DivergencyAI SAS**.
 | **David Cerón Aponte ("el BI")** | Persona en la CUN | Maneja un **segundo dashboard/tablero de CL Tiene, desarrollado por la CUN** (aparte del nuestro). Cuando Juan dice "decirle al BI" para actualizar, se refiere a ESE tablero, no al de DivergencyAI |
 
 > **Ojo — hay DOS dashboards de CL Tiene:** (1) el **nuestro** (DivergencyAI, React + BigQuery, `cltiene-dashboard.web.app`, se actualiza con `subir_datos.py`) y (2) el de la **CUN** (lo maneja David Cerón / "el BI"). Ambos se alimentan del mismo SQL Server pero son productos distintos.
+>
+> **Dashboard de la CUN** = un **Power BI** ("Dashboard de Llamadas de Ventas", app.powerbi.com) enfocado en KPIs de ventas + sentimiento: total llamadas, % Efectivas (usa `efectiva`), % contestación/abandono, ventas, ticket promedio, y los campos TextBlob (Subjetividad/Confianza/Polaridad por asesor). Separa correctamente `efectiva` de ventas.
+>
+> **Diferenciadores del NUESTRO** (lo que el Power BI de la CUN NO tiene): visor de transcripciones (chat cliente/asesor), separación de hablantes con IA (v16 + gpt-4o), análisis por llamada con IA (scorecard/coaching), historial por teléfono, reportes IA que se adaptan a Ventas/Servicio. Resumen: el de la CUN es **reporte de KPIs**; el nuestro es **análisis profundo con IA + transcripciones** (complementarios, distinto propósito).
 
 ## Stack
 
