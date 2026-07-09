@@ -322,12 +322,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
         '0'
     ) name,
     COUNT(*) t,
-    SUM(
-        CASE
-        WHEN resultado_llamada = 'Venta' THEN 1
-        ELSE 0
-        END
-    ) ventas
+    SUM(CAST(efectiva AS FLOAT64)) efectivas
     FROM
     `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
@@ -340,7 +335,8 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
     job = client.query(query)
     df = job.to_dataframe()
 
-    df["ef"] = (df["ventas"] / df["t"] * 100).round(1)
+    # % de efectividad (score de calidad de la CUN) por hora, no ventas
+    df["ef"] = (df["efectivas"] / df["t"] * 100).round(1)
 
     return df[["name", "t", "ef"]].to_dict(orient="records")
 
@@ -360,7 +356,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
             DATE({calculo_fecha()})
         ) name,
         COUNT(*) t,
-        SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas
+        SUM(CAST(efectiva AS FLOAT64)) efectivas
     FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
     WHERE {where}
     GROUP BY name
@@ -369,8 +365,9 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
     job = client.query(query)
     df = job.to_dataframe()
 
+    # % de efectividad (score de calidad) por día, no ventas
     df["ef"] = (
-        (df["ventas"] / df["t"] * 100)
+        (df["efectivas"] / df["t"] * 100)
         .replace([float("inf"), -float("inf")], 0)
         .fillna(0)
         .round(1)
@@ -564,7 +561,7 @@ def duracion_vs_efectividad(filters: FilterModel = Depends()):
         COUNT(*) total,
         ROUND(
             SAFE_DIVIDE(
-                SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END),
+                SUM(CAST(efectiva AS FLOAT64)),
                 COUNT(*)
             ) * 100,1
         ) efectividad
