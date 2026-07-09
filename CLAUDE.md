@@ -16,6 +16,9 @@ Desarrollado por **DivergencyAI SAS**.
 | **CUN** | Corporación Unificada Nacional de Educación Superior — universidad (Bogotá) | Su **COE de analítica** (Juan Manuel Marín) hace el STT + Ollama y hostea el SQL Server intermedio (`CUN_REPOSITORIO`, 172.16.1.33). DivergencyAI es spinoff de su vicerrectoría de innovación |
 | **S3 Simple Smart Speedy S.A.S.** | Proveedor de telecom/datacenter/hosting (Bogotá) — s3.com.co. **NO es AWS S3** | Maneja la **infraestructura del audio/grabaciones** (el origen). Con ellos se habla la calidad del audio; su encargado está en gestiones de auditoría |
 | **ContactVox** | Marcador/dialer | Genera las grabaciones (carpeta `ContactVox_CLTIENE` en el FTP) |
+| **David Cerón Aponte ("el BI")** | Persona en la CUN | Maneja un **segundo dashboard/tablero de CL Tiene, desarrollado por la CUN** (aparte del nuestro). Cuando Juan dice "decirle al BI" para actualizar, se refiere a ESE tablero, no al de DivergencyAI |
+
+> **Ojo — hay DOS dashboards de CL Tiene:** (1) el **nuestro** (DivergencyAI, React + BigQuery, `cltiene-dashboard.web.app`, se actualiza con `subir_datos.py`) y (2) el de la **CUN** (lo maneja David Cerón / "el BI"). Ambos se alimentan del mismo SQL Server pero son productos distintos.
 
 ## Stack
 
