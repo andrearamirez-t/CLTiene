@@ -356,6 +356,16 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **`archivo` es clave**: sin él se borraban por error llamadas distintas sin transcripción que comparten `fecha+cuenta+telefono` (el dedup de 4 columnas quitaba 7.863 en vez de 5.321). Con `archivo` solo se quitan audios idénticos repetidos.
 - Loguea cuántos duplicados quitó en cada corrida.
 
+## "Ventas Cerradas" — detección poco confiable + fuente real (CRM) (verificado 2026-07-08)
+
+- **El KPI "Ventas Cerradas" del dashboard está MUY sobreestimado.** Se infiere de la transcripción con un regex débil en `detectar_resultado_llamada()` (`subir_datos.py`): marca "Venta" si aparece `procedemos|te confirmo|queda activ|...`.
+- **`te confirmo` es el culpable** (78% de las 374 "ventas" lo contienen): se usa muchísimo para confirmar **teléfonos, nombres y visitas de médico a domicilio** (servicio), no ventas.
+- **Validación (2026-07-08):** de 40 "ventas" muestreadas → regex estricto deja 5%, IA (gpt-4o-mini) deja **0%**. Incluso las 9 que mencionan el precio $33.900 → la IA dice NO (son *pitches*, no cierres). El 78% mencionan médico/domicilio = son llamadas de **servicio**, no ventas.
+- **Conclusión:** inferir la venta desde la transcripción NO es confiable (ni regex ni IA) porque el cierre real rara vez queda en el texto (y el STT lo corta).
+- **FUENTE REAL DE VENTAS = tabla `coe.CLTIENE_VENTAS`** (SQL Server CUN): es el **CRM (HubSpot)** de negociaciones (14.342 deals), con columna **`Fase`**. Las ventas reales = **`Fase = 'Cerrado Ganado'` = 959** (histórico ~ago-2023 a may-2026). Tiene `Importe`, `Fecha de cierre`, `Propietario de Negociación`, `Identificación`, `Correo`, etc.
+- Esta tabla es **SEPARADA del pipeline de Juan** (el notebook solo maneja `CLTIENE_LLAMADAS`; nunca toca `CLTIENE_VENTAS`). La mantiene el **lado BI (David Cerón)** desde el CRM; alimenta el Power BI de la CUN.
+- **Pendiente / recomendación:** el dashboard debería tomar "Ventas Cerradas" de `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`), no de la inferencia por transcripción. Reto: cruzar CRM ↔ llamadas por cédula (`Identificación`) / asesor / fecha.
+
 ## Dos tipos de error en las transcripciones (NO confundir)
 
 Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y soluciones diferentes:
