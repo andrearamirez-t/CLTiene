@@ -379,3 +379,40 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
    - **NO se corrige con ningún prompt** (el texto de origen ya viene deformado). Depende de mejorar el STT en la CUN → **tema para la reunión del martes**.
 
 > Antes de reportar una transcripción "mal", distinguir cuál de los dos es: si quién habla está bien pero las palabras están deformes → es STT (no nuestro). Si quién habla está intercambiado → es atribución (v15).
+
+## Sesión 2026-07-08 — Fixes de KPI, verificación de gráficas y accesos GCP
+
+### KPIs corregidos (`back/api/charts/kpi.py`) — commiteados, PENDIENTE DESPLEGAR
+- **Hora Pico**: mostraba el `AVG` de los timestamps (16:08, siempre media tarde). Ahora usa la **moda** (hora con más llamadas = 09:00) vía nuevo CTE `top_hora`. Verificado que respeta filtros.
+- **Calidad IA**: promediaba las 7 métricas sobre las 38k incluyendo el 64% **sin transcripción** (métricas=0) → 14.1. Ahora solo sobre las evaluadas (`IF(transcripcion... , metric, NULL)`) → **28.0**.
+- **"Llamadas Efectivas" → "Llamadas de Calidad"** (`src/pages/Dashboard.jsx`): `efectiva` es score de calidad ≥80%, no contacto efectivo.
+- Verificación completa: los 8 KPIs calculan bien (coinciden con el dashboard). Total 38.148, Ventas 374 (inflado, ver arriba), Día Pico Martes, Asesor Top Jimmy Rusinque, Saludo 49.3%.
+
+### Gráficas — problemas encontrados (PENDIENTE arreglar + decidir)
+- **Motivo Rechazo / Tipo Mascota / Tipo Vehículo** devuelven `'N/A'` que domina (91-98%) → ocultan las categorías reales. El frontend NO lo filtra. Recomendación: filtrar `!= 'N/A'` en Motivo Rechazo (deja el takeaway "92% rechazan por 'No Interesa'"); esconder/quitar Mascota y Vehículo (muy escasas, no aportan).
+- **`rendimiento_hora.py` — BUG**: el CTE `suma_efectivos` NO tiene el `WHERE {filters.get_query()}` → ignora los filtros del sidebar. Además agrupa por `resultado_llamada` (nombre "hora" engañoso).
+- Distribuciones correctas (reflejan realidad): Duración (56% Buzón), Resultado (63% Sin Contacto), Planes reales.
+
+### Accesos GCP (BLOQUEA el deploy) — auditoría de seguridad CUN 2026-07-06
+- La CUN (Jonathan López, GCP admin) **quitó el rol Owner** de `diego_ojeda@cun.edu.co` en el proyecto `desarrollo-investigaciones` (auditoría de menor privilegio).
+- Roles actuales: `bigquery.admin/dataEditor/jobUser`, `firebase.admin`, `run.admin`, `secretmanager.admin`.
+- **FALTAN para desplegar Cloud Run** (`gcloud run deploy --source` da `PERMISSION_DENIED: iam.serviceaccounts.actAs`):
+  - `roles/iam.serviceAccountUser` (actAs la SA del runtime — el error exacto)
+  - `roles/cloudbuild.builds.editor` (build de `--source`)
+  - `roles/storage.admin` (subir el código fuente al bucket)
+  - `roles/logging.viewer` (opcional, depurar)
+- Diego ya envió el correo a Jonathan pidiéndolos (2026-07-08). Verificar con `gcloud projects get-iam-policy desarrollo-investigaciones --flatten="bindings[].members" --filter="bindings.members:diego_ojeda@cun.edu.co"`.
+- **Nota:** BigQuery/consultas funcionan (vía ADC), solo el deploy de Cloud Run está bloqueado.
+
+### Columna de venta real (de CL Tiene) — INCIERTO, "nadie sabe" aún
+- En la reunión del martes se habló de que **CL Tiene (Sergio) agregaría una columna de venta real** (+ un fix de nombres de agentes), pero **aún no está definido** cómo ni cuándo.
+- Diego preparó un mensaje para Sergio (envía 2026-07-09) explicando por qué la transcripción NO sirve para la venta y pidiendo una columna con la venta real (Sí/No o estado "Cerrado Ganado" del CRM).
+- **Si llega esa columna** → adaptar el pipeline + KPI para usarla (mejor que leer `CLTIENE_VENTAS` aparte). Mientras tanto, la fuente real conocida sigue siendo `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`).
+
+### Pendientes al cierre de la sesión
+- [ ] Jonathan asigne los roles GCP → desplegar los 3 fixes de KPI (+ gráficas si se deciden)
+- [ ] Arreglar gráficas N/A + bug `rendimiento_hora` (no requiere accesos, se puede hacer ya)
+- [ ] Enviar a Sergio el mensaje de la columna de venta (2026-07-09)
+- [ ] Subir datos al 2-jul (red CUN)
+- [ ] Ventas: integrar CRM `CLTIENE_VENTAS` o esperar la columna de CL Tiene
+- [ ] Juan/CUN: mejora del STT (en progreso, mostrará diferencia)
