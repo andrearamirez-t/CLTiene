@@ -390,7 +390,8 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 
 ### Gráficas — problemas encontrados (PENDIENTE arreglar + decidir)
 - **Motivo Rechazo / Tipo Mascota / Tipo Vehículo** devuelven `'N/A'` que domina (91-98%) → ocultan las categorías reales. El frontend NO lo filtra. Recomendación: filtrar `!= 'N/A'` en Motivo Rechazo (deja el takeaway "92% rechazan por 'No Interesa'"); esconder/quitar Mascota y Vehículo (muy escasas, no aportan).
-- **`rendimiento_hora.py` — BUG**: el CTE `suma_efectivos` NO tiene el `WHERE {filters.get_query()}` → ignora los filtros del sidebar. Además agrupa por `resultado_llamada` (nombre "hora" engañoso).
+- **`rendimiento_hora.py` — CÓDIGO MUERTO (no es bug visible)**: el endpoint `/api/rendimiento_hora` (que usa `rendimiento_hora.py`, con el CTE `suma_efectivos` sin filtro y agrupando por `resultado_llamada`) **NO lo llama el frontend**. La gráfica que SÍ se muestra (Inteligencia Operativa, línea por hora) usa `x_rendimiento_hora` → endpoint `/rendimiento-hora` (query inline en `routes.py`), que agrupa por **hora** y **respeta los filtros** (correcto). Se puede **borrar** `rendimiento_hora.py` + `/api/rendimiento_hora`.
+- **Mislabel real** en la gráfica por hora que SÍ se ve: `x_rendimiento_hora` calcula `ef = ventas/t*100` (% de ventas por hora) pero el frontend (`Hora.jsx`) lo etiqueta **"% Efectivas"**. Es % de Ventas (con la detección inflada), no % Efectivas.
 - Distribuciones correctas (reflejan realidad): Duración (56% Buzón), Resultado (63% Sin Contacto), Planes reales.
 
 ### Accesos GCP (BLOQUEA el deploy) — auditoría de seguridad CUN 2026-07-06
