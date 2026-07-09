@@ -54,12 +54,32 @@ def log(msg):
 
 # ─── SQL Server con Windows Auth ─────────────────────────────────────────────────
 
+def _crear_engine():
+    """Prueba drivers ODBC modernos primero (Driver 18/17) y cae al viejo 'SQL Server'.
+    Los modernos usan TCP + TrustServerCertificate (el viejo 'SQL Server' falla en
+    algunas máquinas con DBNETLIB)."""
+    import urllib.parse
+    drivers = ["ODBC Driver 18 for SQL Server", "ODBC Driver 17 for SQL Server", "SQL Server"]
+    ultimo = None
+    for drv in drivers:
+        try:
+            params = urllib.parse.quote_plus(
+                f"DRIVER={{{drv}}};SERVER={SQL_HOST},{SQL_PORT};DATABASE={SQL_DATABASE};"
+                f"Trusted_Connection=yes;TrustServerCertificate=yes;Encrypt=optional;"
+            )
+            engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+            with engine.connect() as c:
+                c.execute(text("SELECT 1"))
+            log(f"  SQL Server conectado con driver: {drv}")
+            return engine
+        except Exception as e:
+            ultimo = e
+            continue
+    raise RuntimeError(f"No se pudo conectar a SQL Server con ningún driver ODBC: {ultimo}")
+
+
 def cargar_desde_sql():
-    url = (
-        f"mssql+pyodbc://@{SQL_HOST}:{SQL_PORT}/{SQL_DATABASE}"
-        f"?trusted_connection=yes&driver=SQL+Server"
-    )
-    engine = create_engine(url)
+    engine = _crear_engine()
 
     sql = text("""
         WITH registros_unicos AS (

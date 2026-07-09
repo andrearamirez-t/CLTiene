@@ -410,10 +410,23 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - Diego preparó un mensaje para Sergio (envía 2026-07-09) explicando por qué la transcripción NO sirve para la venta y pidiendo una columna con la venta real (Sí/No o estado "Cerrado Ganado" del CRM).
 - **Si llega esa columna** → adaptar el pipeline + KPI para usarla (mejor que leer `CLTIENE_VENTAS` aparte). Mientras tanto, la fuente real conocida sigue siendo `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`).
 
+### ⚠️ DELICADO: el pipeline pierde ~2.647 llamadas por Cuenta NULL (verificado 2026-07-09)
+- El `SELECT` de `cargar_desde_sql()` hace `INNER JOIN registros_unicos a ON a.cuenta = b.cuenta`. Las filas con **`cuenta` NULL/vacía NO cruzan → se descartan.**
+- **Cuantificado en SQL:** de 51.095 filas, **2.647 (5.2%) tienen Cuenta NULL/vacía** y se pierden. **Las 2.647 tienen el nombre en la columna `Agente`** (recuperables con `COALESCE(Cuenta, Agente)`). **2.525 tienen transcripción real** = llamadas reales que NO aparecen en el dashboard.
+- Es el mismo problema de nombres que vimos antes (nombre en `Agente`, `Cuenta`=NULL). Por eso en BigQuery `Cuenta NULL = 0` (ya vienen filtradas).
+- **Fix corto (nuestro):** cambiar el join/SELECT a `COALESCE(Cuenta, Agente)` para no perder esas 2.525 llamadas.
+- **Fix de fondo (CL Tiene/Sergio):** estandarizar los nombres en el origen (el "fix de nombres" pendiente).
+
+### Carga de datos 2026-07-09 (hecha)
+- Subido incremental con `gpt-4o-mini` + solo key 2 (`OPENAI_API_MUNDIAL=""`), driver ODBC 18. BigQuery: 38.148 → **37.286 filas** (deduplicado, datos al **2-jul**). Costo ~$3. Backup: `cltiene_llamadas_procesadas_backup_20260709`.
+- Verificado: 0 duplicados, 0 transcripciones sin V4, 0 nulos en campos clave, datos de julio presentes (395 filas).
+- **Fix del driver SQL** (`_crear_engine()` robusto: Driver 18/17/viejo) aplicado a `subir_datos.py`.
+
 ### Pendientes al cierre de la sesión
-- [ ] Jonathan asigne los roles GCP → desplegar los 3 fixes de KPI (+ gráficas si se deciden)
-- [ ] Arreglar gráficas N/A + bug `rendimiento_hora` (no requiere accesos, se puede hacer ya)
+- [ ] Jonathan asigne los roles GCP → desplegar los fixes de KPI + gráficas (efectiva)
+- [ ] **`COALESCE(Cuenta, Agente)` en el pipeline** → recuperar las ~2.525 llamadas perdidas
+- [ ] Arreglar gráficas N/A (Motivo Rechazo filtrar N/A; Mascota/Vehículo decidir)
 - [ ] Enviar a Sergio el mensaje de la columna de venta (2026-07-09)
-- [ ] Subir datos al 2-jul (red CUN)
+- [x] Subir datos al 2-jul (red CUN) — HECHO
 - [ ] Ventas: integrar CRM `CLTIENE_VENTAS` o esperar la columna de CL Tiene
 - [ ] Juan/CUN: mejora del STT (en progreso, mostrará diferencia)
