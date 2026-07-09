@@ -37,7 +37,6 @@ from api.filters.seguimiento_llamada import seguimiento_llamada
 from api.charts.transcripciones import transcripciones
 from api.charts.tipo_vehiculo import tipo_vehiculo
 from api.charts.tipo_mascota import tipo_mascota
-from api.charts.rendimiento_hora import rendimiento_hora
 from api.charts.rendimiento_agente import rendimiento_agente
 from api.charts.planes_mencionados import planes_mencionados
 from api.charts.distribucion_resultado import distribucion_resultado
@@ -193,11 +192,6 @@ def api_tipo_vehiculo(filters: FilterModel = Depends()):
 @router.get("/api/tipo_mascota")
 def api_tipo_mascota(filters: FilterModel = Depends()):
     return tipo_mascota(filters)
-
-
-@router.get("/api/rendimiento_hora")
-def api_rendimiento_hora(filters: FilterModel = Depends()):
-    return rendimiento_hora(filters)
 
 
 @router.get("/api/rendimiento_agente")
