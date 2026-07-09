@@ -83,17 +83,17 @@ def cargar_desde_sql():
 
     sql = text("""
         WITH registros_unicos AS (
-            SELECT cuenta,
+            SELECT COALESCE(cuenta, Agente) cuenta,
                    TRY_CONVERT(datetime, fecha, 120) AS fecha,
                    COUNT(*) AS cant
             FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS
             WHERE TRY_CONVERT(datetime, fecha, 120) IS NOT NULL
-            GROUP BY cuenta, TRY_CONVERT(datetime, fecha, 120)
+            GROUP BY COALESCE(cuenta, Agente), TRY_CONVERT(datetime, fecha, 120)
         )
         SELECT
             TRY_CONVERT(datetime, b.Fecha, 120)          AS Fecha,
             b.[Contacto (Identificacion - Nombre],
-            b.[Telefono], b.[Agente], b.[Cuenta],
+            b.[Telefono], b.[Agente], COALESCE(b.[Cuenta], b.[Agente]) AS Cuenta,
             b.[Modulo], b.[Nombre del Modulo], b.[Motivo],
             b.[Estado de la LLamada],
             b.[Tiempo  de Llamada],
@@ -115,7 +115,7 @@ def cargar_desde_sql():
             CASE WHEN a.cant > 1 THEN 'mixto' ELSE b.tipo END AS tipo
         FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS b
         INNER JOIN registros_unicos a
-            ON a.cuenta = b.cuenta
+            ON a.cuenta = COALESCE(b.cuenta, b.Agente)
            AND a.fecha  = TRY_CONVERT(datetime, b.fecha, 120)
     """)
 
