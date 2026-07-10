@@ -363,6 +363,14 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **`archivo` es clave**: sin él se borraban por error llamadas distintas sin transcripción que comparten `fecha+cuenta+telefono` (el dedup de 4 columnas quitaba 7.863 en vez de 5.321). Con `archivo` solo se quitan audios idénticos repetidos.
 - Loguea cuántos duplicados quitó en cada corrida.
 
+## Automatización de la subida SQL→BigQuery (analizado 2026-07-09)
+- **El SQL Server (172.16.1.33) está en la red PRIVADA de la CUN** → lo que automatice el pipeline **tiene que correr DENTRO de esa red**.
+- **Cloud Run NO sirve para el pipeline**: corre en Google Cloud (fuera de la red CUN) y no llega a la IP privada del SQL. (Cloud Run sí es ideal para el **backend**, que lee BigQuery, no SQL.) Solo funcionaría con un Cloud VPN/VPC connector a la red CUN — improbable tras la auditoría de seguridad.
+- **Opciones reales de automatización:**
+  1. ⭐ **Airflow (Santamaría)** — corre en la red CUN, tiene acceso nativo al SQL, ya lo están montando. Nuestro `subir_datos.py` se puede agregar como un `PythonOperator`/`BashOperator` que corra tras dejar los datos en SQL. **Vía elegida** — Diego coordina con Santamaría.
+  2. **PC/servidor fijo en la red CUN** con `registrar_tarea.ps1` (tarea Windows) — funciona pero frágil (depende de que el PC esté encendido y en la red).
+- **Para la automatización usar `MODELO_HABLANTES=gpt-4o-mini`** (costo ~$3/corrida vs ~$49 con gpt-4o) y **frecuencia semanal** (la fuente se actualiza semanal, según la doc oficial del COE).
+
 ## "Ventas Cerradas" — detección poco confiable + fuente real (CRM) (verificado 2026-07-08)
 
 - **El KPI "Ventas Cerradas" del dashboard está MUY sobreestimado.** Se infiere de la transcripción con un regex débil en `detectar_resultado_llamada()` (`subir_datos.py`): marca "Venta" si aparece `procedemos|te confirmo|queda activ|...`.
