@@ -105,7 +105,7 @@ CL Tiene
 Diego tiene 4 docs oficiales de la CUN sobre la tabla `COE.LLAMADAS_CL_TIENE` y el Power BI. **Confirman** lo que reverse-engineeramos:
 - **`efectiva` ≥ 0.8 (80%)** ✅ · **`archivo` = archivo de transcripción** ✅ · **Agente = código, Cuenta = nombre** ✅ · **NLP solo con transcripción válida** ✅ · **Exclusiones: registros duplicados** ✅ (validó el dedup) · **Ventas = tabla aparte** (`DAX_Tabla_trans_ventas`: Asesor/Categoría/Valor = el CRM) ✅.
 - **Frecuencia oficial: SEMANAL** (no diaria — el `registrar_tarea.ps1` asumía 7am diario).
-- **⚠️ Posible discrepancia:** el `PALABRAS_CLTIENE.txt` es un **diccionario de palabras clave** por las 7 categorías (saludo, identificación…) y la doc dice que se detectan por **"NLP por similitud"**. PERO el notebook que revisamos (2026-07) usa **Ollama qwen2.5**. Los docs son de ~ene-2026 → probablemente el método viejo (diccionarios) que luego cambiaron a Ollama. **Confirmar con Juan** cuál usan hoy.
+- **Método de las 7 categorías HOY = Ollama** (el notebook lo confirma: `build_prompt` + `/api/generate` con `qwen2.5`). El `PALABRAS_CLTIENE.txt` (diccionario de palabras clave por categoría, "NLP por similitud") es el **método VIEJO** que reemplazaron. El notebook es la fuente de verdad de lo que corre; los docs (~ene-2026) describen el enfoque anterior.
 - Power BI de la CUN: página única, relación por ID llamada + Agente + Fecha, "no incluye ingresos ni llamadas sin transcripción".
 
 ## Arquitectura clave
