@@ -43,7 +43,8 @@ function Sidebar({ isOpen, onToggle }) {
         color: 'white',
         borderRadius: '5px',
         marginBottom: '20px',
-        fontSize: '12px'
+        fontSize: '12px',
+        colorScheme: 'dark'  // ícono del calendario (date picker) en blanco, visible sobre el fondo oscuro
     }
 
     const labelMargin = {
