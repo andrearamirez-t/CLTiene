@@ -420,10 +420,14 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - Diego ya envió el correo a Jonathan pidiéndolos (2026-07-08). Verificar con `gcloud projects get-iam-policy desarrollo-investigaciones --flatten="bindings[].members" --filter="bindings.members:diego_ojeda@cun.edu.co"`.
 - **Nota:** BigQuery/consultas funcionan (vía ADC), solo el deploy de Cloud Run está bloqueado.
 
-### Columna de venta real (de CL Tiene) — INCIERTO, "nadie sabe" aún
-- En la reunión del martes se habló de que **CL Tiene (Sergio) agregaría una columna de venta real** (+ un fix de nombres de agentes), pero **aún no está definido** cómo ni cuándo.
-- Diego preparó un mensaje para Sergio (envía 2026-07-09) explicando por qué la transcripción NO sirve para la venta y pidiendo una columna con la venta real (Sí/No o estado "Cerrado Ganado" del CRM).
-- **Si llega esa columna** → adaptar el pipeline + KPI para usarla (mejor que leer `CLTIENE_VENTAS` aparte). Mientras tanto, la fuente real conocida sigue siendo `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`).
+### Columna de venta real (de CL Tiene) — Sergio CONFIRMÓ el diagnóstico (2026-07-14)
+- Diego pidió a Sergio una columna con la venta real. **Sergio confirmó por nota de voz lo que encontramos:**
+  - **La venta muchas veces NO pasa en la llamada** — en varios casos le envían al cliente un **link de contrato** que él completa, o se leen las condiciones y se para para la autorización → el cierre queda **fuera del audio**.
+  - *"No son muchas realmente las llamadas con las que sí se generó una venta"* → confirma que el 374 (inferido) está inflado.
+  - *"eso se puede sacar"* → **el dato de venta real EXISTE y se puede extraer** (lo tienen registrado).
+  - **La venta se asocia al contrato/CLIENTE, no a una llamada puntual.**
+- **Reto de integración:** cruzar la venta ↔ llamadas por **cédula/cliente + fecha + asesor**, NO por llamada individual. Es justo la tabla `CLTIENE_VENTAS` (CRM, `Fase='Cerrado Ganado'`).
+- **Siguiente paso:** Diego propuso reunión con Juan para definir de dónde se toma la venta real (¿`CLTIENE_VENTAS`?) y cómo se cruza. La fuente real conocida sigue siendo `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'` = 959).
 
 ### ✅ RESUELTO: recuperadas ~2.630 llamadas por Cuenta NULL con COALESCE (2026-07-09)
 - El `INNER JOIN registros_unicos a ON a.cuenta = b.cuenta` descartaba las filas con `cuenta` NULL/vacía (~2.647, 5.2%).
