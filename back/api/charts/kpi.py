@@ -44,6 +44,10 @@ def kpi(filters: FilterModel):
         SELECT EXTRACT(HOUR FROM ts) h
         FROM base
         WHERE ts IS NOT NULL
+          -- Excluye ~3.9k registros con la hora del día perdida (00:00:00 exacto).
+          -- Tienen fecha pero sin time-of-day y casi todos traen transcripción, por lo que
+          -- contaminaban la moda al filtrar "Solo con transcripción" (daba Hora Pico = 00:00).
+          AND NOT (EXTRACT(HOUR FROM ts) = 0 AND EXTRACT(MINUTE FROM ts) = 0 AND EXTRACT(SECOND FROM ts) = 0)
         GROUP BY h
         ORDER BY COUNT(*) DESC
         LIMIT 1
@@ -55,8 +59,9 @@ def kpi(filters: FilterModel):
         COALESCE(SUM(CAST(efectiva AS FLOAT64)), 0) efectivas,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
 
-        FORMAT('%02d:00', (SELECT h FROM top_hora)) hora_promedio,
-        CASE
+        -- Cuando el filtro no devuelve datos, estos 3 muestran '0' (en vez de None)
+        IFNULL((SELECT FORMAT('%02d:00', h) FROM top_hora), '0') hora_promedio,
+        COALESCE(CASE
             WHEN (SELECT dia FROM top_dia) = 'Monday' THEN 'Lunes'
             WHEN (SELECT dia FROM top_dia) = 'Tuesday' THEN 'Martes'
             WHEN (SELECT dia FROM top_dia) = 'Wednesday' THEN 'Miércoles'
@@ -65,8 +70,8 @@ def kpi(filters: FilterModel):
             WHEN (SELECT dia FROM top_dia) = 'Saturday' THEN 'Sábado'
             WHEN (SELECT dia FROM top_dia) = 'Sunday' THEN 'Domingo'
             ELSE (SELECT dia FROM top_dia)
-        END AS dia_promedio,
-        (SELECT Cuenta FROM top_asesor) top_asesor,
+        END, '0') AS dia_promedio,
+        COALESCE((SELECT Cuenta FROM top_asesor), '0') top_asesor,
 
         COALESCE(ROUND(
             SAFE_DIVIDE(

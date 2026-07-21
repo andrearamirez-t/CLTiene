@@ -118,8 +118,8 @@ const Dashboard = () => {
                         { icon: <Clock size={18} />, label: 'HORA PICO', value: kpi?.hora_promedio ?? '-' },
                         { icon: <Calendar size={18} />, label: 'DÍA PICO', value: kpi?.dia_promedio ?? '-' },
                         { icon: <Trophy size={18} />, label: 'ASESOR TOP', value: kpi?.top_asesor ?? '-' },
-                        { icon: <Star size={18} />, label: 'SALUDO OK', value: kpi?.saludo ? `${kpi.saludo}%` : '-' },
-                        { icon: <Handshake size={18} />, label: 'CALIDAD LLAMADA IA', value: kpi?.calidad ? `${kpi.calidad}/100` : '-' }
+                        { icon: <Star size={18} />, label: 'SALUDO OK', value: kpi?.saludo != null ? `${kpi.saludo}%` : '-' },
+                        { icon: <Handshake size={18} />, label: 'CALIDAD PROMEDIO', value: kpi?.calidad != null ? `${kpi.calidad}/100` : '-' }
                     ].filter(Boolean).map((item, index) => (
                         <div key={index} style={{
                             backgroundColor: 'white',

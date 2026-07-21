@@ -11,6 +11,7 @@ def embudo_conversacion(filters: FilterModel):
     ),
     embudo AS (
         SELECT
+            1 orden,
             "Total llamadas" nombre,
             COUNT(*) valor,
             100.0 porcentaje
@@ -19,17 +20,7 @@ def embudo_conversacion(filters: FilterModel):
         UNION ALL
 
         SELECT
-            "Efectivas (contacto)" nombre,
-            COUNTIF(efectiva = 1.0) valor,
-            ROUND(
-                SAFE_DIVIDE(COUNTIF(efectiva = 1.0) * 100.0, COUNT(*)),
-                1
-            ) porcentaje
-        FROM base
-
-        UNION ALL
-
-        SELECT
+            2 orden,
             "Conv > 30s" nombre,
             COUNTIF(Duracion_Estimada IN ('Muy Corta', 'Corta', 'Media', 'Larga')) valor,
             ROUND(
@@ -41,6 +32,7 @@ def embudo_conversacion(filters: FilterModel):
         UNION ALL
 
         SELECT
+            3 orden,
             "Con Saludo" nombre,
             COUNTIF(saludo_inicial = 1.0) valor,
             ROUND(
@@ -52,6 +44,19 @@ def embudo_conversacion(filters: FilterModel):
         UNION ALL
 
         SELECT
+            4 orden,
+            "Contactado" nombre,
+            COUNTIF(Resultado_Llamada = "Contactado") valor,
+            ROUND(
+                SAFE_DIVIDE(COUNTIF(Resultado_Llamada = "Contactado") * 100.0, COUNT(*)),
+                1
+            ) porcentaje
+        FROM base
+
+        UNION ALL
+
+        SELECT
+            5 orden,
             "Ventas Cerradas" nombre,
             COUNTIF(Resultado_Llamada = "Venta") valor,
             ROUND(
@@ -63,4 +68,5 @@ def embudo_conversacion(filters: FilterModel):
 
     SELECT nombre, valor, CONCAT(porcentaje, "%")
     FROM embudo
+    ORDER BY orden
     """)
