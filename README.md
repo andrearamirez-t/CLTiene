@@ -74,13 +74,13 @@ CLTiene/
 | KPI | Campo BigQuery | Descripción |
 |-----|---------------|-------------|
 | TOTAL LLAMADAS | `COUNT(*)` | Todas las llamadas en el período |
-| LLAMADAS EFECTIVAS | `SUM(efectiva)` | `efectiva` = score de calidad ≥80% de la CUN (⚠️ NO es venta) |
-| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Ventas detectadas por transcripción. Se oculta con filtro Servicio |
-| HORA PICO | `AVG(timestamp)` | Hora promedio de mayor actividad |
+| LLAMADAS DE CALIDAD | `SUM(efectiva)` | `efectiva` = score de calidad ≥80% de la CUN (⚠️ NO es venta). Antes "Llamadas Efectivas" |
+| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Inferido por transcripción → **inflado** (fuente real pendiente: Zoho). Se oculta con filtro Servicio |
+| HORA PICO | `moda (hora con más llamadas)` | Hora de mayor actividad. Excluye registros con `00:00:00` exacto (fecha sin hora) |
 | DÍA PICO | `GROUP BY día` | Día con más llamadas |
 | ASESOR TOP | `ORDER BY COUNT DESC` | Asesor con más llamadas |
 | SALUDO OK | `AVG(saludo_inicial)` | % de llamadas con `saludo_inicial = 1` (dato CUN) |
-| CALIDAD LLAMADA IA | Promedio 7 métricas | Score 0–100 calculado sobre métricas de calidad |
+| CALIDAD PROMEDIO | Promedio 7 métricas | Score 0–100 sobre las llamadas evaluadas (antes "Calidad Llamada IA") |
 
 > **Nota:** `saludo_inicial` (CUN) y `Saludo_Completo` (pipeline) son campos distintos.
 > El KPI y el embudo usan `saludo_inicial` para ser coherentes entre sí.

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Informe de Sesión — CLTiene Dashboard · 14–15 Jul 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; font-size: 11px; color: #1e293b; background: #fff; line-height: 1.6; }
+
+  .cover {
+    width: 100%; min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 60px 40px; page-break-after: always;
+    position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: ''; position: absolute; top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(252,50,118,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: ''; position: absolute; bottom: -80px; right: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .cover-badge {
+    background: rgba(252,50,118,0.15); border: 1px solid rgba(252,50,118,0.4);
+    color: #FC3276; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; padding: 6px 18px; border-radius: 20px;
+    margin-bottom: 32px; z-index: 1;
+  }
+  .cover-logo-text { font-size: 52px; font-weight: 800; color: white; letter-spacing: -1px; z-index: 1; margin-bottom: 8px; }
+  .cover-logo-text span { color: #FC3276; }
+  .cover-subtitle { font-size: 16px; color: #94a3b8; font-weight: 400; margin-bottom: 48px; z-index: 1; }
+  .cover-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #FC3276, #818cf8); border-radius: 2px; margin: 0 auto 48px; z-index: 1; }
+  .cover-title { font-size: 28px; font-weight: 700; color: white; line-height: 1.3; max-width: 600px; margin-bottom: 16px; z-index: 1; }
+  .cover-description { font-size: 13px; color: #94a3b8; max-width: 500px; line-height: 1.7; margin-bottom: 60px; z-index: 1; }
+  .cover-meta { display: flex; gap: 40px; z-index: 1; flex-wrap: wrap; justify-content: center; }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; color: #cbd5e1; font-weight: 500; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 48px 56px; }
+
+  .section { margin-bottom: 40px; page-break-inside: avoid; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+  .section-number {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #FC3276, #db2777);
+    color: white; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+
+  .subsection { margin-bottom: 20px; }
+  .subsection-title { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 8px; }
+  thead tr { background: #0f172a; }
+  thead th { color: white; font-weight: 600; padding: 9px 12px; text-align: left; font-size: 10px; letter-spacing: 0.3px; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:nth-child(odd) { background: #fff; }
+  tbody td { padding: 8px 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .cards-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+  .card-label { font-size: 9px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-value { font-size: 18px; font-weight: 800; color: #0f172a; }
+  .card-sub { font-size: 9.5px; color: #64748b; margin-top: 4px; }
+
+  .fix-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .fix-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .fix-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .fix-text { font-size: 11px; color: #334155; line-height: 1.5; }
+  .fix-text strong { color: #0f172a; font-weight: 600; }
+  .fix-text code { font-family: 'Courier New', monospace; font-size: 10px; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; color: #be123c; }
+  .fix-item.ok { background: #f0fdf4; border-color: #bbf7d0; }
+  .fix-item.fix { background: #fff7ed; border-color: #fed7aa; }
+  .fix-item.feature { background: #fdf4ff; border-color: #e9d5ff; }
+  .fix-item.data { background: #eff6ff; border-color: #bfdbfe; }
+
+  .before-after { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .badge-red { background: #fee2e2; color: #dc2626; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-arrow { color: #94a3b8; font-size: 12px; }
+
+  .code-block { background: #0f172a; border-radius: 8px; padding: 14px 16px; margin: 8px 0; overflow-x: auto; }
+  .code-block code { font-family: 'Courier New', monospace; font-size: 10px; color: #cbd5e1; white-space: pre; }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
+  .chip-done { background: #dcfce7; color: #15803d; }
+  .chip-pending { background: #fff7ed; color: #c2410c; }
+  .chip-fix { background: #eff6ff; color: #1d4ed8; }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: flex; gap: 16px; }
+  .timeline-line { display: flex; flex-direction: column; align-items: center; }
+  .timeline-dot { width: 10px; height: 10px; background: #FC3276; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .timeline-connector { width: 2px; background: #f1f5f9; flex: 1; min-height: 20px; }
+  .timeline-content { padding-bottom: 20px; flex: 1; }
+  .timeline-label { font-size: 10px; font-weight: 600; color: #FC3276; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .timeline-desc { font-size: 11px; color: #475569; line-height: 1.5; }
+
+  .callout { border-left: 4px solid #FC3276; background: linear-gradient(90deg, #fff5f9 0%, transparent 90%); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 11px; color: #475569; line-height: 1.6; }
+  .callout strong { color: #0f172a; }
+  .callout code { font-family: 'Courier New', monospace; font-size: 10px; background: #fce7f0; padding: 1px 4px; border-radius: 3px; color: #be123c; }
+
+  .footer { border-top: 1px solid #f1f5f9; margin-top: 60px; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 9.5px; }
+
+  @media print {
+    .cover { min-height: 100vh; }
+    .page { padding: 32px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <div class="cover-badge">Informe de Sesión de Desarrollo</div>
+  <div class="cover-logo-text">CL<span>Tiene</span></div>
+  <div class="cover-subtitle">Dashboard Analytics · DivergencyAI SAS</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">Despliegue en Producción, Verificación de Datos<br>y Definición de la Fuente Real de Ventas</div>
+  <div class="cover-description">
+    Desbloqueo de los permisos GCP tras la auditoría de la CUN y despliegue del backend con los
+    KPIs corregidos, verificación de los asesores con datos cortados, y reunión estratégica que
+    define de dónde se tomará la venta real (Zoho) para reemplazar la inferencia inflada.
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Fecha</div>
+      <div class="cover-meta-value">14–15 Jul 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Backend</div>
+      <div class="cover-meta-value">Desplegado · rev 00113</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">KPIs corregidos</div>
+      <div class="cover-meta-value">2</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Permisos GCP</div>
+      <div class="cover-meta-value">Resueltos</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Reunión clave</div>
+      <div class="cover-meta-value">Ventas</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="page">
+
+  <!-- 1. Resumen ejecutivo -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title">Resumen Ejecutivo</div>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Backend en producción</div>
+        <div class="card-value">rev 00113</div>
+        <div class="card-sub">Cloud Run sirviendo 100% del tráfico</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Asesores cortados reales</div>
+        <div class="card-value">1</div>
+        <div class="card-sub">Solo Edwin — el resto es rotación</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Fuente de ventas definida</div>
+        <div class="card-value">Zoho</div>
+        <div class="card-sub">Columna venta al Excel semanal</div>
+      </div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7;">
+      Se destrabó el despliegue del backend, bloqueado desde la auditoría de seguridad de la CUN, y
+      se desplegaron las correcciones de KPIs (Hora Pico y Calidad IA) y de las gráficas de
+      efectividad. Se verificó que, de los 9 asesores activos, <strong>solo Edwin Cendales</strong>
+      tiene datos cortados (los demás cortes son rotación de personal, no un bug). Y en la
+      <strong>reunión de ventas del 15 de julio</strong> se definió que la venta real se marcará en
+      el origen (Zoho / <code>Cerrado Ganado</code>) y llegará como columna al dashboard, reemplazando
+      la inferencia por transcripción que sobreestimaba las ventas.
+    </p>
+  </div>
+
+  <!-- 2. Despliegue del backend -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title">Despliegue del Backend — Desbloqueo GCP</div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7; margin-bottom:14px;">
+      La auditoría de seguridad de la CUN había retirado el rol <em>Owner</em> y dejado permisos
+      granulares que impedían desplegar. El despliegue se destrabó en <strong>dos capas</strong>:
+    </p>
+    <ul class="fix-list">
+      <li class="fix-item ok">
+        <div class="fix-icon">🔑</div>
+        <div class="fix-text">
+          <strong>Capa 1 — Permiso personal de Diego</strong><br>
+          El deploy fallaba por <code>serviceusage.services.use</code> (lo traía el rol <em>Editor</em>,
+          que la política de la CUN no permite). Jonathan asignó el rol mínimo equivalente
+          <code>roles/serviceusage.serviceUsageConsumer</code>. Verificado empíricamente vía
+          <code>testIamPermissions</code>: los 8 permisos críticos quedaron completos.
+        </div>
+      </li>
+      <li class="fix-item fix">
+        <div class="fix-icon">🏗️</div>
+        <div class="fix-text">
+          <strong>Capa 2 — Cuenta de servicio de Compute (no de Diego)</strong><br>
+          El build falló con <code>403: 293865702055-compute@…storage.objects.get</code> sobre el bucket
+          <code>run-sources-…</code>: la auditoría dejó a la SA que Cloud Build usa <strong>sin acceso de
+          Storage</strong>. <strong>Fix self-service</strong> (Diego tiene <code>storage.buckets.setIamPolicy</code>):
+          se le concedió <code>roles/storage.objectViewer</code> <em>solo sobre ese bucket</em> — sin
+          molestar de nuevo al administrador.
+          <div class="before-after">
+            <span class="badge badge-red">PERMISSION_DENIED en el build</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">Deploy 100% completado</span>
+          </div>
+        </div>
+      </li>
+      <li class="fix-item ok">
+        <div class="fix-icon">🚀</div>
+        <div class="fix-text">
+          <strong>Resultado</strong><br>
+          Revisión <code>cltiene-backend-00113-r7j</code> desplegada y sirviendo 100% del tráfico en
+          <code>us-central1</code>. Verificado en vivo con un ping a <code>/api/kpi</code>.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 3. Correcciones desplegadas -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title">Correcciones Desplegadas (verificadas en vivo)</div>
+    </div>
+    <ul class="fix-list">
+      <li class="fix-item fix">
+        <div class="fix-icon">🕐</div>
+        <div class="fix-text">
+          <strong>Hora Pico — promedio de timestamps → moda real</strong><br>
+          Mostraba el <code>AVG</code> de las horas (siempre ~16:08, media tarde). Ahora usa la
+          <strong>moda</strong> (la hora con más llamadas) vía un CTE <code>top_hora</code>, respetando filtros.
+          <div class="before-after">
+            <span class="badge badge-red">16:08 (promedio)</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">11:00 (moda real)</span>
+          </div>
+        </div>
+      </li>
+      <li class="fix-item fix">
+        <div class="fix-icon">⭐</div>
+        <div class="fix-text">
+          <strong>Calidad IA — diluida por llamadas sin transcripción</strong><br>
+          Promediaba las 7 métricas sobre las ~39k <em>incluyendo el ~64% sin transcripción</em> (métricas=0),
+          dando un valor irrealmente bajo. Ahora promedia <strong>solo sobre las llamadas evaluadas</strong>.
+          <div class="before-after">
+            <span class="badge badge-red">~14 (diluida)</span>
+            <span class="badge-arrow">→</span>
+            <span class="badge badge-green">32.2 (real)</span>
+          </div>
+        </div>
+      </li>
+      <li class="fix-item fix">
+        <div class="fix-icon">📈</div>
+        <div class="fix-text">
+          <strong>Gráficas "% Efectivas" — usaban la venta inflada</strong><br>
+          Tres gráficas de Inteligencia Operativa (por hora, por día y duración vs efectividad)
+          calculaban <code>ventas/total</code> pero se etiquetaban "% Efectivas". Cambiadas a
+          <code>SUM(CAST(efectiva AS FLOAT64))/total</code> → ahora muestran la efectividad real
+          (score de calidad) coherente con su etiqueta.
+        </div>
+      </li>
+      <li class="fix-item ok">
+        <div class="fix-icon">🧹</div>
+        <div class="fix-text">
+          <strong>Código muerto eliminado</strong><br>
+          Se borró <code>rendimiento_hora.py</code> y su endpoint <code>/api/rendimiento_hora</code>
+          (no lo consumía el frontend; la gráfica real usa <code>x_rendimiento_hora</code>). Verificado
+          que no quedaran imports rotos antes de desplegar.
+        </div>
+      </li>
+      <li class="fix-item feature">
+        <div class="fix-icon">🏷️</div>
+        <div class="fix-text">
+          <strong>"Llamadas Efectivas" → "Llamadas de Calidad"</strong><br>
+          Renombrada la tarjeta del dashboard: <code>efectiva</code> es un score de calidad ≥80%,
+          no contacto efectivo — el nombre anterior confundía las dos cosas.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 4. Verificación de datos -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title">Verificación de Datos — Asesores Cortados</div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7; margin-bottom:12px;">
+      Al filtrar por fechas recientes, varios asesores no aparecían en el dropdown (que solo lista a
+      quienes tienen llamadas en el rango seleccionado). Se cruzó la lista de <strong>asesores activos
+      que dio Sergio (30-jun)</strong> contra la última fecha de datos de cada uno:
+    </p>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Asesores activos</div>
+        <div class="card-value">9</div>
+        <div class="card-sub">5 Servicio · 4 Ventas</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Con datos al día (jul)</div>
+        <div class="card-value">8</div>
+        <div class="card-sub">Sin problema</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Cortados (activos)</div>
+        <div class="card-value">1</div>
+        <div class="card-sub">Edwin Cendales (feb-05)</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Conclusión:</strong> NO hay un problema sistémico de carpetas. El único asesor activo con
+      datos cortados es <strong>Edwin Cendales</strong> (su carpeta en el origen se llama <code>ecendales</code>
+      y no <code>agenteN</code>, por eso el STT no la procesa). Los demás "cortados" (Jenifer, Dayana,
+      Marjorie, etc.) <strong>ya no trabajan</strong> → su corte es rotación normal, no un bug.
+      Único pendiente para CL Tiene: renombrar la carpeta de Edwin.
+    </div>
+  </div>
+
+  <!-- 5. Reunión de ventas -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title">Reunión de Ventas — Fuente Real (15 Jul)</div>
+    </div>
+    <p style="font-size:11px; color:#475569; line-height:1.7; margin-bottom:12px;">
+      Reunión de 37 min con los 5 actores: <strong>Fabián Forero</strong> (DivergencyAI),
+      <strong>Juan Garnica</strong> y <strong>Juan Manuel Marín</strong> (CUN/COE),
+      <strong>Sergio Nieto</strong> (CL Tiene) y Diego. El objetivo: corregir el KPI de ventas, que hoy
+      se infiere de la transcripción y sale muy inflado.
+    </p>
+
+    <div class="subsection-title">Decisión principal</div>
+    <ul class="fix-list" style="margin-bottom:16px;">
+      <li class="fix-item ok">
+        <div class="fix-icon">✅</div>
+        <div class="fix-text">
+          <strong>Sergio agrega 3 columnas al Excel semanal:</strong> (1) <strong>venta sí/no</strong>
+          (marca si esa llamada cerró venta), (2) <strong>ID de negociación / Zoho</strong>,
+          (3) <strong>identificación (cédula)</strong> del cliente. Flujo: Sergio marca → Juan Manuel la
+          mete como variable en la base de datos → Diego la toma para el dashboard.
+          <strong>Reemplaza la inferencia por regex</strong>.
+        </div>
+      </li>
+    </ul>
+
+    <div class="subsection-title">Matices y hallazgos clave</div>
+    <ul class="fix-list">
+      <li class="fix-item data">
+        <div class="fix-icon">📝</div>
+        <div class="fix-text">
+          <strong>La venta es la llamada de CIERRE, no toda la negociación.</strong> El cierre real
+          ocurre por firma virtual (link de contrato) o llamada grabada que se marca
+          <code>Cerrado Ganado</code> en Zoho. Sergio: "no son muchas realmente" (~10–15/mes) →
+          confirma que el conteo inferido está muy inflado.
+        </div>
+      </li>
+      <li class="fix-item data">
+        <div class="fix-icon">🧪</div>
+        <div class="fix-text">
+          <strong>Zoho tiene registros de PRUEBA</strong> que inflan su propio reporte; la marcación
+          manual de Sergio en el Excel debería venir limpia.
+        </div>
+      </li>
+      <li class="fix-item fix">
+        <div class="fix-icon">🔗</div>
+        <div class="fix-text">
+          <strong>~40% de las llamadas se pierden en el cruce (upstream).</strong> Juan Manuel enlaza
+          audio↔Excel con una llave de 3 variables (agente + celular + fecha) y solo cruza ~60%.
+          Propone cambiar a una <strong>llave única (el "punto wat"/WAP)</strong> → cruce más confiable.
+          Explica huecos de datos observados.
+        </div>
+      </li>
+      <li class="fix-item data">
+        <div class="fix-icon">📅</div>
+        <div class="fix-text">
+          <strong>Frecuencia semanal (lunes) con fecha fija de corte.</strong> Datos actualizados al
+          2-jul. Fabián dejó claro que la actualización quincenal no sirve: el dashboard alimenta
+          servicio y formación, no solo ventas.
+        </div>
+      </li>
+      <li class="fix-item feature">
+        <div class="fix-icon">⚙️</div>
+        <div class="fix-text">
+          <strong>Automatización (largo plazo).</strong> Directriz CUN: eliminar los Excel → todo a base
+          de datos + Airflow. Ya existe extracción automática desde ContactVox, pero su estructura no
+          coincide con la que Sergio arma a mano; falta reunión con S3/Oscar para alinearla y para que
+          la cédula venga desde el origen.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 6. Pendientes -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title">Pendientes para Próxima Sesión</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Pendiente</th>
+          <th>Responsable</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Leer la columna <code>venta</code> real en el pipeline (reemplazar el regex)</td>
+          <td>Diego / DivergencyAI</td>
+          <td><span class="chip chip-pending">ESPERA DATO</span></td>
+        </tr>
+        <tr>
+          <td>Agregar columnas venta + zoho id + cédula al Excel semanal</td>
+          <td>Sergio (CL Tiene)</td>
+          <td><span class="chip chip-pending">PENDIENTE</span></td>
+        </tr>
+        <tr>
+          <td>Meter la columna venta a la BD + cambiar el cruce a llave única (WAP)</td>
+          <td>Juan Manuel (CUN)</td>
+          <td><span class="chip chip-pending">PENDIENTE</span></td>
+        </tr>
+        <tr>
+          <td>Reunión con S3/Oscar para alinear estructura y cédula en el origen</td>
+          <td>Fabián / Diego</td>
+          <td><span class="chip chip-pending">POR AGENDAR</span></td>
+        </tr>
+        <tr>
+          <td>Renombrar la carpeta de Edwin (<code>ecendales</code> → <code>agenteN</code>)</td>
+          <td>CL Tiene</td>
+          <td><span class="chip chip-pending">PENDIENTE</span></td>
+        </tr>
+        <tr>
+          <td>Migración a Airflow (eliminar Excel intermedios)</td>
+          <td>Santamaría / CUN</td>
+          <td><span class="chip chip-pending">EN CURSO</span></td>
+        </tr>
+        <tr>
+          <td>Mejora del STT (large-v3, beam_size, VAD)</td>
+          <td>Juan Manuel (CUN)</td>
+          <td><span class="chip chip-pending">EN CURSO</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>CLTiene Dashboard · DivergencyAI SAS</span>
+    <span>Informe de Sesión — 14–15 de Julio de 2026</span>
+    <span>Confidencial</span>
+  </div>
+
+</div>
+</body>
+</html>

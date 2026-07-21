@@ -354,7 +354,7 @@
 
 <!-- ═══════════════════════════════ PORTADA ═══════════════════════════════ -->
 <div class="cover">
-  <div class="cover-badge">Informe Técnico · Versión 3.1</div>
+  <div class="cover-badge">Informe Técnico · Versión 3.2</div>
   <div class="cover-logo-text"><span>CL</span>TIENE</div>
   <div class="cover-subtitle">Soluciones</div>
   <div class="cover-divider"></div>
@@ -369,15 +369,15 @@
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Versión pipeline</div>
-      <div class="cover-meta-value">V4 · Prompt v15</div>
+      <div class="cover-meta-value">V4 · Prompt v16 · gpt-4o</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Llamadas procesadas</div>
-      <div class="cover-meta-value">37,879</div>
+      <div class="cover-meta-value">39,916</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Fecha</div>
-      <div class="cover-meta-value">25 de Junio 2026</div>
+      <div class="cover-meta-value">15 de Julio 2026</div>
     </div>
   </div>
 </div>
@@ -395,13 +395,13 @@
     <div class="cards-grid">
       <div class="card">
         <div class="card-label">Llamadas procesadas</div>
-        <div class="card-value">37,879</div>
+        <div class="card-value">39,916</div>
         <div class="card-desc">Historial completo en BigQuery</div>
       </div>
       <div class="card accent">
         <div class="card-label">Asesores activos</div>
-        <div class="card-value">6+</div>
-        <div class="card-desc">Con datos analizados</div>
+        <div class="card-value">9</div>
+        <div class="card-desc">5 Servicio · 4 Ventas (lista Sergio 30-jun)</div>
       </div>
       <div class="card green">
         <div class="card-label">Módulos IA</div>
@@ -434,7 +434,7 @@
         <tr><td>Frontend</td><td>React 19 + Vite 7</td><td>SPA con Context API para filtros globales</td></tr>
         <tr><td>Backend</td><td>Python 3.11 + FastAPI</td><td>~50 endpoints REST con FilterModel (Pydantic)</td></tr>
         <tr><td>Base de datos</td><td>Google BigQuery</td><td>Tabla <code>cltiene_llamadas_procesadas</code></td></tr>
-        <tr><td>IA / LLM</td><td>OpenAI GPT-4o-mini</td><td>Análisis de texto, coaching, reportes</td></tr>
+        <tr><td>IA / LLM</td><td>OpenAI gpt-4o + gpt-4o-mini</td><td>gpt-4o para detección de hablantes; gpt-4o-mini para reportes. 2 API keys con balanceo/failover</td></tr>
         <tr><td>Hosting backend</td><td>Google Cloud Run</td><td>Servicio <code>cltiene-backend</code> (us-central1)</td></tr>
         <tr><td>Hosting frontend</td><td>Firebase Hosting</td><td>cltiene-dashboard.web.app</td></tr>
         <tr><td>Fuente de datos</td><td>SQL Server 2019 (CUN)</td><td>172.16.1.33 — Windows Auth</td></tr>
@@ -467,12 +467,12 @@
       <div class="flow-step">
         <div class="flow-step-icon">⚙️</div>
         <div class="flow-step-label">subir_datos.py</div>
-        <div class="flow-step-sub">Pipeline V4<br/>37,879 filas</div>
+        <div class="flow-step-sub">Pipeline V4<br/>39,916 filas</div>
       </div>
       <div class="flow-step">
         <div class="flow-step-icon">🔬</div>
         <div class="flow-step-label">Procesamiento</div>
-        <div class="flow-step-sub">OpenAI v15 +<br/>cache incremental</div>
+        <div class="flow-step-sub">OpenAI v16 · gpt-4o<br/>cache incremental</div>
       </div>
       <div class="flow-step">
         <div class="flow-step-icon">☁️</div>
@@ -487,7 +487,7 @@
     </div>
 
     <div class="highlight">
-      <p><strong>Automatización:</strong> El script <code>subir_datos.py</code> se ejecuta diariamente a las 7:00 AM mediante el Programador de Tareas de Windows (<code>registrar_tarea.ps1</code>). Los logs quedan en <code>back/subir_datos.log</code>.</p>
+      <p><strong>Automatización:</strong> El pipeline corre con <strong>frecuencia semanal</strong> (la fuente se actualiza cada semana). Debe ejecutarse <strong>dentro de la red privada de la CUN</strong> — el SQL Server (172.16.1.33) no es accesible desde Cloud Run. Vía definida: <strong>Airflow</strong> (lo monta el equipo de la CUN); alternativa provisional: tarea de Windows en un PC dentro de la red. Logs en <code>back/subir_datos.log</code>.</p>
     </div>
 
     <div class="subsection">
@@ -621,13 +621,13 @@
         </thead>
         <tbody>
           <tr><td>Total Llamadas</td><td><code>COUNT(*)</code></td><td>–</td></tr>
-          <tr><td>Llamadas Efectivas</td><td><code>SUM(efectiva)</code></td><td>Score calidad ≥80% (CUN) — no es venta</td></tr>
-          <tr><td>Ventas Cerradas</td><td><code>Resultado_Llamada = 'Venta'</code></td><td>Oculto con filtro Servicio</td></tr>
-          <tr><td>Hora Pico</td><td><code>AVG(timestamp)</code></td><td>–</td></tr>
+          <tr><td>Llamadas de Calidad</td><td><code>SUM(efectiva)</code></td><td>Score calidad ≥80% (CUN) — no es venta. Antes "Llamadas Efectivas"</td></tr>
+          <tr><td>Ventas Cerradas</td><td><code>Resultado_Llamada = 'Venta'</code></td><td>Inferido por regex → <strong>inflado</strong>. Fuente real pendiente: Zoho (ver secc. 13). Oculto con filtro Servicio</td></tr>
+          <tr><td>Hora Pico</td><td><code>moda (hora con más llamadas)</code></td><td>Antes era <code>AVG</code> (daba ~16:08). Corregido a la moda</td></tr>
           <tr><td>Día Pico</td><td><code>GROUP BY día</code></td><td>–</td></tr>
           <tr><td>Asesor Top</td><td><code>ORDER BY COUNT DESC</code></td><td>–</td></tr>
           <tr><td>Saludo OK</td><td><code>AVG(saludo_inicial)</code></td><td>Campo CUN (0/1)</td></tr>
-          <tr><td>Calidad Llamada IA</td><td>Promedio 7 métricas</td><td>Score 0–100</td></tr>
+          <tr><td>Calidad Promedio</td><td>Promedio 7 métricas</td><td>Score 0–100 — solo sobre llamadas con transcripción evaluada. Antes "Calidad Llamada IA"</td></tr>
         </tbody>
       </table>
     </div>
@@ -915,11 +915,12 @@ SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
     </div>
 
     <div class="subsection">
-      <div class="subsection-title">Pipeline de datos (desde PC con sesión CUN)</div>
-      <div class="code"><span class="comment"># Ejecución manual</span>
+      <div class="subsection-title">Pipeline de datos (dentro de la red CUN · semanal)</div>
+      <div class="code"><span class="comment"># Ejecución manual (frecuencia semanal)</span>
 <span class="keyword">python</span> back/subir_datos.py
 
-<span class="comment"># Registrar tarea automática diaria (como Administrador)</span>
+<span class="comment"># Automatización definida: Airflow (equipo CUN, dentro de la red).</span>
+<span class="comment"># Alternativa provisional: tarea Windows en un PC dentro de la red.</span>
 <span class="keyword">.\back\registrar_tarea.ps1</span></div>
     </div>
 
@@ -931,9 +932,10 @@ SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
         </thead>
         <tbody>
           <tr><td><code>OPENAI_API_MUNDIAL</code></td><td>API key de OpenAI (Secret Manager)</td></tr>
+          <tr><td><code>OPENAI_API_MUNDIAL_2</code></td><td>Segunda API key opcional — balanceo/failover entre las dos</td></tr>
           <tr><td><code>GOOGLE_CLOUD_PROJECT</code></td><td>ID del proyecto GCP</td></tr>
           <tr><td><code>MAX_TOKENS</code></td><td>Máximo tokens por respuesta IA (default: 4000)</td></tr>
-          <tr><td><code>MODEL</code></td><td>Modelo OpenAI (default: gpt-4o-mini)</td></tr>
+          <tr><td><code>MODELO_HABLANTES</code></td><td>Modelo para detección de hablantes (default: gpt-4o; override a gpt-4o-mini)</td></tr>
         </tbody>
       </table>
     </div>
@@ -1169,10 +1171,64 @@ efectiva = <span class="keyword">1 if</span> puntaje >= 0.8 <span class="keyword
     </div>
   </div>
 
+  <!-- ─── 13. ACTUALIZACIONES — 14–15 Jul 2026 ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">13</div>
+      <div class="section-title">Actualizaciones — 14–15 Jul 2026</div>
+    </div>
+
+    <div class="subsection-title">Despliegue de correcciones (backend rev. 00113-r7j)</div>
+    <table>
+      <thead>
+        <tr><th>Mejora</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>KPI Hora Pico — moda</strong></td>
+          <td><code>back/api/charts/kpi.py</code></td>
+          <td>Antes mostraba el <code>AVG</code> de los timestamps (~16:08). Ahora usa la moda (CTE <code>top_hora</code>): la hora con más llamadas. En vivo: 11:00.</td>
+        </tr>
+        <tr>
+          <td><strong>KPI Calidad IA — solo evaluadas</strong></td>
+          <td><code>back/api/charts/kpi.py</code></td>
+          <td>Antes promediaba las 7 métricas sobre las ~40k incluyendo el ~64% sin transcripción (métricas=0). Ahora solo sobre las evaluadas → ~32 en vez de ~14.</td>
+        </tr>
+        <tr>
+          <td><strong>Gráficas "% Efectivas"</strong></td>
+          <td><code>back/api/routes.py</code></td>
+          <td>3 gráficas de Inteligencia calculaban <code>ventas/total</code> pero se etiquetaban "% Efectivas". Cambiadas a <code>SUM(CAST(efectiva AS FLOAT64))/total</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Renombre + código muerto</strong></td>
+          <td><code>Dashboard.jsx</code>, <code>routes.py</code></td>
+          <td>"Llamadas Efectivas" → "Llamadas de Calidad" (mide calidad, no contacto). Eliminado <code>rendimiento_hora.py</code> y su endpoint (sin uso en el frontend).</td>
+        </tr>
+        <tr>
+          <td><strong>Datos recuperados — COALESCE(Cuenta, Agente)</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td>~2.630 llamadas se descartaban por <code>Cuenta</code> NULL. Con COALESCE la tabla pasó a <strong>39.916 filas</strong> (Edwin Cendales 0 → 482).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:20px;">Fuente real de ventas — definida (reunión 15-jul)</div>
+    <div class="highlight">
+      <p>El KPI "Ventas Cerradas" inferido por regex está <strong>muy inflado</strong> (el cierre real ocurre fuera del audio: link de contrato / firma virtual). Se definió que la venta real vendrá de <strong>Zoho</strong> (CRM, tabla <code>CLTIENE_VENTAS</code>, <code>Fase='Cerrado Ganado'</code>): Sergio agregará al Excel semanal las columnas <strong>venta (sí/no)</strong>, <strong>ID de negociación/Zoho</strong> y <strong>cédula</strong>; Juan Manuel las mete a la BD y el pipeline leerá la columna real en vez del regex. Ventas reales ~10–15/mes.</p>
+    </div>
+
+    <div class="subsection-title" style="margin-top:16px;">Notas de infraestructura</div>
+    <ul style="font-size:10.5px; color:#334155; line-height:1.8; padding-left:18px;">
+      <li><strong>Permisos GCP resueltos:</strong> tras la auditoría de la CUN se restauraron los roles para desplegar Cloud Run (incl. <code>serviceUsageConsumer</code>) y se dio acceso de lectura a la SA de Compute sobre el bucket de fuentes.</li>
+      <li><strong>Cruce audio↔Excel:</strong> hoy usa una llave de 3 variables y pierde ~40% de las llamadas; Juan Manuel migrará a una llave única (WAP) — mejora upstream.</li>
+      <li><strong>Frecuencia semanal + Airflow:</strong> la subida debe correr dentro de la red CUN; Cloud Run no alcanza el SQL privado.</li>
+    </ul>
+  </div>
+
   <!-- ─── FOOTER ─── -->
   <div class="footer">
     <div class="footer-brand">Desarrollado por <strong>DivergencyAI SAS</strong> · contacto@divergencyai.com</div>
-    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 2 Jul 2026 · v3.1</div>
+    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 15 Jul 2026 · v3.2</div>
   </div>
 
 </div>

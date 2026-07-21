@@ -231,6 +231,22 @@ npm run build
 firebase deploy --only hosting:cltiene-dashboard
 ```
 
+## Cuándo sacar un informe de sesión (criterio, definido 2026-07-15)
+
+Dos ritmos distintos, no confundir:
+- **Bitácora (nota semanal en el Tablero de trabajo de Diego):** SEMANAL, ligera ("en qué trabajé esta semana").
+- **Informe de sesión (HTML formal, `informe_sesion_YYYY-MM-DD.html`):** POR HITO, no por calendario. En la práctica sale ~cada 2-3 semanas.
+
+Sacar el informe formal SOLO cuando pase algo que se le mostraría a Fabián (jefe) y valga la pena documentar:
+- Un **despliegue** a producción · un **lote de fixes/features** importante · una **reunión clave** con decisiones · un **cambio de dirección**.
+- Si en 2 semanas no pasó nada de eso, NO forzarlo — la bitácora semanal cubre el registro.
+- **TODOS los informes deben ser coherentes entre sí** (es la serie de DivergencyAI para CL Tiene):
+  - **Mismo diseño:** plantilla de `informe_sesion_2026-06-25.html` (portada oscura, acento `#FC3276`, logo `CL<span>Tiene</span>`, secciones numeradas, `fix-list` por color, tabla, footer "Confidencial"). Reusar el mismo CSS tal cual.
+  - **Misma estructura:** Resumen ejecutivo (cards) → secciones numeradas → Archivos/Pendientes. Nombre `informe_sesion_YYYY-MM-DD.html`.
+  - **Datos consistentes:** las cifras y hechos NO deben contradecir informes anteriores ni el CLAUDE.md (ej. `efectiva` = score de calidad, ventas inferidas infladas, total de filas). Si un dato cambió, reflejar el antes→después, no re-escribir la historia.
+  - Antes de crear uno nuevo, revisar el informe anterior para heredar estilo y no repetir/contradecir.
+- Próximo disparador natural: cuando se integre la **columna de venta real** (reemplazar el regex) — habrá un antes/después claro.
+
 ## Fixes importantes ya aplicados
 
 - `translate="no"` en `<html>` (evita barra de Google Translate que interfiere con React)
@@ -377,9 +393,49 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **`te confirmo` es el culpable** (78% de las 374 "ventas" lo contienen): se usa muchísimo para confirmar **teléfonos, nombres y visitas de médico a domicilio** (servicio), no ventas.
 - **Validación (2026-07-08):** de 40 "ventas" muestreadas → regex estricto deja 5%, IA (gpt-4o-mini) deja **0%**. Incluso las 9 que mencionan el precio $33.900 → la IA dice NO (son *pitches*, no cierres). El 78% mencionan médico/domicilio = son llamadas de **servicio**, no ventas.
 - **Conclusión:** inferir la venta desde la transcripción NO es confiable (ni regex ni IA) porque el cierre real rara vez queda en el texto (y el STT lo corta).
-- **FUENTE REAL DE VENTAS = tabla `coe.CLTIENE_VENTAS`** (SQL Server CUN): es el **CRM (HubSpot)** de negociaciones (14.342 deals), con columna **`Fase`**. Las ventas reales = **`Fase = 'Cerrado Ganado'` = 959** (histórico ~ago-2023 a may-2026). Tiene `Importe`, `Fecha de cierre`, `Propietario de Negociación`, `Identificación`, `Correo`, etc.
+- **FUENTE REAL DE VENTAS = tabla `coe.CLTIENE_VENTAS`** (SQL Server CUN): es el **CRM (Zoho)** de negociaciones (14.342 deals), con columna **`Fase`**. Las ventas reales = **`Fase = 'Cerrado Ganado'` = 959** (histórico ~ago-2023 a may-2026). Tiene `Importe`, `Fecha de cierre`, `Propietario de Negociación`, `Identificación`, `Correo`, etc. Los IDs de negociación empiezan por `zom_...` (Zoho).
 - Esta tabla es **SEPARADA del pipeline de Juan** (el notebook solo maneja `CLTIENE_LLAMADAS`; nunca toca `CLTIENE_VENTAS`). La mantiene el **lado BI (David Cerón)** desde el CRM; alimenta el Power BI de la CUN.
 - **Pendiente / recomendación:** el dashboard debería tomar "Ventas Cerradas" de `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`), no de la inferencia por transcripción. Reto: cruzar CRM ↔ llamadas por cédula (`Identificación`) / asesor / fecha.
+
+### Sergio confirmó la fuente de ventas (WhatsApp 2026-07-14)
+- Diego preguntó a Sergio por una columna de venta real y por la fuente de `CLTIENE_VENTAS`. Sergio confirmó en nota de voz:
+  - ✅ **La tabla se baja de Zoho** (el CRM), es "el tema de negociaciones". (El STT deformó "Zoho" como "su ojo".)
+  - ✅ **`Fase='Cerrado Ganado'` = venta real** — valida el filtro que ya teníamos.
+  - ⚠️ **Hay registros de PRUEBA** dentro de la tabla que **inflan el conteo** → ni las 959 son 100% limpias; hay que **excluir los "pruebas"** al cruzar.
+  - ✅ Reconfirmó que **la venta se cierra fuera de la llamada** (link de contrato al cliente) → no queda en el audio.
+- **Diego observó que `CLTIENE_VENTAS` está desactualizada** en el SQL Server → la actualización desde Zoho la maneja el **lado BI (David Cerón)**.
+- **Siguiente paso — REUNIÓN DE VENTAS agendada 2026-07-15 9am** (Sergio agendó el Meet). Asistentes: **Sergio Nieto** (CL Tiene, dueño de Zoho), **Juan Marín** (COE/CUN, dueño del SQL+pipeline), **Juan Garnica** (CUN, coordinación) y **Fabián** (DivergencyAI, jefe de Diego). Objetivo: (1) confirmar venta real = Zoho `Cerrado Ganado`, (2) mantener `CLTIENE_VENTAS` actualizada desde Zoho (¿API o export?), (3) filtrar registros de prueba, (4) definir el cruce CRM↔llamadas por cédula+fecha+asesor.
+
+### RESULTADO reunión de ventas 2026-07-15 (37 min, los 5 asistentes)
+> Actores: **Fabián Forero** (`JOSE FABIAN FORERO RODRIGUEZ`, jefe de Diego/DivergencyAI), **Juan Garnica** (`JUAN FRANCISCO GARNICA CASTRO`, CUN coordinación), **Juan Manuel Marín** (`JUAN MANUEL MARIN QUINTERO`, COE/analítica, dueño del pipeline+STT), **Sergio Nieto** (CL Tiene), **Diego**.
+
+- **✅ DECISIÓN PRINCIPAL — Sergio agrega 3 columnas al Excel semanal:** (1) **venta sí/no** (marca si esa llamada cerró venta), (2) **ID de negociación/Zoho**, (3) **identificación (cédula)** del cliente. Flujo: Sergio marca en el Excel → **Juan Manuel la mete como variable nueva en la BD** (SQL Server) → **Diego la toma para el dashboard**. Esto **reemplaza la inferencia por regex** (`detectar_resultado_llamada`). ⇒ Cuando la columna llegue al SQL, cambiar el pipeline para **leer la columna real** en vez del regex.
+- **Matiz clave:** la marca de venta es de la **llamada de CIERRE** (aceptación del contrato: firma virtual por link, o llamada grabada que suben a soporte y marcan `Cerrado Ganado` en Zoho), **no de toda la negociación**. Una venta = una llamada de cierre puntual. Sergio: "**no son muchas realmente**" (~10-15/mes) → confirma que el 708/374 está MUY inflado.
+- **Zoho tiene registros de PRUEBA** que inflan el reporte de Zoho; la marcación manual de Sergio en el Excel debería venir limpia.
+- **🔴 Hallazgo técnico (Juan Manuel, upstream):** el cruce audio↔Excel usa una **llave de 3 variables** (agente+celular+fecha) y **pierde ~40% de las llamadas** (solo cruza ~60%). Propone cambiar a una **llave única, el "punto wat"/WAP** (identificador único que ya está en el Excel) → cruce mucho más confiable. Explica huecos de datos. Fix de él.
+- **Frecuencia:** datos al **2-jul**; se mantiene envío **SEMANAL** (Sergio envía el **lunes**, con **fecha fija de corte** para que Juan Manuel sepa desde dónde correr el algoritmo). Fabián: **quincenal NO sirve** (el dashboard alimenta servicio + formación, no solo ventas → hay que tomar decisiones frescas).
+- **Automatización (largo plazo):** directriz CUN = eliminar Excel → todo a BD + **Airflow**. Ya existe extracción automática desde **ContactVox**, PERO su estructura ≠ la que Sergio arma a mano (él clasifica servicio/venta manualmente y separa entrante/saliente) → por eso Juan Manuel aún **no se puede "pegar" directo al servidor**. Meta final: quitar el paso manual de Sergio y luego el de Juan Manuel (Airflow).
+- **Dependencia de S3 (proveedor):** la **cédula NO viene en los archivos de audio** del origen. Sergio ya pidió al área de desarrollo de S3 que la agreguen a la estructura; **pendiente respuesta**. Falta **reunión con S3/Oscar** (Fabián la propuso) para alinear la estructura ANTES de que el proveedor desarrolle (evitar desarrollo equivocado). El servidor `172.16.1.33`/FTP es un **backup** que S3 alimenta desde el servidor principal (copia exacta).
+- **Pendientes por responsable:**
+  - **Sergio:** agrega columnas (venta + zoho id + cédula) al Excel, con fecha fija, envío lunes; gestiona con S3 lo de la cédula en el origen.
+  - **Juan Manuel:** mete la columna venta a la BD; cambia el cruce a llave única (WAP); sigue actualizando desde 2-jul.
+  - **Fabián/Diego:** agendar reunión con S3/Oscar para alinear estructura.
+  - **Diego (nuestro pipeline):** cuando la columna `venta` esté en SQL, reemplazar la inferencia regex por lectura directa.
+
+### Columnas a SOLICITAR a Sergio (todas salen de Zoho `CLTIENE_VENTAS`)
+> Ya acordadas: `venta` (sí/no), `ID negociación/Zoho`, `cédula` del cliente. Pedir además estas — habilitan KPIs que hoy el dashboard NO tiene:
+- **`Importe` (valor de la venta)** ⭐ → **ingresos totales + ticket promedio** (hoy no existen; iguala/supera al Power BI de la CUN). Es la de mayor valor, sola justifica la petición.
+- **`Producto (Negociación)` (plan vendido)** → "Plan Vendido" REAL vs el "Plan Mencionado" que hoy se infiere.
+- **`Fecha de cierre`** → separar fecha de venta ≠ fecha de llamada (la venta se cierra fuera del audio); necesaria para cruzar bien.
+- Opcionales: **`Fase` completa** (embudo Ganado/Perdido/en proceso, no solo sí/no) · **flag `es_prueba`** (excluir limpio los registros de prueba que inflan Zoho).
+- **NO pedir a Sergio como columna:** la **llave única WAP/"punto wat"** para el cruce del ~40% — ya está en el Excel y es tema de Juan Manuel (enlace audio↔Excel), solo confirmarle que la usará.
+
+### ⚠️ Sergio SALE de CL Tiene (2026-07-16) — riesgo de continuidad
+- Sergio Nieto avisó que **sale hoy de CL Tiene** (está haciendo la **entrega de cargo**). Le dijo a Diego: "habla con Fabián cómo van a manejar eso".
+- **Sergio era la pieza clave del flujo de datos:** (1) envía el Excel semanal, (2) **clasifica servicio/venta a mano** (esa clasificación NO la da ContactVox automático), (3) era quien iba a agregar la columna de venta real + cédula + las nuevas (Importe/Plan/Fecha). Su salida **pone en riesgo el envío semanal y todo el plan de ventas**.
+- **Diego respondió (bien):** se encarga con Fabián; los pendientes de la reunión 15-jul (columnas nuevas + reunión S3) quedan **para el reemplazo de Sergio**.
+- **PENDIENTE CRÍTICO:** definir **quién asume el rol de Sergio** en CL Tiene y conectarlo con Diego para: continuar el envío semanal, la clasificación servicio/venta, y las columnas acordadas. Es lo que Diego coordina con **Fabián** (gerencia).
+- **Refuerza el caso de automatizar (Airflow/ContactVox):** depender de una sola persona con Excel manual es frágil — se acaba de comprobar. Mientras no esté automatizado, alguien debe reemplazar el trabajo manual de Sergio.
 
 ## Dos tipos de error en las transcripciones (NO confundir)
 
@@ -409,6 +465,17 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - **Mislabel corregido (2026-07-08)**: 3 gráficas de Inteligencia (`x_rendimiento_hora` `/rendimiento-hora`, `x_rendimiento_dia` `/rendimiento-dia`, `duracion_vs_efectividad` `/duracion-vs-efectividad`) calculaban `ventas/total` pero el frontend las etiqueta **"% Efectivas"**. Cambiadas a `SUM(CAST(efectiva AS FLOAT64))/total` → ahora muestran la efectividad real (score de calidad, ~3-3.5% por hora) en vez de la venta inflada (~0.5%). La etiqueta "% Efectivas" ya es correcta. Pendiente desplegar.
 - Distribuciones correctas (reflejan realidad): Duración (56% Buzón), Resultado (63% Sin Contacto), Planes reales.
 
+### Hora Pico daba 00:00 con filtro "Solo con transcripción" (2026-07-16)
+- **Causa (dato upstream):** hay **~3.873 registros con `Fecha` a `00:00:00` exacto** — traen la fecha pero **perdieron la hora del día**. Casi todos (99%) tienen transcripción, así que al filtrar "Solo con transcripción" ese lote (3.887) superaba a la hora 11 (2.617) y la moda daba **00:00**. Sin filtro no se notaba (la hora 11 tiene más volumen total).
+- **Fix (`kpi.py`, CTE `top_hora`):** excluir del cálculo de la moda los registros con `00:00:00` exacto (`NOT (HOUR=0 AND MINUTE=0 AND SECOND=0)`). Se conservan los 41 de medianoche "real" (con minutos/segundos). Verificado: con y sin filtro de transcripción ahora da **11:00**.
+- **Raíz upstream (no la arreglamos nosotros):** esos registros llegan del Excel/SQL con solo fecha (sin time-of-day). Es tema de la fuente/CUN si se quiere recuperar la hora real.
+- **KPIs con 0 datos → muestran `0` (2026-07-16, rev `00116-l2l`):** cuando un filtro no arroja filas, Hora Pico/Día Pico/Asesor Top daban `None`. Ahora `IFNULL(...,'0')` / `COALESCE(...,'0')` → muestran `0` (los numéricos ya daban 0). Verificado: los 8 KPIs se comportan bien con todos los filtros (asesor, tipo, resultado, duración, fecha, transcripción y combos), y son lógicamente consistentes (Ventas→calidad alta, Buzón→calidad baja, Servicio→asesor top de servicio).
+
+### Embudo de conversión arreglado (2026-07-16, desplegado rev `00114-g9v`)
+- **Problema:** `embudo_conversacion.py` tenía como paso 2 `"Efectivas (contacto)" = COUNTIF(efectiva=1.0)` (2.212). Como `efectiva` es score de calidad (chico), el embudo **no descendía** (caía a 2.212 y volvía a subir a 15.981) y la etiqueta contradecía el KPI ya renombrado a "Llamadas de Calidad". Además el query **no tenía `ORDER BY`** (orden no garantizado).
+- **Fix:** se quitó el paso de `efectiva`, se agregó `"Contactado" = COUNTIF(Resultado_Llamada='Contactado')`, y se añadió columna `orden` + `ORDER BY orden`. Embudo final (descendente): Total 39.916 → Conv>30s 15.981 → Con Saludo 12.396 → Contactado 9.775 → Ventas 708.
+- Solo backend; el frontend (`EmbudoChart.jsx`) dibuja lo que llega y su filtro Servicio (oculta "Ventas Cerradas") sigue igual.
+
 ### Accesos GCP (BLOQUEA el deploy) — auditoría de seguridad CUN 2026-07-06
 - La CUN (Jonathan López, GCP admin) **quitó el rol Owner** de `diego_ojeda@cun.edu.co` en el proyecto `desarrollo-investigaciones` (auditoría de menor privilegio).
 - Roles actuales: `bigquery.admin/dataEditor/jobUser`, `firebase.admin`, `run.admin`, `secretmanager.admin`.
@@ -419,6 +486,19 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
   - `roles/logging.viewer` (opcional, depurar)
 - Diego ya envió el correo a Jonathan pidiéndolos (2026-07-08). Verificar con `gcloud projects get-iam-policy desarrollo-investigaciones --flatten="bindings[].members" --filter="bindings.members:diego_ojeda@cun.edu.co"`.
 - **Nota:** BigQuery/consultas funcionan (vía ADC), solo el deploy de Cloud Run está bloqueado.
+
+#### Actualización 2026-07-14 — casi listo, falta UN permiso (`serviceusage.services.use`)
+- Diego pidió a Jonathan: `roles/editor` + `iam.serviceAccountUser` + `secretmanager.admin` (+ mantener `firebase.admin`). Jonathan asignó **todo menos Editor** (Editor es "rol básico" y la política de seguridad de la CUN no lo permite).
+- **Roles actuales (10):** `bigquery.admin/dataEditor/jobUser`, `cloudbuild.editor`, `firebase.admin`, `iam.serviceAccountUser`, `logging.viewer`, `run.admin`, `secretmanager.admin`, `storage.admin`.
+- **Verificado empíricamente** (`cloudresourcemanager.testIamPermissions` vía REST con el token ADC de Diego): de 8 permisos críticos para `run deploy`, tiene **7**. El **único que falta es `serviceusage.services.use`** (lo traía Editor). `iam.serviceAccounts.actAs` ✅ ya cubierto por `iam.serviceAccountUser`.
+- **Falta pedir a Jonathan un solo rol:** **`roles/serviceusage.serviceUsageConsumer`** (solo "usar servicios ya habilitados" → cumple menor privilegio). Con ese, el deploy debería completar. **No hay otros bloqueos ocultos** (los otros 7 permisos ya están).
+- Re-verificar permiso puntual: `curl -s -X POST "https://cloudresourcemanager.googleapis.com/v1/projects/desarrollo-investigaciones:testIamPermissions" -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" -d '{"permissions":["serviceusage.services.use"]}'` → si devuelve el permiso, ya se puede desplegar.
+
+#### ✅ RESUELTO 2026-07-14 — backend DESPLEGADO
+- Jonathan asignó `roles/serviceusage.serviceUsageConsumer` → `serviceusage.services.use` ✅ (verificado). Los permisos personales de Diego quedaron completos.
+- **Segundo bloqueo (SA de Compute, no de Diego):** el deploy `--source` falló con `403: 293865702055-compute@developer.gserviceaccount.com does not have storage.objects.get` sobre el bucket `run-sources-...`. La auditoría dejó a la SA de Compute (la que Cloud Build usa para construir la imagen) **sin ningún rol de Storage** (sí tiene `artifactregistry.admin` + `logging.admin`).
+- **Fix (self-service, Diego tiene `storage.buckets.setIamPolicy`):** `gcloud storage buckets add-iam-policy-binding gs://run-sources-desarrollo-investigaciones-us-central1 --member="serviceAccount:293865702055-compute@developer.gserviceaccount.com" --role="roles/storage.objectViewer"`. NO requiere a Jonathan.
+- **Deploy OK:** revisión `cltiene-backend-00113-r7j` sirviendo 100%. Verificado en vivo (`/api/kpi`): Hora Pico = **11:00** (moda, ya no 16:08), Calidad = **32.2** (solo evaluadas, ya no ~14). Total 39.916. Gráficas `% Efectivas` con `efectiva` real. `ventas: 708` sigue inflado (pendiente Zoho).
 
 ### Columna de venta real (de CL Tiene) — Sergio CONFIRMÓ el diagnóstico (2026-07-14)
 - Diego pidió a Sergio una columna con la venta real. **Sergio confirmó por nota de voz lo que encontramos:**
@@ -440,11 +520,30 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - Verificado: 0 duplicados, 0 transcripciones sin V4, 0 nulos en campos clave, datos de julio presentes (395 filas).
 - **Fix del driver SQL** (`_crear_engine()` robusto: Driver 18/17/viejo) aplicado a `subir_datos.py`.
 
+## Asesores con datos "cortados" — SOLO Edwin es un problema real (verificado 2026-07-14)
+
+Al filtrar por asesor + fechas recientes, muchos asesores no aparecen en el dropdown "Nombre del Asesor"
+(el dropdown solo lista asesores con llamadas **en el rango de fechas seleccionado**). Revisando las
+últimas fechas de cada asesor en BigQuery aparecían ~11 con datos que se cortan antes de junio-2026.
+
+**Cruce con la lista de asesores ACTIVOS que dio Sergio (30-jun-2026):**
+- **Servicio:** Johan Casallas, Edwin Cendales, Angie Lancheros, Melany Ramirez, Nicolas Tovar
+- **Cuenta/Ventas:** Andres Barrera, Jimmy Rusinque, Paula Naranjo, Rosselin Ibarra (esta última es de ventas)
+
+De esos **9 activos, 8 tienen datos al día (jul-2026); el ÚNICO cortado es Edwin Cendales (última
+llamada 2026-02-05)** → confirma que el problema de carpeta (`ecendales` vs `agenteN` en el STT) afecta
+**solo a Edwin**. Los demás "cortados" (Jenifer Rodriguez, Dayana Marulanda, Marjorie Villadiego, Maria
+Fernanda Rodriguez, Esmeralda Pena, Juan/Juan Pablo Monroy, Yoharlys Gomez, David Paloma…) **NO están en
+la lista de activos → ya no trabajan** (rotación normal), su corte es esperado, no es un bug.
+
+> **Conclusión:** NO hay un problema sistémico de carpetas. Único pendiente para CL Tiene: renombrar la
+> carpeta de **Edwin** a `agenteN`. El corte de todos los demás es rotación de personal.
+
 ### Pendientes al cierre de la sesión
-- [ ] Jonathan asigne los roles GCP → desplegar los fixes de KPI + gráficas (efectiva)
+- [x] **Jonathan asignó los roles GCP + fix del bucket de la SA de Compute → backend DESPLEGADO** (rev `00113-r7j`, KPIs Hora Pico/Calidad + gráficas efectiva en vivo). HECHO 2026-07-14
 - [x] **`COALESCE(Cuenta, Agente)` en el pipeline** → recuperadas ~2.630 llamadas (Edwin Cendales 0→482). HECHO 2026-07-09
 - [ ] Arreglar gráficas N/A (Motivo Rechazo filtrar N/A; Mascota/Vehículo decidir)
 - [ ] Enviar a Sergio el mensaje de la columna de venta (2026-07-09)
 - [x] Subir datos al 2-jul (red CUN) — HECHO
-- [ ] Ventas: integrar CRM `CLTIENE_VENTAS` o esperar la columna de CL Tiene
+- [ ] Ventas: **Sergio agregará columna `venta` (sí/no) + zoho id + cédula al Excel** (reunión 2026-07-15) → Juan Manuel la mete a la BD → cuando esté en SQL, cambiar el pipeline para leer la columna real en vez del regex. (Ver "RESULTADO reunión de ventas 2026-07-15".)
 - [ ] Juan/CUN: mejora del STT (en progreso, mostrará diferencia)
