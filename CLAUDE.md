@@ -206,6 +206,11 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 | Inteligencia Operativa | `src/tabs/Inteligencia.jsx` | ✅ |
 | Transcripciones | `src/tabs/Transcripciones.jsx` | ✅ |
 | Agente IA PRO | `src/tabs/Agente.jsx` | ✅ |
+| Prueba de Saludos | `src/tabs/PruebaSaludos.jsx` | ✅ desplegada (2026-07-29) |
+
+> **Prueba de Saludos** (`PruebaSaludos.jsx`) es una pestaña **estática/puntual** (NO viene del pipeline/BigQuery): analiza la prueba A/B de 5 saludos comerciales que CL Tiene corrió sobre la base "No Contactados" (reporte de Steven Aldana, 27-jul). Los 29 registros + análisis de transcripciones están hardcodeados en un array (`RESULTADOS`), fácil de actualizar. Hallazgo: el saludo que engancha nombra el plan específico + framing de seguimiento (Saludo 4/3); los que fallan piden "¿recuerda cuál plan?" o admiten "es una llamada de ventas" (Saludo 1/5).
+
+> ⚠️ **ESTADO al 2026-07-29 (para la próxima sesión):** la pestaña "Prueba de Saludos" ya está **DESPLEGADA** en Firebase ✅ (incluye análisis + 7 transcripciones con audio + botón PDF de informe completo). **PENDIENTE: commit + push** (`src/tabs/PruebaSaludos.jsx` nuevo, `src/pages/Dashboard.jsx`, `CLAUDE.md` sin commitear). El backend NO cambió (último rev en prod: `00116-l2l`).
 
 ## Endpoints IA
 
@@ -436,6 +441,7 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **Diego respondió (bien):** se encarga con Fabián; los pendientes de la reunión 15-jul (columnas nuevas + reunión S3) quedan **para el reemplazo de Sergio**.
 - **PENDIENTE CRÍTICO:** definir **quién asume el rol de Sergio** en CL Tiene y conectarlo con Diego para: continuar el envío semanal, la clasificación servicio/venta, y las columnas acordadas. Es lo que Diego coordina con **Fabián** (gerencia).
 - **Refuerza el caso de automatizar (Airflow/ContactVox):** depender de una sola persona con Excel manual es frágil — se acaba de comprobar. Mientras no esté automatizado, alguien debe reemplazar el trabajo manual de Sergio.
+- **✅ Aparece el reemplazo — Steven Aldana (2026-07-27):** **Steven Alexander Aldana Sanabria** (`supervisor_contact@cltiene.com`), **Supervisor Contact Center** de CL Tiene, escribió a Fabián con un informe de una prueba de saludos. Es el nuevo contacto/rol que cubre lo de Sergio → conectarlo con los pendientes (Excel semanal, columnas de venta/cédula, reunión S3). **Primer trabajo suyo que vimos:** prueba A/B de 5 saludos sobre la base "No Contactados" (ver pestaña "Prueba de Saludos").
 
 ### RESULTADO reunión con S3 2026-07-23 (23 min: Diego, Fabián, Juan Garnica, Daniel Obando de S3)
 > Reunión que Fabián convocó tras la salida de Sergio, para hablar DIRECTO con el proveedor (S3) sin intermediarios. Presenta **Daniel Obando** (S3, área de las grabaciones; Fabián a ratos le dice "Oscar" — es `oscar.obando@s3.com.co`).

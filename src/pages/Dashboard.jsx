@@ -14,6 +14,7 @@ import Analisis from '../tabs/Analisis';
 import Inteligencia from '../tabs/Inteligencia';
 import Transcripciones from '../tabs/Transcripciones';
 import Agente from '../tabs/Agente';
+import PruebaSaludos from '../tabs/PruebaSaludos';
 import { useFilters } from '../FiltersContext.jsx';
 
 const Dashboard = () => {
@@ -31,7 +32,8 @@ const Dashboard = () => {
         'Análisis Detallado',
         'Inteligencia Operativa',
         'Transcripciones',
-        'Agente IA PRO'
+        'Agente IA PRO',
+        'Prueba de Saludos'
     ];
 
     const fetchKpi = useCallback(async () => {
@@ -175,6 +177,7 @@ const Dashboard = () => {
                     {tabActiva === "Inteligencia Operativa" && <Inteligencia />}
                     {tabActiva === "Transcripciones" && <Transcripciones />}
                     {tabActiva === "Agente IA PRO" && <Agente />}
+                    {tabActiva === "Prueba de Saludos" && <PruebaSaludos />}
                 </div>
 
                 {/* FOOTER */}
