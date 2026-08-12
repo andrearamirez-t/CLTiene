@@ -441,7 +441,9 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **Diego respondió (bien):** se encarga con Fabián; los pendientes de la reunión 15-jul (columnas nuevas + reunión S3) quedan **para el reemplazo de Sergio**.
 - **PENDIENTE CRÍTICO:** definir **quién asume el rol de Sergio** en CL Tiene y conectarlo con Diego para: continuar el envío semanal, la clasificación servicio/venta, y las columnas acordadas. Es lo que Diego coordina con **Fabián** (gerencia).
 - **Refuerza el caso de automatizar (Airflow/ContactVox):** depender de una sola persona con Excel manual es frágil — se acaba de comprobar. Mientras no esté automatizado, alguien debe reemplazar el trabajo manual de Sergio.
-- **✅ Aparece el reemplazo — Steven Aldana (2026-07-27):** **Steven Alexander Aldana Sanabria** (`supervisor_contact@cltiene.com`), **Supervisor Contact Center** de CL Tiene, escribió a Fabián con un informe de una prueba de saludos. Es el nuevo contacto/rol que cubre lo de Sergio → conectarlo con los pendientes (Excel semanal, columnas de venta/cédula, reunión S3). **Primer trabajo suyo que vimos:** prueba A/B de 5 saludos sobre la base "No Contactados" (ver pestaña "Prueba de Saludos").
+- **Steven Aldana NO es el reemplazo de Sergio (corregido 2026-07-30):** **Steven Alexander Aldana Sanabria** (`supervisor_contact@cltiene.com`) es **Supervisor Contact Center** de CL Tiene (maneja asesores/ventas), pero **NO cubre el rol de datos de Sergio** (Excel, clasificación servicio/venta, columnas). Su primer trabajo que vimos: la prueba A/B de 5 saludos (ver pestaña "Prueba de Saludos").
+- **El reemplazo real de Sergio SIGUE PENDIENTE (reunión comité 2026-07-29):** Sandra Castillo mencionó "un chico que reemplaza a Sergio" armando cuadros de mando con el equipo de Claudia (lado BI/CUN), pero "bien flojitos aún" (no entienden el modelo de negocio). → **Las columnas de venta/cédula siguen esperando** a que ese rol se estabilice.
+- **Plan interino (Diego, 2026-07-30):** pedir a **Juan Manuel que actualice la BD SIN el Excel** (jalar directo de ContactVox) para mantener los datos frescos. ⚠️ Tradeoff: mantiene llamadas+transcripciones al día, PERO se pierde la clasificación manual servicio/venta y la marca de venta que hacía Sergio (no viene automática de ContactVox) → el **KPI de ventas real sigue pendiente** del reemplazo. Son dos frentes separados: frescura de datos ≠ columna de venta.
 
 ### RESULTADO reunión con S3 2026-07-23 (23 min: Diego, Fabián, Juan Garnica, Daniel Obando de S3)
 > Reunión que Fabián convocó tras la salida de Sergio, para hablar DIRECTO con el proveedor (S3) sin intermediarios. Presenta **Daniel Obando** (S3, área de las grabaciones; Fabián a ratos le dice "Oscar" — es `oscar.obando@s3.com.co`).
@@ -467,6 +469,11 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
    - **NO se corrige con ningún prompt** (el texto de origen ya viene deformado). Depende de mejorar el STT en la CUN → **tema para la reunión del martes**.
 
 > Antes de reportar una transcripción "mal", distinguir cuál de los dos es: si quién habla está bien pero las palabras están deformes → es STT (no nuestro). Si quién habla está intercambiado → es atribución (v15).
+
+### Medición de calidad de transcripciones (2026-08-11, sobre 21.690 con V4)
+- Diego reportó una llamada mal transcrita (tel 3144201397, 29-jul). **Diagnóstico verificado a nivel de dato:** el STT entregó un **bloque corrido sin separación de hablantes y con palabras deformes** ("Rosselin"→"Rocio Arrames", "CL Tiene Soluciones"→"le tienes soluciones", "Fusagasugá/Cundinamarca"→"Fuacha con Dinamarco", "gatico"→"cacico"). Con ese mush, gpt-4o **no puede separar** → un `[Cliente]` gigante mezcla pitch del asesor + respuestas del cliente. **Es error de STT, no de atribución** (el prompt no puede arreglar un texto inseparable).
+- **Heurística sobre las 21.690:** turnos promedio **6.2**; **42.1%** con ≤2 turnos (incluye cortas legítimas: buzón/no contesta); **29.3% (6.359)** con un turno >400 chars = **bloque mezclado** (síntoma del STT corrido). Palabras deformes en casi todas.
+- **Conclusión:** el techo de calidad lo pone el **STT de la CUN** (`faster-whisper medium` + `beam_size=1` + VAD), no nuestra atribución. **~1 de cada 3 llega inseparable.** Palanca real = mejorar el STT (Juan Manuel: `large-v3`, subir `beam_size`, ajustar VAD). Crítico ahora que Jarvey pide análisis (saludos/cierre/WhatsApp) basado en estas transcripciones → sin mejor STT el análisis tiene tope.
 
 ## Sesión 2026-07-08 — Fixes de KPI, verificación de gráficas y accesos GCP
 
@@ -531,6 +538,12 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - **Fix aplicado:** `cargar_desde_sql()` ahora usa `COALESCE(cuenta, Agente)` en el CTE, el JOIN y el SELECT de Cuenta. Recupera las filas usando el nombre de `Agente` cuando `Cuenta` es NULL.
 - **Resultado (re-corrida 2026-07-09):** BigQuery 37.286 → **39.916 filas**, `Cuenta NULL = 0`, 21 asesores. **Edwin Cendales pasó de 0 a 482 llamadas** (aunque aún puede faltar por el tema de carpeta `ecendales` vs `agenteN` en el STT, que es de CL Tiene).
 - **Fix de fondo (CL Tiene/Sergio):** estandarizar los nombres en el origen (el "fix de nombres" pendiente) — así no hay que depender del COALESCE.
+
+### Carga de datos 2026-08-11 (hecha, con gpt-4o + 2 keys)
+- Corrida incremental con **`gpt-4o`** (`MODELO_HABLANTES=gpt-4o`) y las **2 API keys** (balanceo ~50/50). Diego dentro de la red CUN.
+- **Resultado:** BigQuery 39.916 → **40.873 filas** (+957 netas). Dedup del pipeline quitó **5.891 dups (12.6%)**. **Datos frescos hasta el 1-ago** (antes 2-jul → Juan tenía datos nuevos en el SQL). Backup: `cltiene_llamadas_procesadas_backup_20260730`.
+- **Consumo:** ~**731 transcripciones nuevas** a OpenAI → costo **~$7.71** (~$3.85 por key). ⚠️ El log dice "Nuevas/cambiadas: 19.914" pero eso incluye ~19k filas vacías (sin transcripción) que NO llaman a OpenAI; las llamadas reales fueron ~731 (confirmado por el tiempo de proceso: 2.6 min). Estimación previa (`scratchpad/calcular_consumo.py`) daba 731 nuevas y ~$7.71 con gpt-4o.
+- **Verificado en vivo** (`/api/kpi`): total **40.873**, Hora Pico 11:00, Calidad 32.1, Saludo 52.8. 0 transcripciones sin V4, 0 Cuenta NULL, 21 asesores. `ventas: 732` sigue inflado (pendiente Zoho). El dashboard refleja los datos nuevos sin re-desplegar (el backend lee BigQuery directo).
 
 ### Carga de datos 2026-07-09 (hecha)
 - Subido incremental con `gpt-4o-mini` + solo key 2 (`OPENAI_API_MUNDIAL=""`), driver ODBC 18. BigQuery: 38.148 → **37.286 filas** (deduplicado, datos al **2-jul**). Costo ~$3. Backup: `cltiene_llamadas_procesadas_backup_20260709`.
