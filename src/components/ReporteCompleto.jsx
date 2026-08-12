@@ -5,7 +5,7 @@ import { useFilters } from "../FiltersContext";
 import { API_BASE } from "../config";
 
 const ReporteCompleto = () => {
-  const { buildQuery } = useFilters();
+  const { buildQuery, filters } = useFilters();
   const [reporte, setReporte] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -64,9 +64,16 @@ const ReporteCompleto = () => {
     doc.text("Reporte Estrategico de Operaciones", margin, 38);
     doc.setFont(undefined, "normal"); doc.setFontSize(10);
     doc.text("CL Tiene Soluciones - Agente IA PRO (DivergencyAI SAS)", margin, 58);
+    // Período según los filtros de fecha del sidebar
+    const fd = filters?.fecha_desde, fh = filters?.fecha_hasta;
+    let periodo = "Periodo: todo el historico";
+    if (fd && fh) periodo = `Periodo: ${fd} a ${fh}`;
+    else if (fd) periodo = `Periodo: desde ${fd}`;
+    else if (fh) periodo = `Periodo: hasta ${fh}`;
+
     y = 98;
     doc.setTextColor(120, 120, 120); doc.setFontSize(9);
-    doc.text(`Generado: ${new Date().toLocaleDateString()}   |   Con los filtros activos del dashboard`, margin, y);
+    doc.text(`Generado: ${new Date().toLocaleDateString()}   |   ${periodo}`, margin, y);
     salto(16);
 
     // Parsear el HTML del reporte para preservar la estructura (títulos, párrafos, listas, tablas)

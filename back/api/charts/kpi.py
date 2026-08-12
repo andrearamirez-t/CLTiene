@@ -18,6 +18,10 @@ def kpi(filters: FilterModel):
             cierre_servicio,
             proximo_paso,
             transcripcion,
+            Transcripcion_V4,
+            SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg,
             {calculo_fecha()} ts
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {filters.get_query()}
@@ -88,7 +92,19 @@ def kpi(filters: FilterModel):
             AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, manejo_inquietudes, NULL)) +
             AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, cierre_servicio, NULL)) +
             AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, proximo_paso, NULL))
-        ) / 7 * 100,1), 0) calidad
+        ) / 7 * 100,1), 0) calidad,
+
+        -- TMO (tiempo hablado promedio): promedio de Tiempo de Conversacion, formateado H:MM:SS
+        (SELECT FORMAT('%d:%02d:%02d', DIV(s, 3600), DIV(MOD(s, 3600), 60), MOD(s, 60))
+         FROM (SELECT COALESCE(CAST(ROUND(AVG(dur_seg)) AS INT64), 0) s FROM base WHERE dur_seg > 0)) tmo,
+
+        -- Participación del cliente: % de turnos que son del cliente (¿se deja hablar al cliente?)
+        COALESCE(ROUND(
+            SAFE_DIVIDE(
+                SUM(ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[Cliente\\]'))),
+                SUM(ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[(?:Asesor|Cliente)\\]')))
+            ) * 100, 1
+        ), 0) participacion_cliente
 
     FROM base
     """)

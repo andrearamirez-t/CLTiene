@@ -4,7 +4,7 @@ import { API_BASE } from '../config';
 import Sidebar from '../layout/Sidebar.jsx';
 import {
     Phone, Download, CheckCircle, DollarSign,
-    Clock, Calendar, Trophy, Star, Handshake
+    Clock, Calendar, Trophy, Star, Handshake, Timer, MessageSquare
 } from 'lucide-react';
 
 
@@ -121,7 +121,9 @@ const Dashboard = () => {
                         { icon: <Calendar size={18} />, label: 'DÍA PICO', value: kpi?.dia_promedio ?? '-' },
                         { icon: <Trophy size={18} />, label: 'ASESOR TOP', value: kpi?.top_asesor ?? '-' },
                         { icon: <Star size={18} />, label: 'SALUDO OK', value: kpi?.saludo != null ? `${kpi.saludo}%` : '-' },
-                        { icon: <Handshake size={18} />, label: 'CALIDAD PROMEDIO', value: kpi?.calidad != null ? `${kpi.calidad}/100` : '-' }
+                        { icon: <Handshake size={18} />, label: 'CALIDAD PROMEDIO', value: kpi?.calidad != null ? `${kpi.calidad}/100` : '-' },
+                        { icon: <Timer size={18} />, label: 'TMO', value: kpi?.tmo ?? '-' },
+                        { icon: <MessageSquare size={18} />, label: 'PARTICIPACIÓN CLIENTE', value: kpi?.participacion_cliente != null ? `${kpi.participacion_cliente}%` : '-' }
                     ].filter(Boolean).map((item, index) => (
                         <div key={index} style={{
                             backgroundColor: 'white',
