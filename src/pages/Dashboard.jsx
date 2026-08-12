@@ -116,7 +116,7 @@ const Dashboard = () => {
                     {[
                         { icon: <Phone size={18} />, label: 'TOTAL LLAMADAS', value: kpi?.total ?? '-' },
                         { icon: <CheckCircle size={18} />, label: 'LLAMADAS DE CALIDAD', value: kpi?.efectivas ?? '-' },
-                        filters.tipo_llamada?.toLowerCase() !== 'servicio' && { icon: <DollarSign size={18} />, label: 'VENTAS CERRADAS', value: kpi?.ventas ?? '-' },
+                        filters.tipo_llamada?.toLowerCase() !== 'servicio' && { icon: <DollarSign size={18} />, label: 'POSIBLES VENTAS', value: kpi?.ventas ?? '-' },
                         { icon: <Clock size={18} />, label: 'HORA PICO', value: kpi?.hora_promedio ?? '-' },
                         { icon: <Calendar size={18} />, label: 'DÍA PICO', value: kpi?.dia_promedio ?? '-' },
                         { icon: <Trophy size={18} />, label: 'ASESOR TOP', value: kpi?.top_asesor ?? '-' },

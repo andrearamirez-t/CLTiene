@@ -57,7 +57,7 @@ def embudo_conversacion(filters: FilterModel):
 
         SELECT
             5 orden,
-            "Ventas Cerradas" nombre,
+            "Posibles ventas" nombre,
             COUNTIF(Resultado_Llamada = "Venta") valor,
             ROUND(
                 SAFE_DIVIDE(COUNTIF(Resultado_Llamada = "Venta") * 100.0, COUNT(*)),

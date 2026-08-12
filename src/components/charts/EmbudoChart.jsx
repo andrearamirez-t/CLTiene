@@ -18,7 +18,7 @@ const EmbudoChart = () => {
    
 
     const esServicio = filters.tipo_llamada?.toLowerCase() === 'servicio';
-    const pasos = esServicio ? embudo.filter(p => p.nombre !== 'Ventas Cerradas') : embudo;
+    const pasos = esServicio ? embudo.filter(p => p.nombre !== 'Posibles ventas') : embudo;
 
     const maxValor = Math.max(...pasos.map(p => p.valor));
 
