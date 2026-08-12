@@ -26,43 +26,91 @@ const ReporteCompleto = () => {
 
   const descargarPDF = () => {
     if (!reporte) return;
-    const doc = new jsPDF();
-    const margin = 20;
-    let y = 20;
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const margin = 40, maxW = 515;
+    const PINK = [252, 50, 118], GRAY = [71, 85, 105];
+    let y = margin;
 
-    doc.setFontSize(18);
-    doc.setTextColor(252, 50, 118);
-    doc.text("REPORTE ESTRATÉGICO DE OPERACIONES", margin, y);
-    y += 10;
+    // Sanitiza caracteres que la fuente estándar del PDF no soporta (evita texto cortado)
+    const clean = (s) =>
+      String(s)
+        .replace(/→/g, "->").replace(/★/g, "*")
+        .replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
+        .replace(/[–—]/g, "-").replace(/…/g, "...")
+        .replace(/\s+/g, " ").trim();
 
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(
-      `Fecha: ${new Date().toLocaleDateString()} | Generado por: Agente IA PRO`,
-      margin,
-      y
-    );
-    doc.setDrawColor(252, 50, 118);
-    doc.line(margin, y + 2, 190, y + 2);
-    y += 15;
+    const salto = (h = 13) => { y += h; if (y > 790) { doc.addPage(); y = margin; } };
+    const ensure = (h) => { if (y + h > 790) { doc.addPage(); y = margin; } };
+    const parrafo = (txt, size = 10.5, color = GRAY, bold = false, indent = 0) => {
+      const t = clean(txt);
+      if (!t) return;
+      doc.setFontSize(size); doc.setTextColor(...color); doc.setFont(undefined, bold ? "bold" : "normal");
+      doc.splitTextToSize(t, maxW - indent).forEach((line) => {
+        ensure(size + 4); doc.text(line, margin + indent, y); salto(size + 4);
+      });
+      doc.setFont(undefined, "normal");
+    };
+    const seccion = (txt, size = 13) => {
+      salto(8); ensure(26);
+      doc.setFont(undefined, "bold"); doc.setFontSize(size); doc.setTextColor(...PINK);
+      doc.splitTextToSize(clean(txt), maxW).forEach((line) => { ensure(18); doc.text(line, margin, y); salto(18); });
+      doc.setDrawColor(244, 194, 210); doc.setLineWidth(0.6); doc.line(margin, y, 555, y); salto(11);
+      doc.setFont(undefined, "normal"); doc.setTextColor(...GRAY);
+    };
 
-    const texto = reporte.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    doc.setFontSize(11);
-    doc.setTextColor(30);
-    const lineas = doc.splitTextToSize(texto, 170);
-    lineas.forEach((linea) => {
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.text(linea, margin, y);
-      y += 6;
-    });
+    // Banda de encabezado
+    doc.setFillColor(...PINK); doc.rect(0, 0, 595, 76, "F");
+    doc.setTextColor(255, 255, 255); doc.setFont(undefined, "bold"); doc.setFontSize(16);
+    doc.text("Reporte Estrategico de Operaciones", margin, 38);
+    doc.setFont(undefined, "normal"); doc.setFontSize(10);
+    doc.text("CL Tiene Soluciones - Agente IA PRO (DivergencyAI SAS)", margin, 58);
+    y = 98;
+    doc.setTextColor(120, 120, 120); doc.setFontSize(9);
+    doc.text(`Generado: ${new Date().toLocaleDateString()}   |   Con los filtros activos del dashboard`, margin, y);
+    salto(16);
 
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text("Documento confidencial - CL TIENE SOLUCIONES", margin, 285);
-    doc.save(`Reporte_IA_${Date.now()}.pdf`);
+    // Parsear el HTML del reporte para preservar la estructura (títulos, párrafos, listas, tablas)
+    const cont = document.createElement("div");
+    cont.innerHTML = reporte;
+    const walk = (node) => {
+      node.childNodes.forEach((el) => {
+        if (el.nodeType === 3) { const t = el.textContent.trim(); if (t) parrafo(t); return; }
+        if (el.nodeType !== 1) return;
+        const tag = el.tagName.toLowerCase();
+        if (/^h[1-6]$/.test(tag)) {
+          seccion(el.textContent, tag === "h1" || tag === "h2" ? 13 : 12);
+        } else if (tag === "p") {
+          parrafo(el.textContent); salto(3);
+        } else if (tag === "ul" || tag === "ol") {
+          el.querySelectorAll(":scope > li").forEach((li) => parrafo("•  " + li.textContent, 10.5, GRAY, false, 12));
+          salto(4);
+        } else if (tag === "li") {
+          parrafo("•  " + el.textContent, 10.5, GRAY, false, 12);
+        } else if (tag === "br") {
+          salto(5);
+        } else if (tag === "table") {
+          el.querySelectorAll("tr").forEach((tr) => {
+            const fila = [...tr.querySelectorAll("td,th")].map((c) => c.textContent.trim()).filter(Boolean).join("   |   ");
+            if (fila) parrafo(fila, 9.5);
+          });
+          salto(4);
+        } else {
+          walk(el); // div, span, section, etc. → recursar
+        }
+      });
+    };
+    walk(cont);
+
+    // Pie de página con numeración en todas las páginas
+    const totalPaginas = doc.getNumberOfPages();
+    for (let p = 1; p <= totalPaginas; p++) {
+      doc.setPage(p);
+      doc.setDrawColor(228, 228, 228); doc.setLineWidth(0.5); doc.line(margin, 816, 555, 816);
+      doc.setFontSize(8); doc.setTextColor(150, 150, 150); doc.setFont(undefined, "normal");
+      doc.text("CL Tiene Soluciones - DivergencyAI SAS   |   Confidencial", margin, 830);
+      doc.text(`Pagina ${p} de ${totalPaginas}`, 500, 830);
+    }
+    doc.save(`Reporte_IA_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   return (
