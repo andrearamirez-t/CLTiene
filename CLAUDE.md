@@ -456,6 +456,19 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **Arquitectura de audio (reconfirmada):** grabaciones en el proveedor (ContactVox) → script S3 hace rsync a medianoche al backup → FTP CUN. Formato **MP3**, sin cambios recientes. Se genera grabación solo cuando hay audio. Novedades: centro.servicios@s3.com.co cc oscar.obando@s3.com.co.
 - **Pendientes:** **Fabián** define QUÉ reportes + QUÉ campos necesita CL Tiene (para que S3 cotice) · **Juan Manuel** parsea la hora del filename (arregla 00:00 en origen) + cédula + WAP · posible **reunión a 3** (S3 + CUN + DivergencyAI).
 
+### KPI "Posibles ventas" (rename 2026-08-11) + pendiente de BD limpia
+- **Renombrado en el display:** "Ventas Cerradas"/"Venta Cerrada" → **"Posibles ventas"** en TODO el dashboard (KPI card `Dashboard.jsx`, embudo `embudo_conversacion.py`, chart `ResultadosChart.jsx`, dropdown `resultado_llamada.py`, filtro Servicio). El **valor interno sigue siendo `Resultado_Llamada = 'Venta'`** (732, del regex `detectar_resultado_llamada`). Es honesto: el usuario ve "Posibles ventas", el enum técnico es 'Venta'.
+- **Verificado (2026-08-11):** "Posibles ventas" (732) ≠ "venta cerrada". Son datos distintos: 732 = regex inflado; "venta cerrada" = estado de gestión de ContactVox/Zoho que **NO está en la BD** (`Estado_de_Gestion` viene **VACÍO** — 0 filas no-nulas). La venta real vive en ese campo (`Estado_de_Gestion='venta cerrada'`) o en Zoho `Cerrado Ganado` (~10-15/mes).
+- **💡 Camino más simple a la venta real:** poblar `Estado_de_Gestion` (que trae 'venta cerrada', 'no contactado', 'en gestión') resolvería DOS cosas de una: (1) la venta real y (2) los "Estados Prospectos" de la plantilla del contact center. Pedírselo a Juan Manuel.
+- **⚠️ PENDIENTE (limpieza de BD, cuando llegue la venta real):** cambiar el **valor interno** `'Venta'` → `'Posibles ventas'` (o mejor, reemplazar el regex por la venta real) es un refactor de **15+ referencias** (`subir_datos.py`, `procesador.py`, `kpi.py`, `embudo`, `rendimiento_agente.py`, `duraccion_efectivo.py`, `routes.py`, `routes_new.py`, `utils.py`×4, `analizar_patrones_dashboard.py`×2, `Resumen.jsx`) + `UPDATE` de los 732 registros en BigQuery. **NO hacerlo aislado** (cero cambio visual, mucho riesgo) → hacerlo **junto con la integración de la venta real** (Estado_de_Gestion/Zoho) en un solo refactor limpio.
+
+### Plantilla del contact center (informe del año pasado, de Steven 2026-08-11)
+- Steven pasó el informe base que quiere el contact center (ContactVox "ESTADISTICAS GENERALES CONTAC CENTER"): Total Marcaciones, **TMO**, Estatus Llamadas (Ocupada/No Contestada/Fallida/Contestada), Total+TMO por agente, y "Estados Prospectos/Negociación" (No contactado/En gestión/Interesados).
+- **Requisitos de Steven para el informe semanal:** nº llamadas, contestaron/no contestaron, **tiempo hablado promedio (TMO)**, estados de prospecto; y calidad: **llamada buena/no tan buena** + **si se deja hablar al cliente**.
+- **Ya agregado al dashboard (2026-08-11):** KPI **TMO** (promedio de `Tiempo de Conversacion`, H:MM:SS) y **Participación Cliente** (% de turnos del cliente en V4 = "si se deja hablar al cliente"). Ambos respetan todos los filtros.
+- **Buildeable de la plantilla:** Estatus de Llamadas (de `Estado_de_la_LLamada`: ANSWERED/NO ANSWER/BUSY → Contestada/No Contestada/Ocupada), columna TMO por asesor en Rendimiento.
+- **NO buildeable aún:** "Estados Prospectos/Negociación" → `Estado_de_Gestion` vacío (mismo pendiente de arriba).
+
 ## Dos tipos de error en las transcripciones (NO confundir)
 
 Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y soluciones diferentes:
