@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 
 const ResultadosChart = ({ datos }) => {
-    const labelMap = { 'Venta': 'Venta Cerrada' };
+    const labelMap = { 'Venta': 'Posibles ventas' };
 
     const dataFormateada = datos.map(item => ({
         name: labelMap[item.nombre] ?? item.nombre,

@@ -28,7 +28,7 @@ def resultado_llamada(filters):
     job = client.query(query)
     df = job.to_dataframe()
 
-    display_map = {"Venta": "Venta Cerrada"}
+    display_map = {"Venta": "Posibles ventas"}
     df["id"] = df["name"]
     df["name"] = df["name"].map(lambda x: display_map.get(x, x))
 
