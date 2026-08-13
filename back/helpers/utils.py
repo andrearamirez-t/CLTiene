@@ -102,6 +102,7 @@ def get_data_context(where="1=1"):
         SELECT
             efectiva,
             Resultado_Llamada,
+            Estado_de_la_LLamada,
             Duracion_Estimada,
             Plan_Mencionado,
             Saludo_Completo,
@@ -109,7 +110,12 @@ def get_data_context(where="1=1"):
             Ofrecio_WhatsApp,
             cierre_servicio,
             Cuenta,
-            Motivo_Rechazo
+            Motivo_Rechazo,
+            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[Cliente\\]')) cli_turns,
+            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[(?:Asesor|Cliente)\\]')) tot_turns,
+            SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {where}
     ),
@@ -118,7 +124,9 @@ def get_data_context(where="1=1"):
         SELECT
             COUNT(*) total,
             SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
-            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas
+            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
+            CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg,
+            ROUND(SAFE_DIVIDE(SUM(cli_turns), SUM(tot_turns)) * 100, 1) participacion_cliente
         FROM base
     ),
 
@@ -129,6 +137,13 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN Ofrecio_WhatsApp = 'Sí' THEN 1 ELSE 0 END) whatsapp,
             SUM(CASE WHEN cierre_servicio = 1 THEN 1 ELSE 0 END) despedida
         FROM base
+    ),
+
+    estatus AS (
+        SELECT Estado_de_la_LLamada, COUNT(*) total
+        FROM base
+        WHERE Estado_de_la_LLamada IS NOT NULL AND Estado_de_la_LLamada != ''
+        GROUP BY Estado_de_la_LLamada
     ),
 
     resultados AS (
@@ -153,7 +168,10 @@ def get_data_context(where="1=1"):
         SELECT
             Cuenta,
             COUNT(*) llamadas,
-            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) efectivas
+            SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
+            SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) efectivas,
+            SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
+            CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg
         FROM base
         GROUP BY Cuenta
     ),
@@ -169,6 +187,12 @@ def get_data_context(where="1=1"):
     SELECT
         (SELECT AS STRUCT * FROM resumen) resumen,
         (SELECT AS STRUCT * FROM calidad) calidad,
+
+        ARRAY(
+            SELECT AS STRUCT *
+            FROM estatus
+            ORDER BY total DESC
+        ) estatus,
 
         ARRAY(
             SELECT AS STRUCT *
@@ -192,10 +216,14 @@ def get_data_context(where="1=1"):
             SELECT AS STRUCT
                 Cuenta,
                 llamadas,
+                contactadas,
                 efectivas,
-                ROUND(SAFE_DIVIDE(efectivas,llamadas)*100,2) exito_pct
+                saludo,
+                tmo_seg,
+                ROUND(SAFE_DIVIDE(efectivas,llamadas)*100,2) exito_pct,
+                ROUND(SAFE_DIVIDE(contactadas,llamadas)*100,1) contacto_pct
             FROM asesores
-            ORDER BY exito_pct DESC
+            ORDER BY llamadas DESC
         ) asesores,
 
         ARRAY(
@@ -213,14 +241,42 @@ def get_data_context(where="1=1"):
     contactadas = row["resumen"]["contactadas"]
     ventas = row["resumen"]["ventas"]
 
-    ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
-    - Total: {total:,}
-    - Contactadas: {contactadas:,} ({contactadas/total*100:.1f}%)
-    - Ventas: {ventas:,} ({ventas/total*100:.2f}%)
+    # TMO en formato legible (segundos -> H:MM:SS)
+    def _fmt_tmo(seg):
+        if not seg or seg <= 0:
+            return "N/D"
+        seg = int(seg)
+        return f"{seg // 3600}:{(seg % 3600) // 60:02d}:{seg % 60:02d}"
 
-    RESULTADOS:
+    tmo_global = _fmt_tmo(row["resumen"].get("tmo_seg"))
+    participacion = row["resumen"].get("participacion_cliente")
+
+    # Traducción de los estados crudos del marcador a etiquetas de negocio
+    estatus_map = {
+        "ANSWERED": "Contestada",
+        "NO ANSWER": "No Contestada",
+        "NOANSWER": "No Contestada",
+        "BUSY": "Ocupada",
+        "FAILED": "Fallida",
+        "CANCEL": "Cancelada",
+    }
+
+    ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
+    - Total llamadas (marcaciones): {total:,}
+    - Contactadas (llamadas de calidad): {contactadas:,} ({contactadas/total*100:.1f}%)
+    - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {ventas:,} ({ventas/total*100:.2f}%)
+    - TMO (tiempo medio de operación / conversación): {tmo_global}
+    - Participación del cliente (% de turnos hablados por el cliente): {participacion}%
+
+    ESTATUS DE LLAMADAS (marcador):
     """
 
+    for e in row.get("estatus", []):
+        etiqueta = estatus_map.get(e["Estado_de_la_LLamada"], e["Estado_de_la_LLamada"])
+        pct = e["total"] / total * 100 if total else 0
+        ctx += f"{etiqueta}: {e['total']} ({pct:.1f}%)\n"
+
+    ctx += "\nRESULTADOS:\n"
     for r in row["resultados"]:
         ctx += f"{r['Resultado_Llamada']}: {r['total']}\n"
 
@@ -240,9 +296,13 @@ def get_data_context(where="1=1"):
     Despedida: {row["calidad"]["despedida"]}
     """
 
-    ctx += "\nASESORES:\n"
+    ctx += "\nASESORES (Llamadas | TMO | Contacto% | Posibles ventas | Éxito% | Saludos):\n"
     for a in row["asesores"]:
-        ctx += f"{a['Cuenta']} | Llamadas: {a['llamadas']} | Ventas: {a['efectivas']} | Éxito: {a['exito_pct']}%\n"
+        ctx += (
+            f"{a['Cuenta']} | Llamadas: {a['llamadas']} | TMO: {_fmt_tmo(a['tmo_seg'])} "
+            f"| Contacto: {a['contacto_pct']}% | Posibles ventas: {a['efectivas']} "
+            f"| Éxito: {a['exito_pct']}% | Saludos: {a['saludo']}\n"
+        )
 
     if row["rechazos"]:
         ctx += "\nRECHAZOS:\n"

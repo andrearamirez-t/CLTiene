@@ -3,6 +3,22 @@ import { jsPDF } from "jspdf";
 import { useFilters } from "../FiltersContext";
 
 import { API_BASE } from "../config";
+import logoCLTiene from "../assets/logo_cl_tiene.png";
+
+// Carga el logo a un dataURL (jsPDF.addImage necesita base64). Devuelve null si falla.
+const cargarLogo = () =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      c.getContext("2d").drawImage(img, 0, 0);
+      resolve({ dataUrl: c.toDataURL("image/png"), w: img.naturalWidth, h: img.naturalHeight });
+    };
+    img.onerror = () => resolve(null);
+    img.src = logoCLTiene;
+  });
 
 const ReporteCompleto = () => {
   const { buildQuery, filters } = useFilters();
@@ -24,11 +40,17 @@ const ReporteCompleto = () => {
     setLoading(false);
   };
 
-  const descargarPDF = () => {
+  const descargarPDF = async () => {
     if (!reporte) return;
+    const logo = await cargarLogo();
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const margin = 40, maxW = 515;
-    const PINK = [252, 50, 118], GRAY = [71, 85, 105];
+    const PINK = [252, 50, 118], GRAY = [71, 85, 105], SLATE = [30, 41, 59];
+    // Colores de badge para el semáforo (fondo saturado + texto blanco)
+    const STATUS = {
+      verde: [22, 163, 74], amarillo: [217, 119, 6], naranja: [217, 119, 6],
+      rojo: [220, 38, 38], "n/d": [148, 163, 184], azul: [37, 99, 235],
+    };
     let y = margin;
 
     // Sanitiza caracteres que la fuente estándar del PDF no soporta (evita texto cortado)
@@ -37,6 +59,11 @@ const ReporteCompleto = () => {
         .replace(/→/g, "->").replace(/★/g, "*")
         .replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
         .replace(/[–—]/g, "-").replace(/…/g, "...")
+        // Semáforo: la fuente del PDF no renderiza emojis de color -> a palabra
+        .replace(/🟢/g, "Verde").replace(/🟡/g, "Amarillo").replace(/🟠/g, "Amarillo")
+        .replace(/🔴/g, "Rojo").replace(/⚪/g, "N/D").replace(/🔵/g, "Azul")
+        // Cualquier otro caracter fuera de Latin-1 (emojis sueltos) que la fuente no soporta
+        .replace(/[^\x00-\xFF]/g, "")
         .replace(/\s+/g, " ").trim();
 
     const salto = (h = 13) => { y += h; if (y > 790) { doc.addPage(); y = margin; } };
@@ -50,26 +77,132 @@ const ReporteCompleto = () => {
       });
       doc.setFont(undefined, "normal");
     };
+    // Título de sección: gris pizarra (formal) + regla rosa de acento debajo
     const seccion = (txt, size = 13) => {
-      salto(8); ensure(26);
-      doc.setFont(undefined, "bold"); doc.setFontSize(size); doc.setTextColor(...PINK);
+      salto(10); ensure(28);
+      doc.setFont(undefined, "bold"); doc.setFontSize(size); doc.setTextColor(...SLATE);
       doc.splitTextToSize(clean(txt), maxW).forEach((line) => { ensure(18); doc.text(line, margin, y); salto(18); });
-      doc.setDrawColor(244, 194, 210); doc.setLineWidth(0.6); doc.line(margin, y, 555, y); salto(11);
+      doc.setDrawColor(...PINK); doc.setLineWidth(1.2); doc.line(margin, y, margin + 46, y);
+      doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.6); doc.line(margin + 46, y, 555, y);
+      salto(12);
       doc.setFont(undefined, "normal"); doc.setTextColor(...GRAY);
+    };
+
+    // Viñeta con punto rosa dibujado (no depende de la fuente; el char "•" no se renderiza en jsPDF)
+    const vineta = (txt, indent = 16, size = 10.5) => {
+      const t = clean(txt);
+      if (!t) return;
+      doc.setFontSize(size); doc.setTextColor(...GRAY); doc.setFont(undefined, "normal");
+      doc.splitTextToSize(t, maxW - indent).forEach((line, i) => {
+        ensure(size + 4);
+        if (i === 0) { doc.setFillColor(...PINK); doc.circle(margin + 6, y - 3, 1.7, "F"); }
+        doc.text(line, margin + indent, y); salto(size + 4);
+      });
+    };
+
+    // Dibuja una tabla real (encabezado rosa, filas zebra, bordes, columnas auto-ancho)
+    const drawTable = (headers, rows) => {
+      if (!headers.length) return;
+      const lineH = 11, padX = 7, padY = 5, fs = 9;
+
+      // Ancho de columna proporcional al contenido más largo de cada columna
+      const allRows = [headers, ...rows];
+      const rawW = headers.map((_, c) =>
+        Math.max(4, ...allRows.map((r) => clean(String(r[c] ?? "")).length))
+      );
+      const totalRaw = rawW.reduce((a, b) => a + b, 0);
+      const W = rawW.map((w) => (w / totalRaw) * maxW);
+
+      // Alineación por columna: col 0 texto (izq), columna de semáforo centrada (badge),
+      // el resto (números) a la derecha → se lee como reporte financiero.
+      const esStatusCol = headers.map((_, c) =>
+        rows.some((r) => STATUS[clean(String(r[c] ?? "")).toLowerCase()])
+      );
+      const alignOf = (c) => (c === 0 ? "left" : esStatusCol[c] ? "center" : "right");
+
+      const renderRow = (cells, { head = false, idx = 0 } = {}) => {
+        doc.setFontSize(fs);
+        doc.setFont(undefined, head ? "bold" : "normal");
+        // Altura de fila = máximo de líneas envueltas entre sus celdas
+        let maxLines = 1;
+        const wrapped = cells.map((cell, c) => {
+          const lines = doc.splitTextToSize(clean(String(cell ?? "")), W[c] - 2 * padX);
+          if (lines.length > maxLines) maxLines = lines.length;
+          return lines;
+        });
+        const h = maxLines * lineH + 2 * padY;
+
+        // Salto de página → repite el encabezado arriba
+        if (y + h > 790) { doc.addPage(); y = margin; renderRow(headers, { head: true }); }
+
+        // Fondo (rosa el encabezado, zebra el cuerpo)
+        if (head) doc.setFillColor(...PINK);
+        else if (idx % 2) doc.setFillColor(248, 250, 252);
+        else doc.setFillColor(255, 255, 255);
+        doc.rect(margin, y, maxW, h, "F");
+
+        // Contenido celda por celda
+        let x = margin;
+        wrapped.forEach((lines, c) => {
+          const raw = clean(String(cells[c] ?? ""));
+          const badge = !head && STATUS[raw.toLowerCase()];
+          const align = alignOf(c);
+          if (badge) {
+            // Semáforo como badge de color con texto blanco
+            doc.setFont(undefined, "bold"); doc.setFontSize(fs);
+            const tw = doc.getTextWidth(raw);
+            const pillW = Math.min(tw + 16, W[c] - 6), pillH = 15;
+            const px = x + (W[c] - pillW) / 2, py = y + (h - pillH) / 2;
+            doc.setFillColor(...badge);
+            doc.roundedRect(px, py, pillW, pillH, 5, 5, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.text(raw, x + W[c] / 2, py + pillH / 2, { align: "center", baseline: "middle" });
+            doc.setFont(undefined, "normal");
+          } else {
+            doc.setTextColor(...(head ? [255, 255, 255] : c === 0 ? SLATE : GRAY));
+            const tx = align === "left" ? x + padX : align === "right" ? x + W[c] - padX : x + W[c] / 2;
+            lines.forEach((ln, i) =>
+              doc.text(ln, tx, y + padY + lineH * (i + 1) - 2, { align })
+            );
+          }
+          x += W[c];
+        });
+
+        // Bordes: recuadro de la fila + separadores verticales
+        doc.setDrawColor(head ? 252 : 226, head ? 50 : 232, head ? 118 : 240);
+        doc.setLineWidth(0.5);
+        doc.rect(margin, y, maxW, h, "S");
+        let vx = margin;
+        for (let c = 0; c < W.length - 1; c++) { vx += W[c]; doc.line(vx, y, vx, y + h); }
+
+        y += h;
+        doc.setFont(undefined, "normal");
+      };
+
+      salto(4);
+      renderRow(headers, { head: true });
+      rows.forEach((r, i) => renderRow(r, { idx: i + 1 }));
+      salto(12);
+      doc.setTextColor(...GRAY);
     };
 
     // Banda de encabezado
     doc.setFillColor(...PINK); doc.rect(0, 0, 595, 76, "F");
     doc.setTextColor(255, 255, 255); doc.setFont(undefined, "bold"); doc.setFontSize(16);
-    doc.text("Reporte Estrategico de Operaciones", margin, 38);
+    doc.text("Reporte Estratégico de Operaciones", margin, 38);
     doc.setFont(undefined, "normal"); doc.setFontSize(10);
     doc.text("CL Tiene Soluciones - Agente IA PRO (DivergencyAI SAS)", margin, 58);
+    // Logo CL Tiene (wordmark blanco) alineado a la derecha de la banda
+    if (logo) {
+      const lw = 130, lh = lw * (logo.h / logo.w);
+      doc.addImage(logo.dataUrl, "PNG", 595 - margin - lw, (76 - lh) / 2, lw, lh);
+    }
     // Período según los filtros de fecha del sidebar
     const fd = filters?.fecha_desde, fh = filters?.fecha_hasta;
-    let periodo = "Periodo: todo el historico";
-    if (fd && fh) periodo = `Periodo: ${fd} a ${fh}`;
-    else if (fd) periodo = `Periodo: desde ${fd}`;
-    else if (fh) periodo = `Periodo: hasta ${fh}`;
+    let periodo = "Período: todo el histórico";
+    if (fd && fh) periodo = `Período: ${fd} a ${fh}`;
+    else if (fd) periodo = `Período: desde ${fd}`;
+    else if (fh) periodo = `Período: hasta ${fh}`;
 
     y = 98;
     doc.setTextColor(120, 120, 120); doc.setFontSize(9);
@@ -79,6 +212,51 @@ const ReporteCompleto = () => {
     // Parsear el HTML del reporte para preservar la estructura (títulos, párrafos, listas, tablas)
     const cont = document.createElement("div");
     cont.innerHTML = reporte;
+
+    // --- Resumen Ejecutivo: extraerlo y renderizarlo como PANEL destacado (BLUF) ---
+    const panelResumen = (items, concl) => {
+      const indent = 20, size = 10.5, lh = size + 4, padTop = 14, padBot = 12;
+      doc.setFontSize(size); doc.setFont(undefined, "normal");
+      const bloques = items.map((it) => doc.splitTextToSize(clean(it), maxW - indent - 12));
+      const cLines = concl ? doc.splitTextToSize(clean(concl), maxW - indent - 12) : [];
+      const nBullets = bloques.reduce((a, b) => a + b.length, 0);
+      const boxH = padTop + nBullets * lh + (cLines.length ? 8 + cLines.length * lh : 0) + padBot;
+      ensure(boxH + 6);
+      const top = y;
+      // Panel gris claro con borde y barra rosa a la izquierda
+      doc.setFillColor(248, 250, 252); doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.6);
+      doc.roundedRect(margin, top, maxW, boxH, 7, 7, "FD");
+      doc.setFillColor(...PINK); doc.rect(margin, top + 3, 4, boxH - 6, "F");
+      // Contenido
+      let ty = top + padTop + 6;
+      doc.setTextColor(...GRAY); doc.setFontSize(size);
+      bloques.forEach((lns) => {
+        lns.forEach((ln, i) => {
+          if (i === 0) { doc.setFillColor(...PINK); doc.circle(margin + 14, ty - 3, 1.7, "F"); }
+          doc.text(ln, margin + indent, ty); ty += lh;
+        });
+      });
+      if (cLines.length) {
+        ty += 8; doc.setFont(undefined, "bold"); doc.setTextColor(...SLATE);
+        cLines.forEach((ln) => { doc.text(ln, margin + indent - 4, ty); ty += lh; });
+        doc.setFont(undefined, "normal");
+      }
+      y = top + boxH; salto(14); doc.setTextColor(...GRAY);
+    };
+
+    const resH2 = [...cont.querySelectorAll("h1,h2,h3")].find((h) => /resumen ejecutivo/i.test(h.textContent));
+    if (resH2) {
+      const scope = resH2.parentElement || cont;
+      const ul = scope.querySelector("ul,ol");
+      const items = ul ? [...ul.querySelectorAll("li")].map((li) => li.textContent.trim()) : [];
+      const p = scope.querySelector("p");
+      const concl = p ? p.textContent.trim() : "";
+      seccion(resH2.textContent);
+      panelResumen(items, concl);
+      // Quitar solo los nodos ya renderizados (no el contenedor, para no arrastrar el Tablero)
+      resH2.remove(); ul && ul.remove(); p && p.remove();
+    }
+
     const walk = (node) => {
       node.childNodes.forEach((el) => {
         if (el.nodeType === 3) { const t = el.textContent.trim(); if (t) parrafo(t); return; }
@@ -89,18 +267,26 @@ const ReporteCompleto = () => {
         } else if (tag === "p") {
           parrafo(el.textContent); salto(3);
         } else if (tag === "ul" || tag === "ol") {
-          el.querySelectorAll(":scope > li").forEach((li) => parrafo("•  " + li.textContent, 10.5, GRAY, false, 12));
+          el.querySelectorAll(":scope > li").forEach((li) => vineta(li.textContent));
           salto(4);
         } else if (tag === "li") {
-          parrafo("•  " + el.textContent, 10.5, GRAY, false, 12);
+          vineta(el.textContent);
         } else if (tag === "br") {
           salto(5);
         } else if (tag === "table") {
-          el.querySelectorAll("tr").forEach((tr) => {
-            const fila = [...tr.querySelectorAll("td,th")].map((c) => c.textContent.trim()).filter(Boolean).join("   |   ");
-            if (fila) parrafo(fila, 9.5);
+          const trs = [...el.querySelectorAll("tr")];
+          if (!trs.length) return;
+          const headRow = el.querySelector("thead tr") || trs[0];
+          const headers = [...headRow.querySelectorAll("th,td")].map((c) => c.textContent.trim());
+          const bodyTrs = el.querySelector("tbody")
+            ? [...el.querySelectorAll("tbody tr")]
+            : trs.slice(1);
+          const rows = bodyTrs.map((tr) => {
+            const cs = [...tr.querySelectorAll("td,th")].map((c) => c.textContent.trim());
+            while (cs.length < headers.length) cs.push("");
+            return cs.slice(0, headers.length);
           });
-          salto(4);
+          drawTable(headers, rows);
         } else {
           walk(el); // div, span, section, etc. → recursar
         }
@@ -115,7 +301,7 @@ const ReporteCompleto = () => {
       doc.setDrawColor(228, 228, 228); doc.setLineWidth(0.5); doc.line(margin, 816, 555, 816);
       doc.setFontSize(8); doc.setTextColor(150, 150, 150); doc.setFont(undefined, "normal");
       doc.text("CL Tiene Soluciones - DivergencyAI SAS   |   Confidencial", margin, 830);
-      doc.text(`Pagina ${p} de ${totalPaginas}`, 500, 830);
+      doc.text(`Página ${p} de ${totalPaginas}`, 500, 830);
     }
     doc.save(`Reporte_IA_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
