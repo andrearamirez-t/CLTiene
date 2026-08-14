@@ -115,13 +115,34 @@ const ReporteCompleto = () => {
       if (!headers.length) return;
       const lineH = 11, padX = 7, padY = 5, fs = 9;
 
-      // Ancho de columna proporcional al contenido más largo de cada columna
-      const allRows = [headers, ...rows];
+      // Ancho de columna: garantiza que el ENCABEZADO quepa en una sola línea (no se
+      // parta "Llamada/s"); la col 0 (texto) además intenta acomodar el nombre más
+      // largo hasta un tope; el sobrante se reparte según el contenido de los datos.
+      doc.setFontSize(fs);
+      const wOf = (s, bold) => { doc.setFont(undefined, bold ? "bold" : "normal"); return doc.getTextWidth(clean(String(s ?? ""))); };
+      const cap = maxW * 0.52;
+      const minW = headers.map((h, c) => {
+        const hw = wOf(h, true) + 2 * padX + 3;
+        if (c === 0) {
+          const dataMax = Math.max(0, ...rows.map((r) => wOf(r[c], false))) + 2 * padX + 3;
+          return Math.min(Math.max(hw, dataMax), cap);
+        }
+        return hw;
+      });
+      doc.setFont(undefined, "normal");
       const rawW = headers.map((_, c) =>
-        Math.max(4, ...allRows.map((r) => clean(String(r[c] ?? "")).length))
+        Math.max(4, ...rows.map((r) => clean(String(r[c] ?? "")).length))
       );
-      const totalRaw = rawW.reduce((a, b) => a + b, 0);
-      const W = rawW.map((w) => (w / totalRaw) * maxW);
+      const totalRaw = rawW.reduce((a, b) => a + b, 0) || 1;
+      const sumMin = minW.reduce((a, b) => a + b, 0);
+      let W;
+      if (sumMin >= maxW) {
+        const k = maxW / sumMin;              // no caben ni en 1 línea → escala
+        W = minW.map((w) => w * k);
+      } else {
+        const extra = maxW - sumMin;          // espacio sobrante repartido por datos
+        W = minW.map((mw, c) => mw + extra * (rawW[c] / totalRaw));
+      }
 
       // Alineación por columna: col 0 texto (izq), columna de semáforo centrada (badge),
       // el resto (números) a la derecha → se lee como reporte financiero.
