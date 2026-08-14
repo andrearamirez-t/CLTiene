@@ -20,6 +20,16 @@ const cargarLogo = () =>
     img.src = logoCLTiene;
   });
 
+// La IA emite bloques con fondo oscuro (rgb(15,23,42)); en pantalla el texto oscuro
+// queda ilegible. Convertimos esos colores a un tema claro SOLO para el render en
+// pantalla (el PDF usa el HTML crudo y no depende de estos estilos).
+const limpiarHTML = (raw) =>
+  String(raw || "")
+    .replace(/background-color\s*:\s*rgb\(\s*15\s*,\s*23\s*,\s*42\s*\)[^;"']*/gi, "background-color: #ffffff")
+    .replace(/color\s*:\s*rgb\(\s*203\s*,\s*213\s*,\s*225\s*\)[^;"']*/gi, "color: #334155")
+    .replace(/color\s*:\s*rgb\(\s*148\s*,\s*163\s*,\s*184\s*\)[^;"']*/gi, "color: #64748b")
+    .replace(/border(?:-bottom)?\s*:\s*1px solid rgb\(\s*30\s*,\s*41\s*,\s*59\s*\)[^;"']*/gi, "border-bottom: 1px solid #e2e8f0");
+
 const ReporteCompleto = () => {
   const { buildQuery, filters } = useFilters();
   const [reporte, setReporte] = useState(null);
@@ -349,7 +359,7 @@ const ReporteCompleto = () => {
 
           <div
             style={styles.resultBody}
-            dangerouslySetInnerHTML={{ __html: reporte }}
+            dangerouslySetInnerHTML={{ __html: limpiarHTML(reporte) }}
           />
 
           <div style={styles.pdfRow}>

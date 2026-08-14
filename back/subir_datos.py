@@ -16,6 +16,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 from sqlalchemy import create_engine, text
 import pandas as pd
 import re
+import unicodedata
 import hashlib
 from google.cloud import bigquery
 import openai
@@ -78,20 +79,40 @@ def _crear_engine():
     raise RuntimeError(f"No se pudo conectar a SQL Server con ningún driver ODBC: {ultimo}")
 
 
-def cargar_desde_sql():
-    engine = _crear_engine()
+def parse_fecha_es(s):
+    """Parsea el formato de fecha español de Windows que TRY_CONVERT(...,120) NO soporta:
+    'DD/MM/YYYY h:mm:ss a. m./p. m.' con espacios Unicode (U+202F/U+00A0) y '.' en a.m./p.m.
+    Devuelve datetime o None. (El formato ISO 120 se maneja en SQL; esto es solo el fallback
+    para el lote viejo de oct-2025, cuando la fuente usaba la config regional es-CO.)"""
+    if s is None:
+        return None
+    # Normaliza cualquier espacio Unicode (incl. U+202F angosto) a espacio normal
+    t = "".join(" " if unicodedata.category(ch) == "Zs" else ch for ch in str(s))
+    m = re.match(r"^\s*(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s*([ap])\W*m\W*$", t, re.I)
+    ap = None
+    if m:
+        d, mo, y, h, mi, se, ap = m.groups()
+    else:  # sin marcador a.m./p.m. → asume 24h
+        m = re.match(r"^\s*(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s*$", t)
+        if not m:
+            return None
+        d, mo, y, h, mi, se = m.groups()
+    d, mo, y, h, mi, se = int(d), int(mo), int(y), int(h), int(mi), int(se)
+    if ap:
+        ap = ap.lower()
+        if ap == "p" and h != 12:
+            h += 12
+        if ap == "a" and h == 12:
+            h = 0
+    try:
+        return datetime(y, mo, d, h, mi, se)
+    except ValueError:
+        return None
 
-    sql = text("""
-        WITH registros_unicos AS (
-            SELECT COALESCE(cuenta, Agente) cuenta,
-                   TRY_CONVERT(datetime, fecha, 120) AS fecha,
-                   COUNT(*) AS cant
-            FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS
-            WHERE TRY_CONVERT(datetime, fecha, 120) IS NOT NULL
-            GROUP BY COALESCE(cuenta, Agente), TRY_CONVERT(datetime, fecha, 120)
-        )
-        SELECT
-            TRY_CONVERT(datetime, b.Fecha, 120)          AS Fecha,
+
+# Columnas de la tabla origen (todas menos Fecha y tipo, que difieren entre el query
+# principal y el fallback). Se comparten para no duplicar la lista.
+_COLS_MEDIO = """
             b.[Contacto (Identificacion - Nombre],
             b.[Telefono], b.[Agente], COALESCE(b.[Cuenta], b.[Agente]) AS Cuenta,
             b.[Modulo], b.[Nombre del Modulo], b.[Motivo],
@@ -111,7 +132,25 @@ def cargar_desde_sql():
             b.[efectiva], b.[polarity], b.[subjectivity],
             b.[clasificacion], b.[confianza], b.[palabras],
             b.[IDENTIFICACION], b.[fecha_carga], b.[transcripcion],
-            b.[Tipo_Llamada],
+            b.[Tipo_Llamada]"""
+
+
+def cargar_desde_sql():
+    engine = _crear_engine()
+
+    # Query principal: filas con fecha en formato ISO 120 (la mayoría). Inalterado.
+    sql = text(f"""
+        WITH registros_unicos AS (
+            SELECT COALESCE(cuenta, Agente) cuenta,
+                   TRY_CONVERT(datetime, fecha, 120) AS fecha,
+                   COUNT(*) AS cant
+            FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS
+            WHERE TRY_CONVERT(datetime, fecha, 120) IS NOT NULL
+            GROUP BY COALESCE(cuenta, Agente), TRY_CONVERT(datetime, fecha, 120)
+        )
+        SELECT
+            TRY_CONVERT(datetime, b.Fecha, 120)          AS Fecha,
+            {_COLS_MEDIO},
             CASE WHEN a.cant > 1 THEN 'mixto' ELSE b.tipo END AS tipo
         FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS b
         INNER JOIN registros_unicos a
@@ -119,8 +158,33 @@ def cargar_desde_sql():
            AND a.fecha  = TRY_CONVERT(datetime, b.fecha, 120)
     """)
 
+    # Fallback: filas cuya fecha NO parsea con 120 (formato español de Windows, lote
+    # oct-2025). Se traen crudas y se parsea la fecha en Python (SQL no lo logra por el
+    # espacio U+202F). Sin esto se perdían ~7k llamadas en silencio.
+    sql_fb = text(f"""
+        SELECT
+            b.[fecha] AS Fecha_raw,
+            {_COLS_MEDIO},
+            b.[tipo] AS tipo
+        FROM CUN_REPOSITORIO.coe.CLTIENE_LLAMADAS b
+        WHERE TRY_CONVERT(datetime, b.fecha, 120) IS NULL
+          AND b.[fecha] LIKE '%/%/%'
+    """)
+
     with engine.connect() as conn:
         df = pd.read_sql_query(sql, conn)
+        df_fb = pd.read_sql_query(sql_fb, conn)
+
+    log(f"  Filas formato ISO (120): {len(df):,}")
+    if len(df_fb):
+        df_fb["Fecha"] = df_fb["Fecha_raw"].apply(parse_fecha_es)
+        no_parse = int(df_fb["Fecha"].isna().sum())
+        df_fb = df_fb[df_fb["Fecha"].notna()].drop(columns=["Fecha_raw"]).reset_index(drop=True)
+        log(f"  Filas formato español recuperadas: {len(df_fb):,} (lote oct-2025)")
+        if no_parse:
+            log(f"  ⚠️ Filas con fecha no parseable descartadas: {no_parse:,}")
+        df = pd.concat([df, df_fb], ignore_index=True)
+        df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
 
     # Deduplicación: la tabla origen (CUN) trae ~10% de filas duplicadas
     # (el mismo audio cargado más de una vez → inflaba los conteos del dashboard).
