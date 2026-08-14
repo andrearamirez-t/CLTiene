@@ -123,6 +123,12 @@ const Rendimiento = () => {
 
 
 
+    const fmtTMO = (seg) => {
+        const s = Number(seg) || 0;
+        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+        return `${h}:${String(m).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    };
+
     const colorBadge = (val) => {
         if (val === 0 || val === null || val === undefined) return '#94a3b8';
         if (val < 2) return '#ef4444';
@@ -198,7 +204,7 @@ const Rendimiento = () => {
                             </th>
 
 
-                            {['Llamadas', 'Calidad /100', '% Efectividad', ...(!esServicio ? ['% Ventas'] : [])]
+                            {['Llamadas', 'TMO', 'Calidad /100', '% Efectividad', ...(!esServicio ? ['% Ventas'] : [])]
                                 .map((label, i) => (
 
                                     <th key={i} style={{ padding: '12px 16px' }}>
@@ -211,7 +217,7 @@ const Rendimiento = () => {
                                                 onChange={(e) => {
 
                                                     setColumnaOrden(
-                                                        label.includes('Calidad') ? 'score_calidad' : label.includes('Contacto') ? 'contacto_pct' : label.includes('Ventas') ? 'tasa_venta' : label.toLowerCase()
+                                                        label.includes('Calidad') ? 'score_calidad' : label === 'TMO' ? 'tmo_seg' : label.includes('Efectividad') ? 'contacto_pct' : label.includes('Ventas') ? 'tasa_venta' : label.toLowerCase()
                                                     );
 
                                                     setOrden(e.target.value);
@@ -253,6 +259,7 @@ const Rendimiento = () => {
                                 </td>
 
                                 <td style={{ padding: '16px' }}>{agente.llamadas}</td>
+                                <td style={{ padding: '16px' }}>{fmtTMO(agente.tmo_seg)}</td>
                                 <td style={{ padding: '16px' }}>{agente.score_calidad}</td>
                                 <td style={{ padding: '16px' }}>{agente.contacto_pct + '%'}</td>
 

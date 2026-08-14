@@ -20,6 +20,15 @@ def rendimiento_agente(filters: FilterModel):
         ), 1) AS score_calidad,
         ROUND(SAFE_DIVIDE(SUM(efectiva), COUNT(*)) * 100, 2) AS contacto_pct,
         ROUND(SAFE_DIVIDE(COUNTIF(Resultado_Llamada = 'Venta'), COUNT(*)) * 100, 2) AS tasa_venta,
+        -- TMO (tiempo hablado promedio) en segundos; solo llamadas con tiempo > 0
+        CAST(ROUND(AVG(IF(
+            SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) > 0,
+            SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64),
+            NULL))) AS INT64) AS tmo_seg,
         CONCAT('#', FORMAT('%06X', CAST(FLOOR(RAND() * 16777215) AS INT64))) AS color
 
     FROM

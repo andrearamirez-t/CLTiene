@@ -468,6 +468,9 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **Ya agregado al dashboard (2026-08-11):** KPI **TMO** (promedio de `Tiempo de Conversacion`, H:MM:SS) y **Participación Cliente** (% de turnos del cliente en V4 = "si se deja hablar al cliente"). Ambos respetan todos los filtros.
 - **Buildeable de la plantilla:** Estatus de Llamadas (de `Estado_de_la_LLamada`: ANSWERED/NO ANSWER/BUSY → Contestada/No Contestada/Ocupada), columna TMO por asesor en Rendimiento.
 - **NO buildeable aún:** "Estados Prospectos/Negociación" → `Estado_de_Gestion` vacío (mismo pendiente de arriba).
+- **✅ HECHO (2026-08-14, rev backend `00121-gfd` + Firebase):** los 2 buildeables ya están en el dashboard:
+  - **Gráfica "Estatus de Llamadas"** — nuevo endpoint `GET /api/estatus_llamadas` (`back/api/charts/estatus_llamadas.py`, traduce `Estado_de_la_LLamada` con `UPPER(TRIM())`: ANSWERED→Contestada verde, NO ANSWER→No Contestada ámbar, BUSY→Ocupada rojo, resto=raw; devuelve label/valor/porcentaje/color; respeta filtros). Componente `EstatusChart.jsx` (auto-fetch estilo `DuracionChart`) agregado a `Resumen.jsx`. En vivo: Contestada 74.7% / No Contestada 25.3%.
+  - **Columna TMO por asesor** en Rendimiento — `rendimiento_agente.py` ahora devuelve `tmo_seg` (AVG de `Tiempo__de_Conversacion` en segundos, solo rows con tiempo>0). `Rendimiento.jsx`: helper `fmtTMO(seg)`→H:MM:SS, columna "TMO" tras "Llamadas", ordenable por `tmo_seg`. De paso se corrigió el mapeo de orden de "% Efectividad"→`contacto_pct` (antes mapeaba a un campo inexistente).
 
 ### Reporte Ejecutivo (Agente IA PRO) rehecho estilo Steven (2026-08-12, rev `00120-xr5`)
 - Steven pasó el informe del año pasado (ContactVox "ESTADISTICAS GENERALES") como base de formato y pidió un reporte **más ejecutivo**. Se rehízo el `reporte_completo` (NO se creó pestaña nueva; es el mismo botón "Generar Reporte Ejecutivo" → PDF).

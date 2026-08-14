@@ -43,6 +43,7 @@ from api.charts.distribucion_resultado import distribucion_resultado
 from api.charts.motivo_rechazo import motivo_rechazo
 from api.charts.duraccion_efectivo import duraccion_efectivo
 from api.charts.embudo_conversacion import embudo_conversacion
+from api.charts.estatus_llamadas import estatus_llamadas
 from api.charts.kpi import kpi
 
 from api.ia.generar_insights import generar_insights
@@ -197,6 +198,11 @@ def api_tipo_mascota(filters: FilterModel = Depends()):
 @router.get("/api/rendimiento_agente")
 def api_rendimiento_agente(filters: FilterModel = Depends()):
     return rendimiento_agente(filters)
+
+
+@router.get("/api/estatus_llamadas")
+def api_estatus_llamadas(filters: FilterModel = Depends()):
+    return estatus_llamadas(filters)
 
 
 @router.get("/api/planes_mencionados")

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ResultadosChart from "../components/charts/ResultadosChart";
 import EmbudoChart from "../components/charts/EmbudoChart";
 import DuracionChart from "../components/charts/DuracionChart";
+import EstatusChart from "../components/charts/EstatusChart";
 import InsightsCard from "../components/ui/InsightsCard";
 import { useFilters } from "../FiltersContext";
 
@@ -30,6 +31,7 @@ function Resumen() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <ResultadosChart datos={resultados} />
                 <DuracionChart />
+                <EstatusChart />
             </div>
 
 
