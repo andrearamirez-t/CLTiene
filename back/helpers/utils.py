@@ -241,12 +241,15 @@ def get_data_context(where="1=1"):
     contactadas = row["resumen"]["contactadas"]
     ventas = row["resumen"]["ventas"]
 
-    # TMO en formato legible (segundos -> H:MM:SS)
+    # TMO en formato legible M:SS (minutos:segundos), consistente en todo el reporte.
+    # Si supera la hora, antepone las horas.
     def _fmt_tmo(seg):
         if not seg or seg <= 0:
             return "N/D"
         seg = int(seg)
-        return f"{seg // 3600}:{(seg % 3600) // 60:02d}:{seg % 60:02d}"
+        if seg >= 3600:
+            return f"{seg // 3600}:{(seg % 3600) // 60:02d}:{seg % 60:02d}"
+        return f"{seg // 60}:{seg % 60:02d}"
 
     tmo_global = _fmt_tmo(row["resumen"].get("tmo_seg"))
     participacion = row["resumen"].get("participacion_cliente")
@@ -261,12 +264,30 @@ def get_data_context(where="1=1"):
         "CANCEL": "Cancelada",
     }
 
+    # Semáforos calculados en código (umbrales fijos) → deterministas y consistentes
+    # entre informes. La IA solo debe copiarlos, no recalcularlos.
+    tmo_seg = int(row["resumen"].get("tmo_seg") or 0)
+    part = participacion or 0
+    contact_pct = contactadas / total * 100 if total else 0
+    pv_pct = ventas / total * 100 if total else 0
+    sem_contact = "🔴" if contact_pct < 10 else ("🟡" if contact_pct <= 20 else "🟢")
+    sem_tmo = "🟢" if 120 <= tmo_seg <= 240 else ("🟡" if (60 <= tmo_seg < 120 or 240 < tmo_seg <= 300) else "🔴")
+    sem_part = "🟢" if 40 <= part <= 60 else ("🟡" if (30 <= part < 40 or 60 < part <= 70) else "🔴")
+    sem_pv = "🔴" if pv_pct < 2 else ("🟡" if pv_pct <= 5 else "🟢")
+
     ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
     - Total llamadas (marcaciones): {total:,}
     - Contactadas (llamadas de calidad): {contactadas:,} ({contactadas/total*100:.1f}%)
     - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {ventas:,} ({ventas/total*100:.2f}%)
     - TMO (tiempo medio de operación / conversación): {tmo_global}
     - Participación del cliente (% de turnos hablados por el cliente): {participacion}%
+
+    SEMÁFOROS YA CALCULADOS (cópialos EXACTO en el Tablero de Indicadores, NO los recalcules):
+    - Total llamadas: 🟢
+    - Contactabilidad: {sem_contact}
+    - TMO: {sem_tmo}
+    - Participación cliente: {sem_part}
+    - Posibles ventas: {sem_pv}
 
     ESTATUS DE LLAMADAS (marcador):
     """
@@ -310,6 +331,53 @@ def get_data_context(where="1=1"):
             ctx += f"{r['Motivo_Rechazo']}: {r['total']}\n"
 
     return ctx
+
+
+def get_periodo_anterior_context(where, desde, hasta):
+    """Agregados clave del período ANTERIOR (mismo largo, mismos filtros salvo fechas),
+    para que el reporte se lea como continuación/comparación. Devuelve '' si no hay datos."""
+    query = f"""
+    WITH base AS (
+        SELECT
+            resultado_llamada,
+            efectiva,
+            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[Cliente\\]')) cli,
+            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[(?:Asesor|Cliente)\\]')) tot,
+            SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
+              + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg
+        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        WHERE {where}
+    )
+    SELECT
+        COUNT(*) total,
+        SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) calidad,
+        SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) posibles_ventas,
+        CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg,
+        ROUND(SAFE_DIVIDE(SUM(cli), SUM(tot)) * 100, 1) participacion
+    FROM base
+    """
+    row = dict(list(client.query(query).result())[0])
+    total = row["total"]
+    if not total:
+        return ""
+
+    calidad = row["calidad"] or 0
+    pv = row["posibles_ventas"] or 0
+    tmo = int(row["tmo_seg"]) if row["tmo_seg"] else 0
+    tmo_fmt = f"{tmo // 60}:{tmo % 60:02d}" if tmo else "N/D"
+
+    return (
+        f"\n\nPERÍODO ANTERIOR (para COMPARAR — {desde} a {hasta}):\n"
+        f"- Total llamadas: {total:,}\n"
+        f"- Contactabilidad (llamadas de calidad): {calidad/total*100:.1f}% ({calidad})\n"
+        f"- Posibles ventas: {pv} ({pv/total*100:.2f}%)\n"
+        f"- TMO: {tmo_fmt}\n"
+        f"- Participación del cliente: {row['participacion']}%\n"
+        "IMPORTANTE: en el Resumen Ejecutivo incluye 1-2 frases comparando el período ACTUAL contra "
+        "ESTE anterior (subió/bajó volumen, contactabilidad, posibles ventas), para que el informe se "
+        "lea como continuación del anterior. NO cambies nombres de indicadores ni la metodología."
+    )
 
 
 def get_asesor_context(where, asesor=""):

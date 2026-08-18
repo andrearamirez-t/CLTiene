@@ -1,6 +1,33 @@
+from datetime import datetime, timedelta
+
 from IA.Open_AI import call, prompt_html
 from api.models import FilterModel
-from helpers.utils import get_data_context, contexto_tipo_llamada
+from helpers.utils import get_data_context, contexto_tipo_llamada, get_periodo_anterior_context
+
+
+def _contexto_periodo_anterior(filters: FilterModel) -> str:
+    """Si hay rango de fechas, computa el período inmediatamente anterior (mismo largo,
+    mismos filtros) y devuelve su bloque de comparación. '' si no aplica o falla."""
+    fd, fh = filters.fecha_desde, filters.fecha_hasta
+    if not (fd and fh):
+        return ""
+    try:
+        d1 = datetime.strptime(fd, "%Y-%m-%d").date()
+        d2 = datetime.strptime(fh, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return ""
+    prev_hasta = d1 - timedelta(days=1)
+    prev_desde = prev_hasta - timedelta(days=(d2 - d1).days)
+    prev = filters.model_copy(update={
+        "fecha_desde": prev_desde.strftime("%Y-%m-%d"),
+        "fecha_hasta": prev_hasta.strftime("%Y-%m-%d"),
+    })
+    try:
+        return get_periodo_anterior_context(
+            prev.get_query(), prev_desde.strftime("%Y-%m-%d"), prev_hasta.strftime("%Y-%m-%d")
+        )
+    except Exception:
+        return ""
 
 
 def generar_reporte_completo(filters: FilterModel):
@@ -28,7 +55,23 @@ def generar_reporte_completo(filters: FilterModel):
             "- Participación del cliente = % de turnos hablados por el cliente (más alto = el asesor "
             "deja hablar/escucha más; muy bajo = monólogo del asesor).\n"
             "- Estatus de llamadas (Contestada / No Contestada / Ocupada) mide alcance del marcador, "
-            "distinto de la calidad de la conversación.\n\n"
+            "distinto de la calidad de la conversación. 'Contestada' NO es 'contacto efectivo': una "
+            "llamada puede ser 100% Contestada por el marcador y AÚN así quedar 'sin contacto' (hubo "
+            "llamada pero nunca hablaron con la persona: buzón, cuelga rápido). Cuando el estatus da "
+            "100% contestada pero hay resultados 'sin contacto', incluye SIEMPRE en la sección Estatus "
+            "una Nota metodológica breve, textual: 'Nota: una llamada contestada indica que la marcación "
+            "fue atendida o estableció conexión; no implica necesariamente un contacto efectivo ni una "
+            "conversación de calidad con el cliente.' Así NO se lee como contradicción.\n"
+            "- 'Posibles ventas': preséntala SIEMPRE con número Y porcentaje juntos, formato 'N (X.X%)' "
+            "(ej. '24 (2.5%)'), igual en el Resumen, el Tablero y por asesor. Nunca solo el % ni solo el número.\n"
+            "- TMO: muéstralo SIEMPRE en el formato M:SS tal como viene en el contexto (ej. '1:22', '1:11'); "
+            "NO lo reformatees a '0:01:22' ni cambies el formato entre secciones.\n\n"
+
+            "REGLA DEL SEMÁFORO — el contexto ya trae la sección 'SEMÁFOROS YA CALCULADOS'. "
+            "COPIA ESE color EXACTO para cada indicador en el Tablero (NO lo recalcules ni lo cambies "
+            "por tu criterio de 'bueno/malo'). Es lo que garantiza que el mismo valor dé el mismo color "
+            "entre un informe y otro. Para Saludo/Calidad (que no vienen precalculados): 🔴 si es "
+            "claramente bajo respecto al volumen, si no 🟡.\n\n"
 
             "ESTRUCTURA (usa <h2> por sección, tablas SOLO donde aporten):\n"
             "1. Resumen Ejecutivo — 'lo esencial primero' (BLUF): 4-5 bullets con el titular del periodo "
@@ -51,8 +94,15 @@ def generar_reporte_completo(filters: FilterModel):
             "9. Plan de Acción (4 semanas) — qué hacer cada semana.\n"
             "10. Metas SMART — 3 metas medibles para el próximo periodo con línea base y objetivo.\n\n"
 
-            "Usa porcentajes y emojis con moderación. No inventes datos que no estén en el contexto."
+            "Usa porcentajes y emojis con moderación. No inventes datos que no estén en el contexto.\n"
+            "REGLA DE FORMATO CRÍTICA: CADA sección debe tener su PROPIO contenido (mínimo 1-2 "
+            "frases o su tabla); NUNCA dejes un encabezado vacío. NO traslades el análisis de una "
+            "sección a otra: el desglose del estatus (Contestada/No Contestada/Ocupada con conteos) "
+            "va SIEMPRE en la sección 'Estatus de Llamadas', NO en el Resumen — aunque sea 100% de "
+            "una sola categoría, escríbelo ahí con su número."
         ),
-        f"Genera el reporte gerencial con estos datos del periodo filtrado:\n{get_data_context(filters.get_query())}"
+        f"Genera el reporte gerencial con estos datos del periodo filtrado:\n"
+        f"{get_data_context(filters.get_query())}"
+        f"{_contexto_periodo_anterior(filters)}"
     )
     return {"result": content, "error": error}

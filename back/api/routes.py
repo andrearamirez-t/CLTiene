@@ -485,15 +485,15 @@ def evolucion_ventas(filters: FilterModel = Depends()):
                 DATE({calculo_fecha()}),
                 WEEK(MONDAY)
             ) semana,
-            CAST(efectiva AS FLOAT64) efectiva
+            resultado_llamada
         FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
         WHERE {where}
     )
 
     SELECT
         semana fecha,
-        COUNT(*) ingresos,
-        SUM(efectiva) ventas
+        COUNT(*) llamadas,
+        SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) posibles_ventas
     FROM base
     GROUP BY semana
     ORDER BY semana

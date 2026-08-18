@@ -163,7 +163,7 @@ export default function Inteligencia() {
           <Ventas data={datosVentas} />
         </CardGrafica>
 
-        <CardGrafica titulo={esServicio ? "Evolución de Llamadas en el Tiempo" : "Evolución de Ventas en el Tiempo"}>
+        <CardGrafica titulo={esServicio ? "Evolución de Llamadas en el Tiempo" : "Evolución de Llamadas y Posibles Ventas"}>
           <Evolucion data={datosEvolucion} ocultarVentas={esServicio} />
         </CardGrafica>
 

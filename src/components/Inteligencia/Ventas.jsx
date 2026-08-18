@@ -40,7 +40,7 @@ const Ventas = ({ data }) => {
           <LabelList dataKey="total" position="right" style={{ fill: '#64748b', fontSize: 11, fontWeight: 'bold' }} offset={10} />
         </Bar>
 
-        <Bar dataKey="efectivas" fill="#10b981" name="Efectivas" barSize={18} radius={[0, 4, 4, 0]}>
+        <Bar dataKey="efectivas" fill="#10b981" name="Posibles ventas" barSize={18} radius={[0, 4, 4, 0]}>
           <LabelList dataKey="efectivas" position="right" style={{ fill: '#10b981', fontSize: 11, fontWeight: 'bold' }} offset={10} />
         </Bar>
       </BarChart>

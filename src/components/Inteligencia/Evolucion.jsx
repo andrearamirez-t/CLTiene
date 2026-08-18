@@ -55,8 +55,8 @@ const Evolucion = ({ data, ocultarVentas = false }) => {
 
         <Area
           type="monotone"
-          dataKey="ingresos"
-          name="Ingresos"
+          dataKey="llamadas"
+          name="Llamadas"
           stroke="#ec4899"
           strokeWidth={2}
           fillOpacity={1}
@@ -68,8 +68,8 @@ const Evolucion = ({ data, ocultarVentas = false }) => {
         {!ocultarVentas && (
           <Area
             type="monotone"
-            dataKey="ventas"
-            name="Ventas"
+            dataKey="posibles_ventas"
+            name="Posibles ventas"
             stroke="#10b981"
             strokeWidth={3}
             fill="transparent"

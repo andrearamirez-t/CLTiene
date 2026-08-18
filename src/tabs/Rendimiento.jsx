@@ -204,7 +204,7 @@ const Rendimiento = () => {
                             </th>
 
 
-                            {['Llamadas', 'TMO', 'Calidad /100', '% Efectividad', ...(!esServicio ? ['% Ventas'] : [])]
+                            {['Llamadas', 'TMO', 'Calidad /100', '% Efectividad', ...(!esServicio ? ['% Posibles ventas'] : [])]
                                 .map((label, i) => (
 
                                     <th key={i} style={{ padding: '12px 16px' }}>
