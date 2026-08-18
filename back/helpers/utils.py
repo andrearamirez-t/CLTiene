@@ -367,16 +367,15 @@ def get_periodo_anterior_context(where, desde, hasta):
     tmo = int(row["tmo_seg"]) if row["tmo_seg"] else 0
     tmo_fmt = f"{tmo // 60}:{tmo % 60:02d}" if tmo else "N/D"
 
+    # Solo los DATOS del período anterior. La instrucción de comparar vive en el
+    # prompt (REGLA DE COMPARACIÓN ENTRE PERÍODOS), para no duplicar.
     return (
-        f"\n\nPERÍODO ANTERIOR (para COMPARAR — {desde} a {hasta}):\n"
+        f"\n\nPERÍODO ANTERIOR (línea base de comparación — {desde} a {hasta}):\n"
         f"- Total llamadas: {total:,}\n"
         f"- Contactabilidad (llamadas de calidad): {calidad/total*100:.1f}% ({calidad})\n"
         f"- Posibles ventas: {pv} ({pv/total*100:.2f}%)\n"
         f"- TMO: {tmo_fmt}\n"
         f"- Participación del cliente: {row['participacion']}%\n"
-        "IMPORTANTE: en el Resumen Ejecutivo incluye 1-2 frases comparando el período ACTUAL contra "
-        "ESTE anterior (subió/bajó volumen, contactabilidad, posibles ventas), para que el informe se "
-        "lea como continuación del anterior. NO cambies nombres de indicadores ni la metodología."
     )
 
 

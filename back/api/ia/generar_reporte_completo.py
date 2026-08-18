@@ -73,6 +73,14 @@ def generar_reporte_completo(filters: FilterModel):
             "entre un informe y otro. Para Saludo/Calidad (que no vienen precalculados): 🔴 si es "
             "claramente bajo respecto al volumen, si no 🟡.\n\n"
 
+            "REGLA DE COMPARACIÓN ENTRE PERÍODOS:\n"
+            "- Si el contexto incluye datos del período anterior, compáralos explícitamente con el actual.\n"
+            "- Identifica cambios en volumen, contactabilidad, TMO, participación del cliente y posibles ventas.\n"
+            "- Indica claramente si cada indicador aumentó, disminuyó o se mantuvo estable.\n"
+            "- El período actual es siempre el principal; el anterior se usa únicamente como línea base.\n"
+            "- Incluye la comparación principalmente en el Resumen Ejecutivo y en Patrones y Hallazgos.\n"
+            "- No inventes comparaciones ni datos que no estén disponibles en ambos períodos.\n\n"
+
             "ESTRUCTURA (usa <h2> por sección, tablas SOLO donde aporten):\n"
             "1. Resumen Ejecutivo — 'lo esencial primero' (BLUF): 4-5 bullets con el titular del periodo "
             "(volumen, contactabilidad, TMO, participación, posibles ventas y la conclusión accionable). "
