@@ -469,6 +469,15 @@ Diego confirmó que **Steven Aldana empezó a enviar el Excel** (`registro de ll
 - 🟡 **Formato con basura:** 3 filas arriba (título "Fecha Inicio/Fin" + blancos); el header real está en la fila 4 (índice 3). Juan Manuel debe saltarlas al importar a SQL.
 - Mismas **16 columnas** que el saliente de Sergio; 2.004 filas; `Estado de la LLamada` con datos (NO ANSWER 996 / ANSWERED 979 / BUSY 25); **`Estado de Gestion` sigue VACÍO** (2004/2004 nan) → la venta real sigue bloqueada.
 
+### 🔴 Las NO CONTESTADAS se pierden upstream — "Total Marcaciones" subcuenta (2026-08-18)
+Steven vio el primer reporte (P1), lo entendió "súper bien", envió la base por correo, y **pidió agregar "cuántas personas no contestaron y cuántas sí"**. Al verificarlo se descubrió un gap de datos importante:
+- **El reporte YA tiene la sección "Estatus de Llamadas"** (Contestada/No Contestada), pero sale **~100% contestada** en TODOS los meses recientes (mar-ago 2026) → parece que nadie deja de contestar.
+- **Causa (verificada):** el SQL de la CUN (`CLTIENE_LLAMADAS`) trae **SOLO ANSWERED** (agosto: 848, todas contestadas). Las **NO ANSWER/BUSY se botan al cruzar con audio** (una llamada no contestada no tiene grabación → no cruza → no entra al SQL). Nuestro pipeline NO las bota: nunca llegan.
+- **La data SÍ existe en el Excel crudo de Steven.** Ej. `registro de llamadas salientes semana del 10 de agosto al 18.xlsx`: **2.217 marcaciones → NO ANSWER 1.190 (54%), ANSWERED 1.014 (46%), BUSY 13**. El del 1-ago: NO ANSWER 996 / ANSWERED 979 / BUSY 25.
+- **Implicación seria:** nuestro **"Total llamadas (marcaciones)" en realidad son solo las CONTESTADAS** (~1.000/semana), NO las marcaciones reales (~2.200). "Total Marcaciones" es el **KPI #1 de la plantilla ContactVox** de Steven → hoy lo subcontamos >50%. Y la **contactabilidad real** está mal medida (dividimos entre contestadas, no entre marcaciones totales).
+- **Opciones:** **(A, recomendada, upstream)** pedir a **Juan Manuel** que incluya las filas NO ANSWER/BUSY (metadata sin audio) en `CLTIENE_LLAMADAS`, como las de oct-2025 que ya recuperamos → fluye solo al reporte. **(B, interina)** leer el Excel de Steven directo para sacar marcaciones/contestadas/no-contestadas (el Excel trae `Estado de la LLamada` limpio). Depende de que Steven lo mande siempre.
+- **Munición reunión Juan (STT):** "el Excel del 10-17 ago tiene 2.217 marcaciones (1.190 no contestadas); a BigQuery solo llegan las 1.014 contestadas → ¿puedes incluir las NO ANSWER/BUSY en `CLTIENE_LLAMADAS`?" Va junto con el pedido de mejorar el STT (large-v3, beam_size 5, ablandar VAD).
+
 ### RESULTADO reunión con S3 2026-07-23 (23 min: Diego, Fabián, Juan Garnica, Daniel Obando de S3)
 > Reunión que Fabián convocó tras la salida de Sergio, para hablar DIRECTO con el proveedor (S3) sin intermediarios. Presenta **Daniel Obando** (S3, área de las grabaciones; Fabián a ratos le dice "Oscar" — es `oscar.obando@s3.com.co`).
 
