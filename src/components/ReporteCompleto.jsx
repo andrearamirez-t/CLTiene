@@ -115,21 +115,18 @@ const ReporteCompleto = () => {
       if (!headers.length) return;
       const lineH = 11, padX = 7, padY = 5, fs = 9;
 
-      // Ancho de columna: garantiza que el ENCABEZADO quepa en una sola línea (no se
-      // parta "Llamada/s"); la col 0 (texto) además intenta acomodar el nombre más
-      // largo hasta un tope; el sobrante se reparte según el contenido de los datos.
+      // Ancho de columna: las columnas NUMÉRICAS (1..n) reservan PRIMERO el ancho de
+      // su encabezado (1 línea garantizada, no se parte "Posibles/Ventas"); la col 0
+      // (nombre) toma lo que sobre, acotada al nombre más largo. Los nombres pueden
+      // envolver a 2 líneas si son muy largos; los encabezados nunca.
       doc.setFontSize(fs);
       const wOf = (s, bold) => { doc.setFont(undefined, bold ? "bold" : "normal"); return doc.getTextWidth(clean(String(s ?? ""))); };
-      const cap = maxW * 0.52;
-      const minW = headers.map((h, c) => {
-        const hw = wOf(h, true) + 2 * padX + 3;
-        if (c === 0) {
-          const dataMax = Math.max(0, ...rows.map((r) => wOf(r[c], false))) + 2 * padX + 3;
-          return Math.min(Math.max(hw, dataMax), cap);
-        }
-        return hw;
-      });
+      const headMin = headers.map((h) => wOf(h, true) + 2 * padX + 3);
+      const sumNum = headMin.reduce((a, b, i) => a + (i === 0 ? 0 : b), 0); // numéricas, sin col0
+      const col0Data = Math.max(0, ...rows.map((r) => wOf(r[0], false))) + 2 * padX + 3;
+      const col0 = Math.max(headMin[0], Math.min(col0Data, maxW - sumNum));
       doc.setFont(undefined, "normal");
+      const minW = headers.map((h, c) => (c === 0 ? col0 : headMin[c]));
       const rawW = headers.map((_, c) =>
         Math.max(4, ...rows.map((r) => clean(String(r[c] ?? "")).length))
       );
@@ -137,7 +134,7 @@ const ReporteCompleto = () => {
       const sumMin = minW.reduce((a, b) => a + b, 0);
       let W;
       if (sumMin >= maxW) {
-        const k = maxW / sumMin;              // no caben ni en 1 línea → escala
+        const k = maxW / sumMin;              // caso extremo: no caben ni así → escala
         W = minW.map((w) => w * k);
       } else {
         const extra = maxW - sumMin;          // espacio sobrante repartido por datos
