@@ -111,6 +111,9 @@ def get_data_context(where="1=1"):
             cierre_servicio,
             Cuenta,
             Motivo_Rechazo,
+            transcripcion,
+            saludo_inicial, identificacion_cliente, comprension_problema,
+            manejo_inquietudes, proximo_paso,
             ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[Cliente\\]')) cli_turns,
             ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4, ''), r'\\[(?:Asesor|Cliente)\\]')) tot_turns,
             SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
@@ -126,7 +129,18 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
             SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) ventas,
             CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg,
-            ROUND(SAFE_DIVIDE(SUM(cli_turns), SUM(tot_turns)) * 100, 1) participacion_cliente
+            ROUND(SAFE_DIVIDE(SUM(cli_turns), SUM(tot_turns)) * 100, 1) participacion_cliente,
+            -- Score de Calidad (0-100): promedio de las 7 categorías sobre las llamadas
+            -- EVALUADAS (con transcripción), igual que el KPI del dashboard.
+            COALESCE(ROUND((
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, saludo_inicial, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, identificacion_cliente, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, comprension_problema, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, ofrecimiento_solucion, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, manejo_inquietudes, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, cierre_servicio, NULL)) +
+                AVG(IF(transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50, proximo_paso, NULL))
+            ) / 7 * 100, 1), 0) calidad_score
         FROM base
     ),
 
@@ -281,10 +295,12 @@ def get_data_context(where="1=1"):
     part = participacion or 0
     contact_pct = contactadas / total * 100 if total else 0
     pv_pct = ventas / total * 100 if total else 0
+    calidad = row["resumen"].get("calidad_score") or 0
     sem_contact = "🔴" if contact_pct < 10 else ("🟡" if contact_pct <= 20 else "🟢")
     sem_tmo = "🟢" if 120 <= tmo_seg <= 240 else ("🟡" if (60 <= tmo_seg < 120 or 240 < tmo_seg <= 300) else "🔴")
     sem_part = "🟢" if 40 <= part <= 60 else ("🟡" if (30 <= part < 40 or 60 < part <= 70) else "🔴")
     sem_pv = "🔴" if pv_pct < 2 else ("🟡" if pv_pct <= 5 else "🟢")
+    sem_calidad = "🔴" if calidad < 30 else ("🟡" if calidad <= 60 else "🟢")
 
     ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
     - Total llamadas (marcaciones): {total:,}
@@ -292,12 +308,19 @@ def get_data_context(where="1=1"):
     - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {ventas:,} ({ventas/total*100:.2f}%)
     - TMO (tiempo medio de operación / conversación): {tmo_global}
     - Participación del cliente (% de turnos hablados por el cliente): {participacion}%
+    - Calidad (score 0-100, promedio de las 7 categorías sobre llamadas evaluadas): {calidad}/100
+
+    VALORES PARA EL TABLERO (usa EXACTO estos para las filas 'Saludo' y 'Calidad'):
+    - Saludo: {row["calidad"]["saludo"]}
+    - Calidad: {calidad}/100
 
     SEMÁFOROS YA CALCULADOS (cópialos EXACTO en el Tablero de Indicadores, NO los recalcules):
     - Total llamadas: 🟢
     - Contactabilidad: {sem_contact}
     - TMO: {sem_tmo}
     - Participación cliente: {sem_part}
+    - Saludo: 🔴
+    - Calidad: {sem_calidad}
     - Posibles ventas: {sem_pv}
 
     ESTATUS DE LLAMADAS (marcador):
