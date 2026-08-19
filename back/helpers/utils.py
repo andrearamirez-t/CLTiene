@@ -296,7 +296,12 @@ def get_data_context(where="1=1"):
     contact_pct = contactadas / total * 100 if total else 0
     pv_pct = ventas / total * 100 if total else 0
     calidad = row["resumen"].get("calidad_score") or 0
+    # Contacto efectivo (%): se habló con la persona (Contactado+Rechazado+Venta) / total
+    ce_cont = sum(r["total"] for r in row["resultados"]
+                  if r["Resultado_Llamada"] in ("Contactado", "Rechazado", "Venta"))
+    ce_pct = ce_cont / total * 100 if total else 0
     sem_contact = "🔴" if contact_pct < 10 else ("🟡" if contact_pct <= 20 else "🟢")
+    sem_ce = "🔴" if ce_pct < 40 else ("🟡" if ce_pct <= 60 else "🟢")
     sem_tmo = "🟢" if 120 <= tmo_seg <= 240 else ("🟡" if (60 <= tmo_seg < 120 or 240 < tmo_seg <= 300) else "🔴")
     sem_part = "🟢" if 40 <= part <= 60 else ("🟡" if (30 <= part < 40 or 60 < part <= 70) else "🔴")
     sem_pv = "🔴" if pv_pct < 2 else ("🟡" if pv_pct <= 5 else "🟢")
@@ -304,19 +309,23 @@ def get_data_context(where="1=1"):
 
     ctx = f"""CALL CENTER CL TIENE SOLUCIONES:
     - Total llamadas (marcaciones): {total:,}
-    - Contactadas (llamadas de calidad): {contactadas:,} ({contactadas/total*100:.1f}%)
+    - Llamadas de calidad (score de calidad del asesor >= 80%; NO es contacto): {contactadas:,} ({contactadas/total*100:.1f}%)
+    - Contacto efectivo (se habló con la persona): {ce_cont:,} ({ce_pct:.1f}%)
     - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {ventas:,} ({ventas/total*100:.2f}%)
     - TMO (tiempo medio de operación / conversación): {tmo_global}
     - Participación del cliente (% de turnos hablados por el cliente): {participacion}%
     - Calidad (score 0-100, promedio de las 7 categorías sobre llamadas evaluadas): {calidad}/100
 
-    VALORES PARA EL TABLERO (usa EXACTO estos para las filas 'Saludo' y 'Calidad'):
+    VALORES PARA EL TABLERO (usa EXACTO estos):
+    - Llamadas de calidad: {contactadas/total*100:.1f}%
+    - Contacto efectivo: {ce_pct:.1f}%
     - Saludo: {row["calidad"]["saludo"]}
     - Calidad: {calidad}/100
 
     SEMÁFOROS YA CALCULADOS (cópialos EXACTO en el Tablero de Indicadores, NO los recalcules):
     - Total llamadas: 🟢
-    - Contactabilidad: {sem_contact}
+    - Llamadas de calidad: {sem_contact}
+    - Contacto efectivo: {sem_ce}
     - TMO: {sem_tmo}
     - Participación cliente: {sem_part}
     - Saludo: 🔴
