@@ -332,6 +332,13 @@ def get_data_context(where="1=1"):
     - Calidad: {sem_calidad}
     - Posibles ventas: {sem_pv}
 
+    RANGOS DEL SEMÁFORO (reprodúcelos TAL CUAL como nota/leyenda bajo el Tablero, para que el color quede justificado; NO uses los signos < ni > ):
+    - Llamadas de calidad: 🟢 más de 20% · 🟡 10 a 20% · 🔴 menos de 10%
+    - Contacto efectivo: 🟢 más de 60% · 🟡 40 a 60% · 🔴 menos de 40%
+    - TMO: 🟢 2 a 4 min · 🟡 1 a 2 o 4 a 5 min · 🔴 menos de 1 o más de 5 min
+    - Participación cliente: 🟢 40 a 60% · 🟡 30 a 40 o 60 a 70% · 🔴 menos de 30 o más de 70%
+    - Posibles ventas: 🟢 más de 5% · 🟡 2 a 5% · 🔴 menos de 2%
+
     ESTATUS DE LLAMADAS (marcador):
     """
 
