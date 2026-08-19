@@ -171,6 +171,7 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
             SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) efectivas,
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
+            SUM(CASE WHEN Saludo_Completo IN ('Sí', 'Parcial') THEN 1 ELSE 0 END) saludo_ok,
             -- Contacto EFECTIVO real (de Resultado_Llamada): se logró hablar con la persona vs no
             SUM(CASE WHEN Resultado_Llamada = 'Contactado' THEN 1 ELSE 0 END) contactado,
             SUM(CASE WHEN Resultado_Llamada IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto') THEN 1 ELSE 0 END) sin_contacto,
@@ -222,12 +223,15 @@ def get_data_context(where="1=1"):
                 contactadas,
                 efectivas,
                 saludo,
+                saludo_ok,
                 tmo_seg,
                 contactado,
                 sin_contacto,
                 ROUND(SAFE_DIVIDE(efectivas,llamadas)*100,2) exito_pct,
                 ROUND(SAFE_DIVIDE(contactadas,llamadas)*100,1) contacto_pct,
-                ROUND(SAFE_DIVIDE(contactado,llamadas)*100,1) contactado_pct
+                ROUND(SAFE_DIVIDE(contactado,llamadas)*100,1) contactado_pct,
+                -- Saludo%: (Sí+Parcial) sobre las contactadas (conversación real), tope 100%
+                LEAST(ROUND(SAFE_DIVIDE(saludo_ok, NULLIF(contactado,0))*100,0), 100) saludo_ok_pct
             FROM asesores
             ORDER BY llamadas DESC
         ) asesores,
@@ -339,12 +343,14 @@ def get_data_context(where="1=1"):
     # Contacto EFECTIVO (Resultado_Llamada): Contactado = se habló con la persona;
     # Sin Contacto = buzón/no disponible/número equivocado/no se habló. Es DISTINTO de
     # 'contactadas' (=calidad efectiva) y del estatus del marcador (contestada).
-    ctx += "\nASESORES (Llamadas | TMO | Contactado | Sin Contacto | %Contactado | Saludos | Posibles ventas):\n"
+    # 'Saludo%' = (Sí+Parcial)/contactadas: casi ningún saludo es 'Sí' (completo); casi todos
+    # 'Parcial'. Medirlo sobre contactadas (conversación real) es lo justo, no sobre todas.
+    ctx += "\nASESORES (Llamadas | TMO | Contactado | Sin Contacto | %Contactado | Saludo% | Posibles ventas):\n"
     for a in row["asesores"]:
         ctx += (
             f"{a['Cuenta']} | Llamadas: {a['llamadas']} | TMO: {_fmt_tmo(a['tmo_seg'])} "
             f"| Contactado: {a['contactado']} | Sin Contacto: {a['sin_contacto']} "
-            f"| %Contactado: {a['contactado_pct']}% | Saludos: {a['saludo']} "
+            f"| %Contactado: {a['contactado_pct']}% | Saludo%: {a['saludo_ok_pct']}% "
             f"| Posibles ventas: {a['efectivas']}\n"
         )
 
