@@ -208,10 +208,17 @@ const ReporteCompleto = () => {
       };
 
       salto(4);
-      // Evita el ENCABEZADO HUÉRFANO al final de una página: si no caben al menos el
-      // encabezado + 1 fila de datos, salta de página para que la tabla arranque completa.
-      const altoAprox = 2 * (lineH + 2 * padY) + lineH; // header + 1 fila (con margen)
-      if (y + altoAprox > 790) { doc.addPage(); y = margin; }
+      // Estima la altura total de la tabla (encabezado + filas, contando nombres que
+      // envuelven). Si NO cabe en lo que resta de la página pero SÍ cabría entera en una
+      // página nueva, la mueve completa → evita partirla feo (1 fila aquí, el resto allá)
+      // y el encabezado huérfano.
+      doc.setFontSize(fs); doc.setFont(undefined, "normal");
+      let estTotal = lineH + 2 * padY;
+      rows.forEach((r) => {
+        const lns = doc.splitTextToSize(clean(String(r[0] ?? "")), W[0] - 2 * padX);
+        estTotal += Math.max(1, lns.length) * lineH + 2 * padY;
+      });
+      if (y + estTotal > 790 && estTotal <= 790 - margin) { doc.addPage(); y = margin; }
       renderRow(headers, { head: true });
       rows.forEach((r, i) => renderRow(r, { idx: i + 1 }));
       salto(12);
