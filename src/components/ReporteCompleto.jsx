@@ -334,6 +334,16 @@ const ReporteCompleto = () => {
         if (el.nodeType !== 1) return;
         const tag = el.tagName.toLowerCase();
         if (/^h[1-6]$/.test(tag)) {
+          // Si el encabezado va seguido de una TABLA y juntos no caben en lo que resta de
+          // página pero sí en una nueva, salta ANTES del encabezado → no se separa de su tabla.
+          const sib = el.nextElementSibling;
+          const tbl = sib && (sib.tagName.toLowerCase() === "table"
+            ? sib : (sib.querySelector ? sib.querySelector("table") : null));
+          if (tbl) {
+            const nRows = tbl.querySelectorAll("tr").length;
+            const estH = 44 + nRows * 26; // encabezado de sección + filas (aprox)
+            if (y + estH > 790 && estH <= 790 - margin) { doc.addPage(); y = margin; }
+          }
           seccion(el.textContent, tag === "h1" || tag === "h2" ? 13 : 12);
         } else if (tag === "p") {
           parrafo(el.textContent); salto(3);
