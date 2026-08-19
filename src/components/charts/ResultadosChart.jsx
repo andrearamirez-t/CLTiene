@@ -16,7 +16,7 @@ const ResultadosChart = ({ datos }) => {
     return (
         <div className="card" style={{ height: '500px', padding: '20px' }}>
             <div className="card-title" style={{ borderBottom: '1px solid #f1f5f9', marginBottom: '25px', paddingBottom: '10px' }}>
-                Distribución de Resultados
+                Contacto Efectivo
             </div>
             
             <ResponsiveContainer width="100%" height={300}>
