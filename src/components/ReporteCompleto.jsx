@@ -208,6 +208,10 @@ const ReporteCompleto = () => {
       };
 
       salto(4);
+      // Evita el ENCABEZADO HUÉRFANO al final de una página: si no caben al menos el
+      // encabezado + 1 fila de datos, salta de página para que la tabla arranque completa.
+      const altoAprox = 2 * (lineH + 2 * padY) + lineH; // header + 1 fila (con margen)
+      if (y + altoAprox > 790) { doc.addPage(); y = margin; }
       renderRow(headers, { head: true });
       rows.forEach((r, i) => renderRow(r, { idx: i + 1 }));
       salto(12);
