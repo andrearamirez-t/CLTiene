@@ -277,15 +277,47 @@ const ReporteCompleto = () => {
 
     const resH2 = [...cont.querySelectorAll("h1,h2,h3")].find((h) => /resumen ejecutivo/i.test(h.textContent));
     if (resH2) {
-      const scope = resH2.parentElement || cont;
-      const ul = scope.querySelector("ul,ol");
-      const items = ul ? [...ul.querySelectorAll("li")].map((li) => li.textContent.trim()) : [];
-      const p = scope.querySelector("p");
-      const concl = p ? p.textContent.trim() : "";
+      // La IA insiste en meter el estatus/contacto efectivo en el Resumen. Fix determinista:
+      // lo detectamos y lo REUBICAMOS en la sección Estatus (no depende del prompt).
+      const esEstatus = (t) => /contestad|contacto efectivo|sin contacto|estatus del marcador|no contestad/i.test(t || "");
+      const estatusH2 = [...cont.querySelectorAll("h1,h2,h3")].find((h) => /estatus/i.test(h.textContent));
+      let anchor = estatusH2;
+      const relocar = (texto) => {
+        if (!estatusH2 || !texto) return;
+        const np = document.createElement("p");
+        np.textContent = texto;
+        anchor.insertAdjacentElement("afterend", np);
+        anchor = np;   // preserva el orden de los reubicados
+      };
+
+      // Bloque del Resumen = hermanos de resH2 hasta el siguiente encabezado (seguro esté o
+      // no envuelto en un div, y sin tocar otras secciones).
+      const bloque = [];
+      for (let n = resH2.nextElementSibling; n && !/^h[1-3]$/i.test(n.tagName); n = n.nextElementSibling) {
+        bloque.push(n);
+      }
+      const items = [];
+      let concl = "";
+      bloque.forEach((n) => {
+        const tag = n.tagName.toLowerCase();
+        if (tag === "ul" || tag === "ol") {
+          [...n.querySelectorAll("li")].forEach((li) => {
+            const t = li.textContent.trim();
+            if (!t) return;
+            esEstatus(t) ? relocar(t) : items.push(t);   // estatus en un bullet -> a su sección
+          });
+        } else {
+          const t = n.textContent.trim();
+          if (!t) return;
+          if (esEstatus(t)) relocar(t);                  // estatus en un párrafo -> a su sección
+          else if (!concl) concl = t;                    // primer párrafo limpio = conclusión
+        }
+      });
+
       seccion(resH2.textContent);
       panelResumen(items, concl);
-      // Quitar solo los nodos ya renderizados (no el contenedor, para no arrastrar el Tablero)
-      resH2.remove(); ul && ul.remove(); p && p.remove();
+      // Quitar del DOM el bloque del Resumen ya renderizado (los reubicados son nodos nuevos)
+      resH2.remove(); bloque.forEach((n) => n.remove());
     }
 
     const walk = (node) => {
