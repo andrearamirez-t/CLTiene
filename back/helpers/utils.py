@@ -171,6 +171,9 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN efectiva = 1.0 THEN 1 ELSE 0 END) contactadas,
             SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) efectivas,
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
+            -- Contacto EFECTIVO real (de Resultado_Llamada): se logró hablar con la persona vs no
+            SUM(CASE WHEN Resultado_Llamada = 'Contactado' THEN 1 ELSE 0 END) contactado,
+            SUM(CASE WHEN Resultado_Llamada IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto') THEN 1 ELSE 0 END) sin_contacto,
             CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg
         FROM base
         GROUP BY Cuenta
@@ -220,8 +223,11 @@ def get_data_context(where="1=1"):
                 efectivas,
                 saludo,
                 tmo_seg,
+                contactado,
+                sin_contacto,
                 ROUND(SAFE_DIVIDE(efectivas,llamadas)*100,2) exito_pct,
-                ROUND(SAFE_DIVIDE(contactadas,llamadas)*100,1) contacto_pct
+                ROUND(SAFE_DIVIDE(contactadas,llamadas)*100,1) contacto_pct,
+                ROUND(SAFE_DIVIDE(contactado,llamadas)*100,1) contactado_pct
             FROM asesores
             ORDER BY llamadas DESC
         ) asesores,
@@ -301,6 +307,19 @@ def get_data_context(where="1=1"):
     for r in row["resultados"]:
         ctx += f"{r['Resultado_Llamada']}: {r['total']}\n"
 
+    # Contacto EFECTIVO agregado (agrupando los resultados). Distinto del estatus del
+    # marcador (contestada) y de la contactabilidad de calidad (efectiva).
+    _cont = sum(r["total"] for r in row["resultados"] if r["Resultado_Llamada"] == "Contactado")
+    _sinc = sum(r["total"] for r in row["resultados"]
+                if r["Resultado_Llamada"] in ("No Disponible", "Buzón de Voz", "Número Equivocado", "Sin Contacto"))
+    _base_ce = _cont + _sinc
+    _cont_pct = _cont / _base_ce * 100 if _base_ce else 0
+    ctx += (
+        f"\nCONTACTO EFECTIVO (de las llamadas registradas, inferido de la conversación):\n"
+        f"Contactado (se habló con la persona): {_cont} ({_cont_pct:.1f}%)\n"
+        f"Sin Contacto (buzón / no disponible / número equivocado / no se habló): {_sinc}\n"
+    )
+
     ctx += "\nDURACIÓN:\n"
     for d in row["duracion"]:
         ctx += f"{d['Duracion_Estimada']}: {d['total']}\n"
@@ -317,12 +336,16 @@ def get_data_context(where="1=1"):
     Despedida: {row["calidad"]["despedida"]}
     """
 
-    ctx += "\nASESORES (Llamadas | TMO | Contacto% | Posibles ventas | Éxito% | Saludos):\n"
+    # Contacto EFECTIVO (Resultado_Llamada): Contactado = se habló con la persona;
+    # Sin Contacto = buzón/no disponible/número equivocado/no se habló. Es DISTINTO de
+    # 'contactadas' (=calidad efectiva) y del estatus del marcador (contestada).
+    ctx += "\nASESORES (Llamadas | TMO | Contactado | Sin Contacto | %Contactado | Saludos | Posibles ventas):\n"
     for a in row["asesores"]:
         ctx += (
             f"{a['Cuenta']} | Llamadas: {a['llamadas']} | TMO: {_fmt_tmo(a['tmo_seg'])} "
-            f"| Contacto: {a['contacto_pct']}% | Posibles ventas: {a['efectivas']} "
-            f"| Éxito: {a['exito_pct']}% | Saludos: {a['saludo']}\n"
+            f"| Contactado: {a['contactado']} | Sin Contacto: {a['sin_contacto']} "
+            f"| %Contactado: {a['contactado_pct']}% | Saludos: {a['saludo']} "
+            f"| Posibles ventas: {a['efectivas']}\n"
         )
 
     if row["rechazos"]:
