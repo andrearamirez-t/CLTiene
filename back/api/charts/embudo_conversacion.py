@@ -46,9 +46,12 @@ def embudo_conversacion(filters: FilterModel):
         SELECT
             4 orden,
             "Contactado" nombre,
-            COUNTIF(Resultado_Llamada = "Contactado") valor,
+            -- Misma partición que la gráfica "Contacto Efectivo" (distribucion_resultado):
+            -- se habló con la persona (Contactado + Rechazado + Venta). Así "Contactado"
+            -- significa lo mismo en todo el dashboard y Ventas queda como subconjunto real.
+            COUNTIF(Resultado_Llamada IN ("Contactado", "Rechazado", "Venta")) valor,
             ROUND(
-                SAFE_DIVIDE(COUNTIF(Resultado_Llamada = "Contactado") * 100.0, COUNT(*)),
+                SAFE_DIVIDE(COUNTIF(Resultado_Llamada IN ("Contactado", "Rechazado", "Venta")) * 100.0, COUNT(*)),
                 1
             ) porcentaje
         FROM base
