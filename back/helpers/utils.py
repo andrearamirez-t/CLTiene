@@ -172,9 +172,10 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) efectivas,
             SUM(CASE WHEN Saludo_Completo = 'Sí' THEN 1 ELSE 0 END) saludo,
             SUM(CASE WHEN Saludo_Completo IN ('Sí', 'Parcial') THEN 1 ELSE 0 END) saludo_ok,
-            -- Contacto EFECTIVO real (de Resultado_Llamada): se logró hablar con la persona vs no
-            SUM(CASE WHEN Resultado_Llamada = 'Contactado' THEN 1 ELSE 0 END) contactado,
-            SUM(CASE WHEN Resultado_Llamada IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto') THEN 1 ELSE 0 END) sin_contacto,
+            -- Contacto EFECTIVO real (partición que SUMA al total): se habló con la persona
+            -- (Contactado + Rechazado + Venta) vs no se habló (buzón/no disp/num eq/sin contacto/sin clasif)
+            SUM(CASE WHEN Resultado_Llamada IN ('Contactado','Rechazado','Venta') THEN 1 ELSE 0 END) contactado,
+            SUM(CASE WHEN Resultado_Llamada IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto','Sin Clasificar') THEN 1 ELSE 0 END) sin_contacto,
             CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg
         FROM base
         GROUP BY Cuenta
@@ -311,16 +312,17 @@ def get_data_context(where="1=1"):
     for r in row["resultados"]:
         ctx += f"{r['Resultado_Llamada']}: {r['total']}\n"
 
-    # Contacto EFECTIVO agregado (agrupando los resultados). Distinto del estatus del
-    # marcador (contestada) y de la contactabilidad de calidad (efectiva).
-    _cont = sum(r["total"] for r in row["resultados"] if r["Resultado_Llamada"] == "Contactado")
+    # Contacto EFECTIVO agregado (partición que SUMA al total de llamadas). Distinto del
+    # estatus del marcador (contestada) y de la contactabilidad de calidad (efectiva).
+    _cont = sum(r["total"] for r in row["resultados"]
+                if r["Resultado_Llamada"] in ("Contactado", "Rechazado", "Venta"))
     _sinc = sum(r["total"] for r in row["resultados"]
-                if r["Resultado_Llamada"] in ("No Disponible", "Buzón de Voz", "Número Equivocado", "Sin Contacto"))
+                if r["Resultado_Llamada"] in ("No Disponible", "Buzón de Voz", "Número Equivocado", "Sin Contacto", "Sin Clasificar"))
     _base_ce = _cont + _sinc
     _cont_pct = _cont / _base_ce * 100 if _base_ce else 0
     ctx += (
-        f"\nCONTACTO EFECTIVO (de las llamadas registradas, inferido de la conversación):\n"
-        f"Contactado (se habló con la persona): {_cont} ({_cont_pct:.1f}%)\n"
+        f"\nCONTACTO EFECTIVO (de las {total} llamadas registradas, inferido de la conversación):\n"
+        f"Contactado (se habló con la persona, incluye rechazos): {_cont} ({_cont_pct:.1f}%)\n"
         f"Sin Contacto (buzón / no disponible / número equivocado / no se habló): {_sinc}\n"
     )
 
