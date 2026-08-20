@@ -556,8 +556,8 @@ def get_asesor_context(where, asesor=""):
 
     RESUMEN:
     - Total llamadas: {total:,}
-    - Contactadas (efectivas): {contactadas:,} ({tasa_contacto:.1f}%)
-    - Ventas: {ventas:,} ({tasa_venta:.2f}%)
+    - Llamadas de calidad (efectiva >= 80%, score de calidad del asesor; NO es contacto): {contactadas:,} ({tasa_contacto:.1f}%)
+    - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {ventas:,} ({tasa_venta:.2f}%)
 
     RESULTADOS:
     """
@@ -574,11 +574,11 @@ def get_asesor_context(where, asesor=""):
         ctx += f"{p['Plan_Mencionado']}: {p['total']}\n"
 
     ctx += f"""
-    CALIDAD:
-    - Saludo correcto: {row["calidad"]["saludo"]}
-    - Explicó beneficios: {row["calidad"]["beneficios"]}
+    CALIDAD (conteos de detección heurística, NO juicios: no asumas que un conteo alto es bueno ni uno bajo malo salvo que calcules una tasa sobre un denominador):
+    - Saludo detectado: {row["calidad"]["saludo"]}
+    - Beneficios expuestos: {row["calidad"]["beneficios"]}
     - Ofreció WhatsApp: {row["calidad"]["whatsapp"]}
-    - Despedida correcta: {row["calidad"]["despedida"]}
+    - Despedida detectada: {row["calidad"]["despedida"]}
     """
 
     if row["rechazos"]:
@@ -647,29 +647,29 @@ def get_ranking_context(where="1=1", es_servicio=False):
             ctx += f"""
         ASESOR: {r.Cuenta}
         - Llamadas: {r.llamadas}
-        - Contactadas (efectivas): {r.contactadas}
-        - Efectividad de servicio: {r.efectividad_pct}%
+        - Llamadas de calidad (efectiva >= 80%, calidad del asesor; NO es contacto): {r.contactadas}
+        - Efectividad de servicio (llamadas de calidad / llamadas): {r.efectividad_pct}%
 
-        CALIDAD:
-        - Saludo correcto: {r.saludo}
+        CALIDAD (conteos de detección heurística, NO juicios):
+        - Saludo detectado: {r.saludo}
         - Gestionó la solicitud: {r.beneficios}
         - Ofreció WhatsApp: {r.whatsapp}
-        - Despedida correcta: {r.despedida}
+        - Despedida detectada: {r.despedida}
         --------------------------------
         """
         else:
             ctx += f"""
         ASESOR: {r.Cuenta}
         - Llamadas: {r.llamadas}
-        - Contactadas (efectivas): {r.contactadas}
-        - Ventas: {r.ventas}
-        - Tasa de éxito: {r.exito_pct}%
+        - Llamadas de calidad (efectiva >= 80%, calidad del asesor; NO es contacto): {r.contactadas}
+        - Posibles ventas (inferidas de la transcripción, NO es venta cerrada real): {r.ventas}
+        - Tasa de posibles ventas (posibles ventas / llamadas): {r.exito_pct}%
 
-        CALIDAD:
-        - Saludo correcto: {r.saludo}
-        - Explicó beneficios: {r.beneficios}
+        CALIDAD (conteos de detección heurística, NO juicios):
+        - Saludo detectado: {r.saludo}
+        - Beneficios expuestos: {r.beneficios}
         - Ofreció WhatsApp: {r.whatsapp}
-        - Despedida correcta: {r.despedida}
+        - Despedida detectada: {r.despedida}
         --------------------------------
         """
 
