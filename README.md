@@ -13,7 +13,7 @@ Dashboard web que procesa, analiza y visualiza el rendimiento de los asesores de
 | Frontend | React 19 + Vite 7 |
 | Backend | Python 3.11 + FastAPI |
 | Base de datos | Google BigQuery |
-| IA / LLM | OpenAI — `gpt-4o` (detección de hablantes) + `gpt-4o-mini` (reportes). 2 API keys con balanceo + failover |
+| IA / LLM | OpenAI `gpt-4o` — detección de hablantes (pipeline) y los 12 endpoints de IA/reportes. 2 API keys con balanceo + failover |
 | Despliegue backend | Google Cloud Run + Cloud Build |
 | Despliegue frontend | Firebase Hosting |
 | Fuente de datos | FTP (audio) → CUN (STT + Ollama) → SQL Server → BigQuery |
@@ -45,7 +45,7 @@ CLTiene/
 │   │   ├── Select.jsx          # Excluye su propio filtro al cargar opciones
 │   │   ├── AnalisisAu.jsx      # 8 tipos de análisis automático (Agente IA PRO)
 │   │   ├── RankingIA.jsx       # Ranking de asesores + análisis comparativo completo
-│   │   ├── ReporteCompleto.jsx # Reporte ejecutivo en 9 secciones con descarga PDF
+│   │   ├── ReporteCompleto.jsx # Reporte ejecutivo (comité) con descarga PDF
 │   │   └── ui/InsightsCard.jsx # Insights rápidos del período
 │   ├── FiltersContext.jsx      # Estado global de filtros (Context API)
 │   └── layout/Sidebar.jsx      # Barra lateral con 11 filtros + botón "Borrar filtros"
@@ -62,7 +62,7 @@ CLTiene/
 │   ├── IA/Open_AI.py           # call(system, user) → (content, error)  |  prompt_html()
 │   ├── helpers/utils.py        # Contextos de datos para IA (general, asesor, llamada, ranking)
 │   ├── subir_datos.py          # Pipeline V4 autónomo: SQL Server → procesamiento → BigQuery
-│   └── registrar_tarea.ps1     # Registra tarea automática en Windows (7:00 AM diario)
+│   └── registrar_tarea.ps1     # Registra tarea automática en Windows (semanal)
 │
 ├── informe_tecnico.html        # Informe técnico del proyecto (abrir en navegador → imprimir PDF)
 ├── cloudbuild.yaml             # Pipeline CI/CD — solo despliega el backend
@@ -75,12 +75,14 @@ CLTiene/
 |-----|---------------|-------------|
 | TOTAL LLAMADAS | `COUNT(*)` | Todas las llamadas en el período |
 | LLAMADAS DE CALIDAD | `SUM(efectiva)` | `efectiva` = score de calidad ≥80% de la CUN (⚠️ NO es venta). Antes "Llamadas Efectivas" |
-| VENTAS CERRADAS | `COUNT(Resultado_Llamada = 'Venta')` | Inferido por transcripción → **inflado** (fuente real pendiente: Zoho). Se oculta con filtro Servicio |
+| POSIBLES VENTAS | `COUNT(Resultado_Llamada = 'Venta')` | Inferido por transcripción → **inflado** (fuente real pendiente: Zoho). Antes "Ventas Cerradas". Se oculta con filtro Servicio |
 | HORA PICO | `moda (hora con más llamadas)` | Hora de mayor actividad. Excluye registros con `00:00:00` exacto (fecha sin hora) |
 | DÍA PICO | `GROUP BY día` | Día con más llamadas |
 | ASESOR TOP | `ORDER BY COUNT DESC` | Asesor con más llamadas |
 | SALUDO OK | `AVG(saludo_inicial)` | % de llamadas con `saludo_inicial = 1` (dato CUN) |
 | CALIDAD PROMEDIO | Promedio 7 métricas | Score 0–100 sobre las llamadas evaluadas (antes "Calidad Llamada IA") |
+| TMO | `AVG(Tiempo de Conversacion)` | Tiempo hablado promedio (H:MM:SS) |
+| PARTICIPACIÓN CLIENTE | % turnos del cliente en V4 | Si se deja hablar al cliente |
 
 > **Nota:** `saludo_inicial` (CUN) y `Saludo_Completo` (pipeline) son campos distintos.
 > El KPI y el embudo usan `saludo_inicial` para ser coherentes entre sí.
@@ -92,17 +94,20 @@ CLTiene/
 3. **Análisis Detallado** — Planes mencionados, motivos de rechazo, tipo de cliente + análisis IA de patrones
 4. **Inteligencia Operativa** — Gráficas de horas/días/scorecard + análisis IA operativo
 5. **Transcripciones** — Visor de llamadas con chat, historial de llamadas por teléfono del cliente, búsqueda/resaltado de palabras y análisis IA por llamada
-6. **Agente IA PRO** — Chat + 8 análisis automáticos + ranking comparativo + reporte completo PDF
+6. **Agente IA PRO** — Chat + 8 análisis automáticos + ranking comparativo + reporte ejecutivo (comité) descargable en PDF
+7. **Prueba de Saludos** — pestaña estática con el análisis A/B de 5 saludos comerciales (reporte puntual, no viene del pipeline)
 
 ## Embudo de conversión
 
 | Paso | Campo BigQuery | Descripción |
 |------|---------------|-------------|
 | Total llamadas | `COUNT(*)` | Todas las llamadas |
-| Efectivas (contacto) | `efectiva = 1.0` | Llamadas con contacto real (campo CUN) |
 | Conv > 30s | `Duracion_Estimada IN ('Muy Corta','Corta','Media','Larga')` | Conversaciones con duración real (no buzón) |
-| Con Saludo | `saludo_inicial = 1.0` | Saludos correctos según la CUN |
-| Ventas Cerradas | `Resultado_Llamada = 'Venta'` | Ventas detectadas por transcripción. Oculto con filtro Servicio |
+| Con Saludo | `saludo_inicial = 1.0` | Saludos detectados por la CUN |
+| Contactado | `Resultado_Llamada IN ('Contactado','Rechazado','Venta')` | Se habló con la persona — misma partición que la gráfica "Contacto Efectivo" |
+| Posibles ventas | `Resultado_Llamada = 'Venta'` | Ventas inferidas por transcripción (Ventas ⊂ Contactado). Oculto con filtro Servicio |
+
+> El paso "Contactado" usa la **partición de Contacto Efectivo** (Contactado + Rechazado + Venta), coherente con la gráfica y el reporte. Antes usaba `efectiva` (score de calidad), que no descendía y confundía calidad con contacto.
 
 ## Módulos de IA disponibles
 
@@ -113,7 +118,7 @@ CLTiene/
 | `GET /ia/inteligencia_operativa` | Inteligencia | Patrones operativos de horas/días/rendimiento |
 | `GET /ia/analizar_asesor?asesor=X` | Rendimiento | Diagnóstico individual con fortalezas y coaching |
 | `GET /ia/analizar_llamada?llamada_id=X` | Transcripciones | Análisis de llamada específica: resumen, scorecard, coaching |
-| `GET /ia/reporte_completo` | Agente IA PRO | Reporte ejecutivo de 9 secciones descargable en PDF |
+| `GET /ia/reporte_completo` | Agente IA PRO | Reporte ejecutivo (estructura de comité: tablero con semáforo, estatus, productividad, metas SMART) descargable en PDF |
 | `GET /ia/analisis_ranking` | Agente IA PRO | Comparativo de TODOS los asesores con plan de mentoría |
 
 > Todos los módulos usan `prompt_html()` → retornan HTML renderizable directamente.
@@ -154,7 +159,7 @@ Todos los endpoints aceptan `FilterModel` como query params. El componente `Sele
 | Asistencia Mencionada | `asistencia_mencionada` | `Asistencia LIKE '%valor%'` |
 | Solo con transcripción | `transcripcion` | `transcripcion IS NOT NULL` |
 
-> **Comportamiento especial — filtro Tipo de Llamada = "Servicio":** oculta automáticamente el KPI "Ventas Cerradas", el paso del embudo, la columna "% Ventas" en Rendimiento, la línea Ventas en evolución temporal, y la barra "Venta" en distribución de resultados. Los títulos de las gráficas también se adaptan.
+> **Comportamiento especial — filtro Tipo de Llamada = "Servicio":** oculta automáticamente el KPI "Posibles ventas", el paso de posibles ventas del embudo, la columna "% Posibles ventas" en Rendimiento y la línea de posibles ventas en evolución temporal. Los títulos de las gráficas también se adaptan.
 
 ## Flujo de datos completo
 
@@ -177,7 +182,7 @@ SQL Server CUN (172.16.1.33)
 ### Pipeline V4 — `subir_datos.py` (nuestro)
 
 ```
-subir_datos.py  ←  Programador de Tareas Windows (diario 7:00 AM)
+subir_datos.py  ←  ejecución semanal (manual o programada) DENTRO de la red CUN
         ↓
 Procesamiento V4:
   · estructurar_dialogos_ia()  → Transcripcion_V4 (turnos [Asesor]/[Cliente])
@@ -197,7 +202,8 @@ BigQuery: desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas
 Backend FastAPI (Cloud Run) → Frontend React (Firebase Hosting)
 ```
 
-- **Cache incremental:** al arrancar carga de BigQuery las transcripciones ya procesadas; solo pasa por OpenAI las nuevas/cambiadas. Costo típico: ~$0.50 por corrida diaria.
+- **Frecuencia:** semanal (la fuente se actualiza cada semana). Debe correr **dentro de la red privada de la CUN** (el SQL Server 172.16.1.33 no es accesible desde fuera).
+- **Cache incremental:** al arrancar carga de BigQuery las transcripciones ya procesadas; solo pasa por OpenAI las nuevas/cambiadas. Costo típico: ~$3–7 por corrida con `gpt-4o` (solo las transcripciones nuevas de la semana).
 - **Re-proceso completo:** `python subir_datos.py --full` (o env `REPROCESO_COMPLETO=1`) ignora el cache y vuelve a procesar TODAS las transcripciones con el prompt actual.
 - **Modelo de detección de hablantes:** configurable con env `MODELO_HABLANTES` (default `gpt-4o`).
 - ⚠️ **La separación [Asesor]/[Cliente] solo puede ser tan buena como el texto del STT.** Si el STT de la CUN llega deforme o entrecortado, ningún prompt lo recupera — eso es upstream (audio del FTP + config de faster-whisper).
@@ -275,7 +281,7 @@ firebase deploy --only hosting:cltiene-dashboard
 | `OPENAI_API_MUNDIAL_2` | Segunda API key (secret) — `call()` balancea el consumo ~50/50 y hace failover si una topa cupo |
 | `GOOGLE_CLOUD_PROJECT` | ID del proyecto GCP |
 | `MAX_TOKENS` | Máximo de tokens por respuesta IA (default: 4000) |
-| `MODEL` | Modelo OpenAI para reportes (default: gpt-4o-mini) |
+| `MODEL` | Modelo OpenAI para los endpoints de IA/reportes (default en código: gpt-4o-mini; **en producción está en `gpt-4o`**) |
 | `MODELO_HABLANTES` | Modelo para separar [Asesor]/[Cliente] en el pipeline (default: gpt-4o) |
 
 ## Automatización de carga de datos
@@ -287,7 +293,7 @@ Para programar la carga automática desde un PC con sesión CUN activa:
 .\back\registrar_tarea.ps1
 ```
 
-Crea una tarea en el Programador de Windows que corre `back/subir_datos.py` diariamente a las 7:00 AM. Los logs quedan en `back/subir_datos.log`.
+Crea una tarea en el Programador de Windows que corre `back/subir_datos.py` **semanalmente** (la fuente se actualiza cada semana). Los logs quedan en `back/subir_datos.log`. Vía preferida a futuro: **Airflow** dentro de la red CUN.
 
 ## Contacto
 
