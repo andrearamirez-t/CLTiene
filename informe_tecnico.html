@@ -354,7 +354,7 @@
 
 <!-- ═══════════════════════════════ PORTADA ═══════════════════════════════ -->
 <div class="cover">
-  <div class="cover-badge">Informe Técnico · Versión 3.2</div>
+  <div class="cover-badge">Informe Técnico · Versión 3.3</div>
   <div class="cover-logo-text"><span>CL</span>TIENE</div>
   <div class="cover-subtitle">Soluciones</div>
   <div class="cover-divider"></div>
@@ -369,15 +369,15 @@
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Versión pipeline</div>
-      <div class="cover-meta-value">V4 · Prompt v16 · gpt-4o</div>
+      <div class="cover-meta-value">V4 · Prompt v16 · gpt-4o · IA gpt-4o</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Llamadas procesadas</div>
-      <div class="cover-meta-value">39,916</div>
+      <div class="cover-meta-value">47,409</div>
     </div>
     <div class="cover-meta-item">
       <div class="cover-meta-label">Fecha</div>
-      <div class="cover-meta-value">15 de Julio 2026</div>
+      <div class="cover-meta-value">20 de Agosto 2026</div>
     </div>
   </div>
 </div>
@@ -395,7 +395,7 @@
     <div class="cards-grid">
       <div class="card">
         <div class="card-label">Llamadas procesadas</div>
-        <div class="card-value">39,916</div>
+        <div class="card-value">47,409</div>
         <div class="card-desc">Historial completo en BigQuery</div>
       </div>
       <div class="card accent">
@@ -411,7 +411,7 @@
     </div>
 
     <p style="font-size:11px; color:#334155; line-height:1.8;">
-      El Dashboard Analytics de CL Tiene Soluciones es una plataforma web full-stack que extrae diariamente los registros de llamadas del SQL Server de la CUN, los procesa mediante un pipeline de análisis de texto (V4) y los publica en un dashboard interactivo con filtros dinámicos, gráficas de rendimiento y siete módulos de análisis con IA generativa (GPT-4o-mini). El sistema permite a los supervisores identificar patrones operativos, evaluar la calidad de atención y tomar decisiones basadas en datos en tiempo real.
+      El Dashboard Analytics de CL Tiene Soluciones es una plataforma web full-stack que extrae semanalmente los registros de llamadas del SQL Server de la CUN, los procesa mediante un pipeline de análisis de texto (V4) y los publica en un dashboard interactivo con filtros dinámicos, gráficas de rendimiento y siete módulos de análisis con IA generativa (gpt-4o). El sistema permite a los supervisores identificar patrones operativos, evaluar la calidad de atención y tomar decisiones basadas en datos actualizados cada semana.
     </p>
   </div>
 
@@ -434,7 +434,7 @@
         <tr><td>Frontend</td><td>React 19 + Vite 7</td><td>SPA con Context API para filtros globales</td></tr>
         <tr><td>Backend</td><td>Python 3.11 + FastAPI</td><td>~50 endpoints REST con FilterModel (Pydantic)</td></tr>
         <tr><td>Base de datos</td><td>Google BigQuery</td><td>Tabla <code>cltiene_llamadas_procesadas</code></td></tr>
-        <tr><td>IA / LLM</td><td>OpenAI gpt-4o + gpt-4o-mini</td><td>gpt-4o para detección de hablantes; gpt-4o-mini para reportes. 2 API keys con balanceo/failover</td></tr>
+        <tr><td>IA / LLM</td><td>OpenAI gpt-4o</td><td>gpt-4o para detección de hablantes (pipeline) y para los 12 endpoints de IA/reportes (env <code>MODEL</code>=gpt-4o). gpt-4o-mini como override económico para la automatización. 2 API keys con balanceo/failover</td></tr>
         <tr><td>Hosting backend</td><td>Google Cloud Run</td><td>Servicio <code>cltiene-backend</code> (us-central1)</td></tr>
         <tr><td>Hosting frontend</td><td>Firebase Hosting</td><td>cltiene-dashboard.web.app</td></tr>
         <tr><td>Fuente de datos</td><td>SQL Server 2019 (CUN)</td><td>172.16.1.33 — Windows Auth</td></tr>
@@ -448,6 +448,121 @@
         <div class="pill pink">Frontend: https://cltiene-dashboard.web.app</div>
         <div class="pill blue">Backend: https://cltiene-backend-293865702055.us-central1.run.app</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ─── 2b. ECOSISTEMA Y FLUJO DE DATOS ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);">2b</div>
+      <div class="section-title">Ecosistema y Flujo de Datos</div>
+    </div>
+
+    <div class="subsection-title">Actores del ecosistema — quién es quién</div>
+    <table>
+      <thead>
+        <tr><th>Actor</th><th>Qué es</th><th>Rol en el flujo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CL Tiene Soluciones</strong></td>
+          <td>Empresa de asistencias (hogar/salud/vehículo) — cltiene.com</td>
+          <td><strong>El cliente</strong>, dueño de las llamadas y del dashboard. Envía el audio (FTP) y el Excel de metadata semanal.</td>
+        </tr>
+        <tr>
+          <td><strong>DivergencyAI SAS</strong></td>
+          <td>Nosotros — spinoff de la CUN. divergencyai.com</td>
+          <td>Desarrollamos el dashboard: pipeline V4 (separación de hablantes con OpenAI) + BigQuery + backend + frontend.</td>
+        </tr>
+        <tr>
+          <td><strong>CUN</strong></td>
+          <td>Corporación Unificada Nacional (universidad, Bogotá)</td>
+          <td>Su <strong>COE de analítica</strong> (Juan Manuel Marín) hace el STT + Ollama y hostea el SQL Server intermedio (172.16.1.33).</td>
+        </tr>
+        <tr>
+          <td><strong>S3 (Simple Smart Speedy)</strong></td>
+          <td>Proveedor de telecom/hosting (Bogotá) — NO es AWS S3</td>
+          <td>Maneja la infraestructura del audio: copia las grabaciones al servidor de backup (FTP) que lee la CUN.</td>
+        </tr>
+        <tr>
+          <td><strong>ContactVox</strong></td>
+          <td>Marcador / dialer</td>
+          <td>Genera las grabaciones (MP3) y los reportes de marcación (estatus contestada/no contestada).</td>
+        </tr>
+        <tr>
+          <td><strong>Zoho</strong></td>
+          <td>CRM de negociaciones</td>
+          <td>Fuente de la <strong>venta real</strong> (tabla <code>CLTIENE_VENTAS</code>, <code>Fase='Cerrado Ganado'</code>). Pendiente de integrar.</td>
+        </tr>
+        <tr>
+          <td><strong>Sergio Nieto → Steven Aldana</strong></td>
+          <td>CL Tiene: admin del call center (Sergio, salió 16-jul) → Supervisor Contact Center (Steven, interino)</td>
+          <td>Arma y envía el Excel semanal + clasificación manual servicio/venta. Steven hoy cubre solo salientes.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:20px;">Flujo de datos de punta a punta</div>
+    <div style="width:100%; overflow-x:auto; margin:8px 0;">
+      <svg viewBox="0 0 990 620" style="width:100%; min-width:640px; font-family:inherit;" role="img" aria-label="Diagrama de flujo de datos">
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/></marker>
+          <marker id="arn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#f59e0b"/></marker>
+        </defs>
+        <!-- arrows -->
+        <line x1="490" y1="70"  x2="490" y2="100" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="490" y1="156" x2="490" y2="186" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="490" y1="242" x2="490" y2="272" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="490" y1="328" x2="490" y2="358" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="490" y1="414" x2="490" y2="444" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <line x1="490" y1="500" x2="490" y2="530" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <!-- Zoho dashed into BigQuery -->
+        <line x1="788" y1="387" x2="754" y2="387" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arn)"/>
+        <text x="770" y="357" text-anchor="middle" font-size="9" fill="#b45309" font-weight="600">pendiente</text>
+
+        <!-- boxes -->
+        <!-- 1 CL Tiene -->
+        <g><rect x="230" y="16" width="520" height="54" rx="10" fill="#fff5f9" stroke="#e2e8f0"/><rect x="230" y="16" width="7" height="54" rx="3" fill="#FC3276"/>
+          <text x="252" y="40" font-size="13" font-weight="700" fill="#0f172a">1 · CL Tiene Soluciones</text>
+          <text x="252" y="58" font-size="10.5" fill="#64748b">FTP: audio (ContactVox) · Excel semanal (Sergio → Steven)</text></g>
+        <!-- 2 COE/CUN -->
+        <g><rect x="230" y="102" width="520" height="54" rx="10" fill="#eef2ff" stroke="#e2e8f0"/><rect x="230" y="102" width="7" height="54" rx="3" fill="#6366f1"/>
+          <text x="252" y="126" font-size="13" font-weight="700" fill="#0f172a">2 · COE · CUN — Extracción y evaluación</text>
+          <text x="252" y="144" font-size="10.5" fill="#64748b">STT faster-whisper (audio → texto) + Ollama qwen2.5 (7 categorías de calidad)</text></g>
+        <!-- 3 SQL -->
+        <g><rect x="230" y="188" width="520" height="54" rx="10" fill="#eef2ff" stroke="#e2e8f0"/><rect x="230" y="188" width="7" height="54" rx="3" fill="#6366f1"/>
+          <text x="252" y="212" font-size="13" font-weight="700" fill="#0f172a">3 · SQL Server 172.16.1.33 (red privada CUN)</text>
+          <text x="252" y="230" font-size="10.5" fill="#64748b">CUN_REPOSITORIO · cruce Excel ↔ transcripción por fecha + agente (WAP pendiente)</text></g>
+        <!-- 4 pipeline -->
+        <g><rect x="230" y="274" width="520" height="54" rx="10" fill="#eff6ff" stroke="#e2e8f0"/><rect x="230" y="274" width="7" height="54" rx="3" fill="#0ea5e9"/>
+          <text x="252" y="298" font-size="13" font-weight="700" fill="#0f172a">4 · Pipeline subir_datos.py <tspan fill="#0ea5e9">(DivergencyAI)</tspan></text>
+          <text x="252" y="316" font-size="10.5" fill="#64748b">OpenAI gpt-4o: separa [Asesor]/[Cliente] · Asistencia · dedup</text></g>
+        <!-- 5 BigQuery -->
+        <g><rect x="230" y="360" width="520" height="54" rx="10" fill="#eff6ff" stroke="#e2e8f0"/><rect x="230" y="360" width="7" height="54" rx="3" fill="#0ea5e9"/>
+          <text x="252" y="384" font-size="13" font-weight="700" fill="#0f172a">5 · BigQuery · cltiene_llamadas_procesadas</text>
+          <text x="252" y="402" font-size="10.5" fill="#64748b">47.409 filas · fuente única del dashboard</text></g>
+        <!-- 6 backend -->
+        <g><rect x="230" y="446" width="520" height="54" rx="10" fill="#eff6ff" stroke="#e2e8f0"/><rect x="230" y="446" width="7" height="54" rx="3" fill="#0ea5e9"/>
+          <text x="252" y="470" font-size="13" font-weight="700" fill="#0f172a">6 · Backend FastAPI · Cloud Run</text>
+          <text x="252" y="488" font-size="10.5" fill="#64748b">KPIs, gráficas, 12 endpoints de IA (gpt-4o)</text></g>
+        <!-- 7 frontend -->
+        <g><rect x="230" y="532" width="520" height="54" rx="10" fill="#eff6ff" stroke="#e2e8f0"/><rect x="230" y="532" width="7" height="54" rx="3" fill="#0ea5e9"/>
+          <text x="252" y="556" font-size="13" font-weight="700" fill="#0f172a">7 · Frontend React · Firebase Hosting</text>
+          <text x="252" y="574" font-size="10.5" fill="#64748b">cltiene-dashboard.web.app</text></g>
+        <!-- Zoho side -->
+        <g><rect x="790" y="360" width="190" height="54" rx="10" fill="#fff7ed" stroke="#fed7aa"/><rect x="790" y="360" width="7" height="54" rx="3" fill="#f59e0b"/>
+          <text x="808" y="384" font-size="12" font-weight="700" fill="#0f172a">Zoho · CLTIENE_VENTAS</text>
+          <text x="808" y="402" font-size="9.5" fill="#b45309">venta real (Cerrado Ganado)</text></g>
+      </svg>
+    </div>
+    <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:10px; color:#64748b; margin-top:4px;">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#FC3276;vertical-align:middle;"></span> CL Tiene</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#6366f1;vertical-align:middle;"></span> CUN / COE (STT + Ollama)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#0ea5e9;vertical-align:middle;"></span> DivergencyAI</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#f59e0b;vertical-align:middle;"></span> Zoho (pendiente de integrar)</span>
+    </div>
+    <div class="highlight" style="margin-top:12px;">
+      <p>El <strong>cuello de botella real está upstream</strong> (pasos 2–3, lado CUN): el STT (<code>faster-whisper medium</code>) y el cruce Excel↔audio por 3 variables (pierde ~40%). Nuestro pipeline (paso 4) solo puede ser tan bueno como el texto que llega. El SQL Server está en la <strong>red privada de la CUN</strong> → el pipeline debe correr dentro de esa red (Cloud Run no lo alcanza).</p>
     </div>
   </div>
 
@@ -467,7 +582,7 @@
       <div class="flow-step">
         <div class="flow-step-icon">⚙️</div>
         <div class="flow-step-label">subir_datos.py</div>
-        <div class="flow-step-sub">Pipeline V4<br/>39,916 filas</div>
+        <div class="flow-step-sub">Pipeline V4<br/>47,409 filas</div>
       </div>
       <div class="flow-step">
         <div class="flow-step-icon">🔬</div>
@@ -566,6 +681,59 @@
         <div class="pill" style="background:#f1f5f9; color:#94a3b8;">+ 14 más...</div>
       </div>
     </div>
+  </div>
+
+  <!-- ─── 3b. DICCIONARIO DE DATOS ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);">3b</div>
+      <div class="section-title">Diccionario de Datos — <code>cltiene_llamadas_procesadas</code></div>
+    </div>
+    <p style="font-size:10.5px; color:#334155; line-height:1.7; margin-bottom:10px;">
+      <strong>57 columnas</strong> en total, en 3 grupos según su origen. <code>Fecha</code> es INT64 en nanosegundos → <code>DATETIME(TIMESTAMP_MICROS(DIV(Fecha,1000)))</code>.
+    </p>
+
+    <div class="subsection-title">A · Metadata de origen (Excel / ContactVox, vía CUN)</div>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>Fecha</code></td><td>INT64</td><td>Timestamp de la llamada en nanosegundos. ~3.9k traen <code>00:00:00</code> (hora perdida — va en el nombre del archivo).</td></tr>
+        <tr><td><code>Cuenta</code> / <code>Agente</code></td><td>STRING</td><td><code>Cuenta</code> = nombre del asesor · <code>Agente</code> = código. El pipeline usa <code>COALESCE(Cuenta, Agente)</code>.</td></tr>
+        <tr><td><code>Telefono</code></td><td>FLOAT64</td><td>Teléfono del cliente (usado en el historial por teléfono).</td></tr>
+        <tr><td><code>Estado_de_la_LLamada</code></td><td>STRING</td><td>Estatus del marcador: ANSWERED / NO ANSWER / BUSY → Contestada / No Contestada / Ocupada.</td></tr>
+        <tr><td><code>Tiempo__de_Conversacion</code></td><td>STRING</td><td>Duración H:MM:SS (del Excel, NO del audio). Base del <strong>TMO</strong>.</td></tr>
+        <tr><td><code>Estado_de_Gestion</code></td><td>INT64</td><td><span style="color:#dc2626;"><strong>VACÍO en origen.</strong></span> Aquí viviría la venta real / estados de prospecto.</td></tr>
+        <tr><td><code>archivo</code></td><td>STRING</td><td>Nombre del archivo de transcripción. <strong>Clave del dedup</strong> (junto con Fecha+Cuenta+Telefono+transcripcion).</td></tr>
+        <tr><td><code>IDENTIFICACION</code></td><td>STRING</td><td>Documento del <strong>agente</strong> (no del cliente, no es clave de fila).</td></tr>
+        <tr><td><code>Direccion_grabacion_1..7</code></td><td>STRING/FLOAT</td><td>Rutas de la grabación en el FTP.</td></tr>
+        <tr><td><code>Modulo</code>, <code>Nombre_del_Modulo</code>, <code>Tipo_Llamada</code>, <code>tipo</code>, <code>Motivo</code>, <code>Calificacion_de_la_Llamada</code>, <code>Estado_de_Registro</code>, <code>Comentario</code>, <code>Tiempo__de_Llamada</code>, <code>Contacto__Identificacion___Nombre</code>, <code>fecha_carga</code></td><td>varios</td><td>Metadata adicional del Excel/marcador.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:18px;">B · Evaluación NLP de la CUN (Ollama qwen2.5 + TextBlob)</div>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>transcripcion</code></td><td>STRING</td><td>Texto del <strong>STT</strong> (faster-whisper). Cuello de botella de calidad (upstream).</td></tr>
+        <tr><td>7 categorías: <code>saludo_inicial</code>, <code>identificacion_cliente</code>, <code>comprension_problema</code>, <code>ofrecimiento_solucion</code>, <code>manejo_inquietudes</code>, <code>cierre_servicio</code>, <code>proximo_paso</code></td><td>FLOAT64 (0/1)</td><td>Categorías de calidad evaluadas por Ollama qwen2.5 (1 si aparece claramente).</td></tr>
+        <tr><td><code>efectiva</code></td><td>FLOAT64 (0/1)</td><td>=1 si el promedio de las 7 categorías ≥ 0.8 (mín. 6 de 7). <span style="color:#dc2626;"><strong>Es calidad, NO venta.</strong></span></td></tr>
+        <tr><td><code>polarity</code>, <code>subjectivity</code>, <code>confianza</code>, <code>palabras</code></td><td>FLOAT64</td><td>Sentimiento por TextBlob/NaiveBayes (no el LLM). <code>palabras</code> = conteo regex.</td></tr>
+        <tr><td><code>clasificacion</code></td><td>STRING</td><td>positivo / negativo / neutro según <code>polarity</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:18px;">C · Pipeline V4 (DivergencyAI — OpenAI gpt-4o + regex)</div>
+    <table>
+      <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>Transcripcion_V4</code></td><td>STRING</td><td>Diálogo con turnos <code>[Asesor]</code>/<code>[Cliente]</code> separados por OpenAI gpt-4o (prompt v16).</td></tr>
+        <tr><td><code>Num_Turnos_V4</code>, <code>Turnos_Asesor_V4</code>, <code>Turnos_Cliente_V4</code></td><td>INT64</td><td>Conteo de turnos. Base de la <strong>Participación del cliente</strong>.</td></tr>
+        <tr><td><code>Resultado_Llamada</code></td><td>STRING</td><td>Contactado / Rechazado / <strong>Venta</strong> / Sin Contacto / Buzón de Voz / No Disponible / Número Equivocado / Sin Clasificar. Inferido por regex (la "Venta" está inflada). Base de <strong>Contacto Efectivo</strong>.</td></tr>
+        <tr><td><code>Saludo_Completo</code>, <code>Explico_Beneficios</code>, <code>Ofrecio_WhatsApp</code>, <code>Despedida_Correcta</code></td><td>STRING</td><td>Detecciones heurísticas (Sí/Parcial/No). <code>Despedida_Correcta</code> analiza las últimas 3 líneas de V4.</td></tr>
+        <tr><td><code>Duracion_Estimada</code></td><td>STRING</td><td>Muy Corta / Corta / Media / Larga (de <code>Tiempo__de_Conversacion</code>).</td></tr>
+        <tr><td><code>Plan_Mencionado</code>, <code>Asistencia</code>, <code>Motivo_Rechazo</code>, <code>Tipo_Mascota</code>, <code>Tipo_Vehiculo</code>, <code>Num_Objeciones</code></td><td>STRING/INT</td><td>Catálogos detectados por regex sobre la transcripción.</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- ─── 4. PESTAÑAS DEL DASHBOARD ─── -->
@@ -941,6 +1109,67 @@ SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
     </div>
   </div>
 
+  <!-- ─── 8b. LIMITACIONES Y DEUDA TÉCNICA ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#f59e0b,#b45309);">8b</div>
+      <div class="section-title">Limitaciones Conocidas y Deuda Técnica</div>
+    </div>
+    <p style="font-size:10.5px; color:#334155; line-height:1.7; margin-bottom:10px;">
+      La mayoría del límite está <strong>upstream</strong> (lado CUN / proveedor), no en nuestro código. Nuestro pipeline blinda lo que puede (dedup, COALESCE, parse de fechas), pero no puede arreglar datos que llegan mal en origen.
+    </p>
+    <table>
+      <thead><tr><th>Limitación</th><th>Impacto</th><th>Palanca / responsable</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Calidad del STT</strong> (techo)</td>
+          <td><code>faster-whisper medium</code> + <code>beam_size=1</code> + VAD agresivo → ~1 de cada 3 transcripciones llega inseparable / con palabras deformes. La separación de hablantes solo puede ser tan buena como el texto.</td>
+          <td>CUN (Juan Manuel): subir a <code>large-v3</code>, <code>beam_size=5</code>, ablandar VAD.</td>
+        </tr>
+        <tr>
+          <td><strong>Ventas inferidas infladas</strong></td>
+          <td><code>Resultado_Llamada='Venta'</code> por regex (734) está muy sobreestimado; la venta real se cierra fuera del audio. Por eso se muestra como "<strong>Posibles ventas</strong>".</td>
+          <td>Venta real = Zoho <code>CLTIENE_VENTAS</code> (<code>Fase='Cerrado Ganado'</code>, ~10–15/mes). Pendiente de integrar.</td>
+        </tr>
+        <tr>
+          <td><strong><code>Estado_de_Gestion</code> vacío</strong></td>
+          <td>Viene nulo desde el origen (Sergio nunca lo llenaba) → sin él no hay venta real ni "Estados Prospectos".</td>
+          <td>CL Tiene: llenarlo, o marcar venta sí/no + zoho id en el Excel.</td>
+        </tr>
+        <tr>
+          <td><strong>Cruce audio ↔ Excel pierde ~40%</strong></td>
+          <td>La llave de 3 variables (agente+celular+fecha) solo cruza ~60% de las llamadas → huecos de datos.</td>
+          <td>CUN (Juan Manuel): migrar a la llave única WAP (<code>Identificador único</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>No contestadas se pierden</strong></td>
+          <td>El SQL solo trae ANSWERED (las NO ANSWER/BUSY se botan al no tener audio) → "Total Marcaciones" subcontado &gt;50% y la contactabilidad real mal medida.</td>
+          <td>CUN: incluir las filas NO ANSWER/BUSY (metadata sin audio) en <code>CLTIENE_LLAMADAS</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Hora 00:00:00</strong></td>
+          <td>~3.9k registros perdieron la hora del día (va en el nombre del archivo, no en el timestamp).</td>
+          <td>Mitigado (excluidos de la moda del KPI). Recuperable en origen parseando el filename (Juan Manuel).</td>
+        </tr>
+        <tr>
+          <td><strong>Contacto Efectivo ~6% mal clasificado</strong></td>
+          <td>Se infiere de la transcripción → hereda los errores del STT (conversaciones reales que el STT no separó cuentan como "Sin Contacto").</td>
+          <td>Se corrige solo al mejorar el STT (misma palanca).</td>
+        </tr>
+        <tr>
+          <td><strong>Cédula no viene en el origen</strong></td>
+          <td>Sin cédula no se puede cruzar CRM (Zoho) ↔ llamadas de forma limpia.</td>
+          <td>S3 (proveedor): agregar la cédula a la estructura del audio.</td>
+        </tr>
+        <tr>
+          <td><strong>Proceso manual frágil</strong></td>
+          <td>El envío del Excel + la clasificación servicio/venta dependían de una persona (Sergio, salió 16-jul). Steven cubre solo salientes.</td>
+          <td>Automatizar con <strong>Airflow</strong> dentro de la red CUN (Santamaría); el pipeline se agrega como PythonOperator.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <!-- ─── 9. ACTUALIZACIONES RECIENTES — 19 Jun ─── -->
   <div class="section">
     <div class="section-header">
@@ -1080,9 +1309,9 @@ SELECT * FROM id_provisional WHERE id = <span class="keyword">{id}</span></div>
           <td>Verificar que <code>AnalisisAu</code>, <code>RankingIA</code> y <code>ReporteCompleto</code> pasen correctamente los filtros del sidebar a sus endpoints.</td>
         </tr>
         <tr>
-          <td><strong>Tarea automática Windows — pipeline diario</strong></td>
+          <td><strong>Tarea automática Windows — pipeline semanal</strong></td>
           <td><span class="pill green">Baja</span></td>
-          <td>Registrar <code>registrar_tarea.ps1</code> en el Programador de Windows del PC con sesión CUN activa para ejecución automática a las 7:00 AM.</td>
+          <td>Registrar <code>registrar_tarea.ps1</code> en el Programador de Windows del PC con sesión CUN activa para ejecución automática <strong>semanal</strong> (la fuente se actualiza cada semana). Vía preferida: Airflow dentro de la red CUN.</td>
         </tr>
         <tr>
           <td><strong>✅ efectiva vs Resultado_Llamada = Venta</strong></td>
@@ -1225,10 +1454,157 @@ efectiva = <span class="keyword">1 if</span> puntaje >= 0.8 <span class="keyword
     </ul>
   </div>
 
+  <!-- ─── 14. ACTUALIZACIONES — Jul–Ago 2026 ─── -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-number">14</div>
+      <div class="section-title">Actualizaciones — Jul–Ago 2026 (Reporte Ejecutivo, Contacto Efectivo, IA gpt-4o)</div>
+    </div>
+
+    <div class="subsection-title">Datos — 47.409 filas</div>
+    <table>
+      <thead>
+        <tr><th>Cambio</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Formato de fecha español (oct-2025)</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td>Se descartaban en silencio ~7.142 filas (13%) del lote oct-2025 por venir en formato regional (<code>DD/MM/YYYY a.m./p.m.</code> con espacio angosto U+202F) que SQL no parsea. Nueva <code>parse_fecha_es()</code> las parsea en Python (query fallback aditivo). Tabla: 40.873 → <strong>47.409 filas</strong> (historia 10-oct-2025 → 9-ago-2026).</td>
+        </tr>
+        <tr>
+          <td><strong>Cargas con gpt-4o + 2 keys</strong></td>
+          <td><code>back/subir_datos.py</code></td>
+          <td>Corridas incrementales con <code>MODELO_HABLANTES=gpt-4o</code> y balanceo entre las 2 API keys. Dedup del pipeline (~13%). 25 asesores, 0 transcripciones sin V4, 0 Cuenta NULL.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:20px;">Contacto Efectivo — partición limpia que suma al total</div>
+    <div class="highlight">
+      <p>Se añadió el indicador <strong>Contacto Efectivo</strong> (¿se habló con la persona?) como respuesta interina a "cuántos no contestaron" mientras Juan integra las no-contestadas del marcador. Es una <strong>partición</strong> de <code>Resultado_Llamada</code> que suma al total: <strong>Contactado</strong> = <code>IN ('Contactado','Rechazado','Venta')</code> · <strong>Sin Contacto</strong> = <code>IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto','Sin Clasificar')</code>. Alineada en el chart del dashboard (<code>distribucion_resultado.py</code>, título "Contacto Efectivo"), el <strong>embudo</strong> (<code>embudo_conversacion.py</code> — paso "Contactado" = 12.400, mismo número en todo el tablero, Ventas ⊂ Contactado) y el reporte. <em>Ojo:</em> se infiere de la transcripción → ~6% mal clasificado por el STT (tope upstream).</p>
+    </div>
+
+    <div class="subsection-title" style="margin-top:16px;">Plantilla del contact center (Steven) — buildeables</div>
+    <table>
+      <thead>
+        <tr><th>Añadido</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>KPI TMO + Participación cliente</strong></td>
+          <td><code>back/api/charts/kpi.py</code></td>
+          <td>TMO = promedio de <code>Tiempo de Conversacion</code> (H:MM:SS). Participación = % de turnos del cliente en V4 ("¿se deja hablar al cliente?"). Respetan filtros.</td>
+        </tr>
+        <tr>
+          <td><strong>Gráfica "Estatus de Llamadas"</strong></td>
+          <td><code>estatus_llamadas.py</code> + <code>EstatusChart.jsx</code></td>
+          <td>Traduce <code>Estado_de_la_LLamada</code>: ANSWERED→Contestada, NO ANSWER→No Contestada, BUSY→Ocupada. En vivo: 74.7% / 25.3%.</td>
+        </tr>
+        <tr>
+          <td><strong>Columna TMO por asesor</strong></td>
+          <td><code>rendimiento_agente.py</code> + <code>Rendimiento.jsx</code></td>
+          <td>Nuevo <code>tmo_seg</code> (AVG en segundos) → columna "TMO" ordenable (H:MM:SS).</td>
+        </tr>
+        <tr>
+          <td><strong>Rename "Ventas Cerradas" → "Posibles ventas"</strong></td>
+          <td>Dashboard.jsx, embudo, charts, Evolución, Ventas</td>
+          <td>El valor interno sigue siendo <code>Resultado_Llamada='Venta'</code> (regex inflado); el display es honesto. Evolución corregida (tenía <code>COUNT(*)</code> disfrazado de ingresos).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:20px;">Reporte Ejecutivo (Agente IA PRO) — rehecho para comité</div>
+    <table>
+      <thead>
+        <tr><th>Mejora</th><th>Archivo</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Prompt "Director de Operaciones"</strong></td>
+          <td><code>generar_reporte_completo.py</code></td>
+          <td>BLUF → Tablero con semáforo → Estatus → Productividad por asesor → Calidad → Patrones → Rechazos → Recomendaciones → Plan 4 semanas → Metas SMART. PDF con tablas reales, logo y semáforo como badge (<code>ReporteCompleto.jsx</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Contexto enriquecido</strong></td>
+          <td><code>helpers/utils.py</code> (<code>get_data_context</code>)</td>
+          <td>Estatus de llamadas, TMO global/por asesor, participación, Contacto Efectivo y semáforos precalculados (deterministas). Comparación con el período anterior (<code>get_periodo_anterior_context</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Semáforo determinista + leyenda</strong></td>
+          <td><code>helpers/utils.py</code></td>
+          <td>Colores calculados en código con umbrales fijos (la IA solo los copia) + leyenda "Rangos del semáforo" bajo el tablero para que cada color quede justificado.</td>
+        </tr>
+        <tr>
+          <td><strong>Llamadas de calidad vs Contacto efectivo</strong></td>
+          <td><code>utils.py</code> + <code>generar_reporte_completo.py</code></td>
+          <td>Se renombró "Contactabilidad" (=<code>efectiva</code>≥80%, calidad) → "Llamadas de calidad" y se separó "Contacto efectivo" como indicador distinto. Tablero de 8 filas.</td>
+        </tr>
+        <tr>
+          <td><strong>Reglas de coherencia (feedback GPT)</strong></td>
+          <td><code>generar_reporte_completo.py</code></td>
+          <td>TMO = síntoma, no meta (prohibido "aumentar el TMO a 1:25"); conteos de calidad neutrales (despedida sin spin); Metas SMART de una sola métrica con línea base; prohibido "por debajo de lo esperado" vago.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title" style="margin-top:20px;">IA — todos los endpoints a gpt-4o + prompts alineados</div>
+    <div class="highlight">
+      <p>Se subió <strong>todos los endpoints de IA a <code>gpt-4o</code></strong> vía env <code>MODEL=gpt-4o</code> en Cloud Run (razonan mejor; ~$0.03/reporte on-demand; distinto de <code>MODELO_HABLANTES</code> del pipeline). Auditoría de los 12 endpoints: todos usan <code>call()</code> (heredan el modelo), cero término viejo "ventas cerradas". Se alinearon los 2 builders que no usaban <code>get_data_context</code> — <code>get_asesor_context</code> (análisis por asesor) y <code>get_ranking_context</code> (RankingIA) — reemplazando etiquetas ambiguas ("Contactadas (efectivas)", "Ventas" crudo, "Despedida correcta") por las mismas con guardarraíl del resto: <strong>"Llamadas de calidad (efectiva≥80%, NO es contacto)"</strong>, <strong>"Posibles ventas (inferidas, NO venta real)"</strong> y conteos como detección heurística.</p>
+    </div>
+
+    <div class="subsection-title" style="margin-top:16px;">Verificación integral (20-ago)</div>
+    <ul style="font-size:10.5px; color:#334155; line-height:1.8; padding-left:18px;">
+      <li>Se cruzaron <strong>todos los endpoints del dashboard vs BigQuery</strong> (ground truth): KPIs, Contacto Efectivo, Estatus, embudo, rendimiento/TMO, evolución, ventas-vs-servicio, %efectivas — todo consistente.</li>
+      <li>El <strong>reporte</strong> P2 (2–9 ago) verificado: datos vs BQ, 8 semáforos coherentes con sus rangos, leyenda, TMO síntoma, despedida neutral, Metas SMART de una métrica.</li>
+      <li><strong>Filtros propagan:</strong> con filtro P2 el KPI da 695 y Contacto Efectivo 340/355, idénticos al reporte.</li>
+    </ul>
+
+    <div class="subsection-title" style="margin-top:20px;">Excel de origen — qué campos trae cada uno (Sergio → Steven)</div>
+    <p style="font-size:10.5px; color:#334155; line-height:1.7; margin-bottom:10px;">
+      Sergio Nieto (salió de CL Tiene el 16-jul) enviaba <strong>semanalmente DOS Excel de estructura distinta</strong>; la clasificación <em>servicio vs venta</em> la hacía a mano partiéndolos en hojas. <strong>Steven Aldana</strong> (Supervisor Contact Center) cubre <strong>parcialmente</strong> solo el de salientes.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Archivo (quién)</th><th>Hojas / formato</th><th>Campos clave</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Registro llamadas SALIENTES</strong> (Sergio)</td>
+          <td>16 columnas · hojas <code>Servicio</code> (293) + <code>ventas</code> (1.627)</td>
+          <td><code>Cuenta</code>, <code>Modulo</code>, <code>Estado de la LLamada</code> (ANSWERED/NO ANSWER/BUSY), <code>Estado de Gestion</code>, <code>Direccion grabacion</code></td>
+          <td><span style="color:#dc2626;">Sin identificador único (WAP).</span> <code>Estado de Gestion</code> <strong>vacío</strong> (293/293 nan).</td>
+        </tr>
+        <tr>
+          <td><strong>Entrada de llamadas</strong> (Sergio)</td>
+          <td>24 columnas · hojas <code>Servicio</code> (181) + <code>Ventas</code> (9)</td>
+          <td><code>Hora</code> (aparte), <code>Cola</code>, <code>Identificacion</code> (cédula), <code>Identificador único</code> (WAP, ej. <code>1783050377.161541</code>), <code>Troncal</code>, <code>Estatus</code> (ANSWERED/DISCARTED/ABANDON)</td>
+          <td><span style="color:#16a34a;">SÍ trae la llave WAP.</span> Cédula <strong>vacía</strong> (0/181).</td>
+        </tr>
+        <tr>
+          <td><strong>Registro llamadas SALIENTES</strong> (Steven, corte 1-ago)</td>
+          <td>Mismas 16 columnas que el saliente de Sergio · <strong>1 sola hoja plana</strong> "Hoja 1" (2.004 filas). Header real en la fila 4 (3 filas de basura arriba).</td>
+          <td><code>Estado de la LLamada</code> con datos (NO ANSWER 996 / ANSWERED 979 / BUSY 25)</td>
+          <td><span style="color:#dc2626;">NO envía el de ENTRADA</span> (no sabe cómo lo bajaba Sergio) · perdió la clasificación servicio/venta (1 hoja plana) · <code>Estado de Gestion</code> sigue vacío.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="highlight" style="margin-top:12px;">
+      <p><strong>Los 3 huecos que bloquean la venta real y los "Estados Prospectos":</strong> (1) <code>Estado de Gestion</code> viene <strong>vacío en el origen</strong> — no es que Juan no lo cargue, Sergio nunca lo llenaba; (2) la <strong>cédula</strong> (<code>Identificacion</code>) solo está en entrada y viene vacía → depende de <strong>S3</strong>; (3) la <strong>llave WAP</strong> (<code>Identificador único</code>) existe solo en ENTRADA, no en salientes → el cruce único de Juan Manuel queda incompleto. La <strong>clasificación manual servicio/venta</strong> (hojas de Sergio) se pierde si se jala directo de ContactVox. La venta real definitiva vive en Zoho <code>CLTIENE_VENTAS</code> (<code>Fase='Cerrado Ganado'</code>).</p>
+    </div>
+
+    <div class="subsection-title" style="margin-top:16px;">Pendiente upstream (bloquea la venta real)</div>
+    <ul style="font-size:10.5px; color:#334155; line-height:1.8; padding-left:18px;">
+      <li><strong>Venta real (Zoho):</strong> congelada esperando el reemplazo de Sergio (salió 16-jul). <code>Estado_de_Gestion</code> viene vacío en origen; la venta definitiva = Zoho <code>CLTIENE_VENTAS</code> (<code>Fase='Cerrado Ganado'</code>, ~10–15/mes).</li>
+      <li><strong>No contestadas del marcador:</strong> el SQL de la CUN solo trae ANSWERED (las NO ANSWER/BUSY se botan al cruzar con audio) → "Total Marcaciones" está subcontado &gt;50%. Pedido a Juan Manuel incluirlas.</li>
+      <li><strong>STT:</strong> <code>faster-whisper medium</code> + <code>beam_size=1</code> + VAD agresivo → ~1 de cada 3 transcripciones llega inseparable. Palanca real: <code>large-v3</code>, subir beam_size, ablandar VAD (lado CUN).</li>
+    </ul>
+  </div>
+
   <!-- ─── FOOTER ─── -->
   <div class="footer">
     <div class="footer-brand">Desarrollado por <strong>DivergencyAI SAS</strong> · contacto@divergencyai.com</div>
-    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 15 Jul 2026 · v3.2</div>
+    <div class="footer-url">cltiene-dashboard.web.app · Creado 12 Jun 2026 · Actualizado 20 Ago 2026 · v3.3</div>
   </div>
 
 </div>
