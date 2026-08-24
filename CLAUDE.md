@@ -241,6 +241,11 @@ npm run build
 firebase deploy --only hosting:cltiene-dashboard
 ```
 
+### Cold start eliminado — `min-instances=1` (2026-08-24, rev `00149-f6s`)
+- **Síntoma:** al abrir la app tras inactividad, los KPIs quedaban en "-" varios segundos (hasta ~30s) porque Cloud Run escalaba a **0** y la primera petición tenía que arrancar el contenedor (cold start). El keep-alive de 9 min solo evita esto **mientras la pestaña ya está abierta**, no en la primera apertura del día.
+- **Fix:** `gcloud run services update cltiene-backend --min-instances=1 --region us-central1 --project desarrollo-investigaciones`. Mantiene 1 instancia siempre caliente → cero cold start (verificado: `/api/kpi` responde ~0.1s). Rev `00149-f6s`.
+- **Tradeoff:** una instancia idle 24/7 (costo bajo continuo, pocos USD/mes). Si la CUN lo cuestiona por costo, revertir con `--min-instances=0` (alternativa más barata evaluada: Cloud Scheduler con ping en horario laboral).
+
 ## Cuándo sacar un informe de sesión (criterio, definido 2026-07-15)
 
 Dos ritmos distintos, no confundir:
@@ -637,6 +642,13 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - **Causa real:** esas 7.142 filas son el **lote oct-2025** (10-oct → 7-nov, ANTES de que la fuente cambiara a ISO el 8-nov). Vienen en formato regional español de Windows: `'DD/MM/YYYY h:mm:ss a. m./p. m.'` con **espacio angosto U+202F** (doble). SQL NO lo parsea: probado `TRY_CONVERT` 103/105/default, `TRY_PARSE es-CO/en-US` y normalización con `REPLACE(NCHAR(8239))` → **todos 0** (el U+202F no se deja reemplazar por collation).
 - **Fix (`subir_datos.py`):** nueva `parse_fecha_es()` (normaliza espacios Unicode con `unicodedata.category=='Zs'` + regex + 12h→24h) parsea el formato en **Python** (7.142/7.142 OK). El query principal (ISO 120) **NO se tocó**; se agregó un **query fallback aditivo** (`sql_fb`, `WHERE TRY_CONVERT(120) IS NULL AND fecha LIKE '%/%/%'`) que trae esas filas crudas y se concatenan tras parsear en Python. Columnas compartidas vía `_COLS_MEDIO` (sin duplicar). Se agregó **log** de recuperadas/descartadas (punto válido de Copilot).
 - **Nota:** las 7.142 son **solo metadata** (0 transcripción → $0 OpenAI, sin V4/atribución); solo suman volumen/estatus de oct-2025 y extienden la historia. Aparecen **4 asesores nuevos** (rotación: gente que salió antes de nov).
+
+### Carga de datos 2026-08-24 (hecha, con gpt-4o + 2 keys)
+- Corrida **incremental** con **`gpt-4o`** + las **2 API keys**. Diego dentro de la red CUN.
+- **Estado previo (SQL vs BQ):** SQL tenía datos hasta **17-ago** (55.123 crudas / 47.981 ISO + 7.142 español); BigQuery hasta **9-ago** (47.409). ⇒ ~8 días nuevos (10-17 ago).
+- **Resultado:** BigQuery 47.409 → **47.880 filas** (+471 netas). Dedup quitó **7.243 (13.1%)**. **Historia 2025-10-10 → 2026-08-17**. Backup: `cltiene_llamadas_procesadas_backup_20260824` (estado previo, 47.409).
+- **Consumo:** fase IA ~75 seg → **pocas transcripciones nuevas** reales (10-17 ago) a OpenAI → **~$2-4**. El log dice "Nuevas/cambiadas: 25.570" pero eso incluye ~25k filas vacías/sin transcripción que NO llaman a OpenAI (Reutilizadas 22.310 del cache).
+- **Verificado en vivo** (`/api/kpi` + BQ): total **47.880**, Hora Pico 11:00, Día Martes, Calidad 32.0, Saludo 52.6, TMO 0:01:15, **25 asesores**, **0 Cuenta NULL**. **0 transcripciones REALES sin V4** (las 873 "sin V4" son fragmentos STT de ~6 chars repartidos en todos los meses, correctamente no estructurados — no es un bug del run). `ventas: 738` sigue inflado (pendiente Zoho).
 
 ### Carga de datos 2026-08-14 (hecha, con gpt-4o + 2 keys)
 - Corrida con **`gpt-4o`** + las **2 API keys**. Diego dentro de la red CUN. Se corrió **2 veces**: (1) actualización normal 40.873→41.568 (datos frescos al 9-ago), (2) tras el **fix de formato de fecha** (arriba) → **41.568 → 47.409 filas** (+5.841 de oct-2025 recuperadas post-dedup).
