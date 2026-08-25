@@ -1,4 +1,24 @@
+import re
+
 from api.database import client, calculo_fecha
+
+
+def _esc(value) -> str:
+    """Escapa un valor para interpolarlo de forma SEGURA en un literal string de
+    BigQuery (previene inyección SQL). Escapa backslash, comilla simple y saltos
+    de línea. Para valores normales es transparente (mismo resultado)."""
+    return (
+        str(value)
+        .replace("\\", "\\\\")   # backslash PRIMERO (para no re-escapar los que agregamos)
+        .replace("'", "\\'")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
+
+
+# Fechas válidas del date picker: YYYY-MM-DD. Si no matchea, se ignora el filtro
+# (defensa extra: un valor no-fecha no puede colarse al TIMESTAMP()).
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def filters(filters: dict) -> dict:
@@ -28,43 +48,45 @@ def filters(filters: dict) -> dict:
         filtros_object[key] = value
 
         if key == "fecha_desde":
-            filtros_string.append(
-                f"""Fecha >= UNIX_MICROS(TIMESTAMP('{value}')) * 1000""")
+            if _DATE_RE.match(str(value)):
+                filtros_string.append(
+                    f"""Fecha >= UNIX_MICROS(TIMESTAMP('{value}')) * 1000""")
 
         if key == "fecha_hasta":
-            filtros_string.append(
-                f"""Fecha <= UNIX_MICROS(TIMESTAMP('{value} 23:59:59')) * 1000""")
+            if _DATE_RE.match(str(value)):
+                filtros_string.append(
+                    f"""Fecha <= UNIX_MICROS(TIMESTAMP('{value} 23:59:59')) * 1000""")
 
         if key in ["resultado_llamada", "plan_mencionado", "Duracion_Estimada"]:
-            filtros_string.append(f"{key} = '{value}'")
+            filtros_string.append(f"{key} = '{_esc(value)}'")
 
         if key == "duracion_llamada":
-            filtros_string.append(f"Duracion_Estimada = '{value}'")
+            filtros_string.append(f"Duracion_Estimada = '{_esc(value)}'")
 
         if key == "saludo_asesor":
-            filtros_string.append(f"Saludo_Completo = '{value}'")
+            filtros_string.append(f"Saludo_Completo = '{_esc(value)}'")
 
         if key == "nombre_asesor":
-            filtros_string.append(f"cuenta like '%{value}%'")
+            filtros_string.append(f"cuenta like '%{_esc(value)}%'")
 
         if key == "modulo_atencion":
-            filtros_string.append(f"Nombre_del_Modulo = '{value}'")
+            filtros_string.append(f"Nombre_del_Modulo = '{_esc(value)}'")
 
         if key == "tipo_llamada":
-            filtros_string.append(f"tipo = '{value}'")
+            filtros_string.append(f"tipo = '{_esc(value)}'")
 
         if key == "seguimiento_llamada":
-            filtros_string.append(f"Tipo_Llamada = '{value}'")
+            filtros_string.append(f"Tipo_Llamada = '{_esc(value)}'")
 
         if key == "transcripcion" and value == "true":
             filtros_string.append("transcripcion is not null")
 
         if key == "clasificacion_sentimiento":
-            filtros_string.append(f"clasificacion = '{value}'")
+            filtros_string.append(f"clasificacion = '{_esc(value)}'")
 
         if key == "asistencia_mencionada":
             asistencia = value.replace("...", "").strip()
-            filtros_string.append(f"Asistencia LIKE '%{asistencia}%'")
+            filtros_string.append(f"Asistencia LIKE '%{_esc(asistencia)}%'")
 
     result = {
         "filter_string": " AND ".join(filtros_string) if filtros_string else "1=1",
