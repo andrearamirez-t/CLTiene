@@ -266,12 +266,27 @@ gcloud run deploy cltiene-backend \
   --quiet
 ```
 
+> ⚠️ **SIEMPRE desde `back/`.** Si lo corres desde la raíz, Cloud Build usa el `Dockerfile` de la raíz (que construye el **frontend**) → despliega el frontend como backend y **tumba la API**. Ver la sección Docker abajo.
+
 ### Frontend (Firebase Hosting)
 
 ```bash
 npm run build
 firebase deploy --only hosting:cltiene-dashboard
 ```
+
+### Docker / Contenedores
+
+El repo tiene **2 Dockerfiles** (Cloud Build los usa al desplegar con `--source`):
+
+| Dockerfile | Construye | Se usa para |
+|-----------|-----------|-------------|
+| `back/Dockerfile` | Backend FastAPI (`python:3.11-slim` + `uvicorn`) | **Deploy del backend a Cloud Run** ✅ |
+| `Dockerfile` (raíz) | Frontend (React build servido por `nginx`) | Vía containerizada del frontend (el deploy primario es Firebase, no esto) |
+
+- **Por esto el backend se despliega DESDE `back/`:** así Cloud Build toma el `back/Dockerfile` correcto y no el de la raíz (que es el frontend).
+- El `back/Dockerfile` no es estrictamente obligatorio — Cloud Run puede construir con **Buildpacks** (autodetecta Python) — pero el Dockerfile da control (ej. instalar el ODBC Driver 18 si el contenedor necesita SQL).
+- El **frontend primario va a Firebase Hosting** (`npm run build` + `firebase deploy`); el `Dockerfile` de la raíz es una vía alterna y es la causa del footgun de arriba.
 
 ## Variables de entorno en Cloud Run
 
