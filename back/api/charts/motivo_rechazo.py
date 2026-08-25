@@ -12,6 +12,10 @@ def motivo_rechazo(filters: FilterModel):
         from
         `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
                   WHERE {filters.get_query()}
+                    -- Excluye 'N/A' (97.5% = llamadas NO rechazadas): tapaba las
+                    -- categorías reales de rechazo. Ahora se ve "No Interesa" etc.
+                    AND Motivo_Rechazo != 'N/A'
+                    AND Motivo_Rechazo IS NOT NULL
         group by
         Motivo_Rechazo
     )
