@@ -1,6 +1,7 @@
 import re
 
 from api.database import client, calculo_fecha
+from helpers.sql import CONTACTADO, SIN_CONTACTO, CONTACTADO_SQL, SIN_CONTACTO_SQL
 
 
 def _esc(value) -> str:
@@ -210,8 +211,8 @@ def get_data_context(where="1=1"):
             SUM(CASE WHEN Saludo_Completo IN ('Sí', 'Parcial') THEN 1 ELSE 0 END) saludo_ok,
             -- Contacto EFECTIVO real (partición que SUMA al total): se habló con la persona
             -- (Contactado + Rechazado + Venta) vs no se habló (buzón/no disp/num eq/sin contacto/sin clasif)
-            SUM(CASE WHEN Resultado_Llamada IN ('Contactado','Rechazado','Venta') THEN 1 ELSE 0 END) contactado,
-            SUM(CASE WHEN Resultado_Llamada IN ('No Disponible','Buzón de Voz','Número Equivocado','Sin Contacto','Sin Clasificar') THEN 1 ELSE 0 END) sin_contacto,
+            SUM(CASE WHEN {CONTACTADO_SQL} THEN 1 ELSE 0 END) contactado,
+            SUM(CASE WHEN {SIN_CONTACTO_SQL} THEN 1 ELSE 0 END) sin_contacto,
             CAST(ROUND(AVG(IF(dur_seg > 0, dur_seg, NULL))) AS INT64) tmo_seg
         FROM base
         GROUP BY Cuenta
@@ -320,7 +321,7 @@ def get_data_context(where="1=1"):
     calidad = row["resumen"].get("calidad_score") or 0
     # Contacto efectivo (%): se habló con la persona (Contactado+Rechazado+Venta) / total
     ce_cont = sum(r["total"] for r in row["resultados"]
-                  if r["Resultado_Llamada"] in ("Contactado", "Rechazado", "Venta"))
+                  if r["Resultado_Llamada"] in CONTACTADO)
     ce_pct = ce_cont / total * 100 if total else 0
     sem_contact = "🔴" if contact_pct < 10 else ("🟡" if contact_pct <= 20 else "🟢")
     sem_ce = "🔴" if ce_pct < 40 else ("🟡" if ce_pct <= 60 else "🟢")
@@ -376,9 +377,9 @@ def get_data_context(where="1=1"):
     # Contacto EFECTIVO agregado (partición que SUMA al total de llamadas). Distinto del
     # estatus del marcador (contestada) y de la contactabilidad de calidad (efectiva).
     _cont = sum(r["total"] for r in row["resultados"]
-                if r["Resultado_Llamada"] in ("Contactado", "Rechazado", "Venta"))
+                if r["Resultado_Llamada"] in CONTACTADO)
     _sinc = sum(r["total"] for r in row["resultados"]
-                if r["Resultado_Llamada"] in ("No Disponible", "Buzón de Voz", "Número Equivocado", "Sin Contacto", "Sin Clasificar"))
+                if r["Resultado_Llamada"] in SIN_CONTACTO)
     _base_ce = _cont + _sinc
     _cont_pct = _cont / _base_ce * 100 if _base_ce else 0
     ctx += (

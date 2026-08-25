@@ -1,12 +1,13 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE, CONTACTADO_SQL
 
 
 def embudo_conversacion(filters: FilterModel):
     return result(f"""
     WITH base AS (
         SELECT *
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {filters.get_query()}
     ),
     embudo AS (
@@ -46,12 +47,12 @@ def embudo_conversacion(filters: FilterModel):
         SELECT
             4 orden,
             "Contactado" nombre,
-            -- Misma partición que la gráfica "Contacto Efectivo" (distribucion_resultado):
-            -- se habló con la persona (Contactado + Rechazado + Venta). Así "Contactado"
-            -- significa lo mismo en todo el dashboard y Ventas queda como subconjunto real.
-            COUNTIF(Resultado_Llamada IN ("Contactado", "Rechazado", "Venta")) valor,
+            -- Misma partición que la gráfica "Contacto Efectivo" (fuente única en
+            -- helpers/sql.py): se habló con la persona. Así "Contactado" significa lo
+            -- mismo en todo el dashboard y Ventas queda como subconjunto real.
+            COUNTIF({CONTACTADO_SQL}) valor,
             ROUND(
-                SAFE_DIVIDE(COUNTIF(Resultado_Llamada IN ("Contactado", "Rechazado", "Venta")) * 100.0, COUNT(*)),
+                SAFE_DIVIDE(COUNTIF({CONTACTADO_SQL}) * 100.0, COUNT(*)),
                 1
             ) porcentaje
         FROM base
