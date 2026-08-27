@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from api.routes import router
-from api.routes_new import router as routes_ia
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -25,6 +24,5 @@ app.add_middleware(
 )
 
 app.include_router(router)
-app.include_router(routes_ia, prefix="/api")
 if _upload_ok and router_upload:
     app.include_router(router_upload)
