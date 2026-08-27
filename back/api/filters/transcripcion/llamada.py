@@ -2,6 +2,7 @@ import re
 from api.database import result
 from api.models import FilterModel
 from helpers.sql import TABLE
+from helpers.utils import _esc
 
 
 def llamada(id=None, buscar="", filters=FilterModel):
@@ -9,10 +10,13 @@ def llamada(id=None, buscar="", filters=FilterModel):
     filtro = ""
 
     if buscar:
+        # DEUDA: torniquete anti-inyección (buscar crudo del endpoint).
+        # Reemplazar por ScalarQueryParameter.
+        b = _esc(buscar)
         filtro = f"""
         AND (
-            CAST(cuenta AS STRING) LIKE '%{buscar}%'
-            OR LOWER(asesor) LIKE LOWER('%{buscar}%')
+            CAST(cuenta AS STRING) LIKE '%{b}%'
+            OR LOWER(asesor) LIKE LOWER('%{b}%')
         )
         """
 

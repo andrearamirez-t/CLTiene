@@ -16,7 +16,9 @@ def metricas(id, filters: FilterModel = None):
         ), base AS (
             SELECT *
             FROM id_provicional
-            WHERE id = {id}
+            -- DEUDA: torniquete — id numérico crudo; int() evita inyección.
+            -- Reemplazar por ScalarQueryParameter.
+            WHERE id = {int(id)}
             LIMIT 1
         )
 

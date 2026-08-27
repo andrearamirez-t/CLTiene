@@ -21,7 +21,7 @@ from api.database import client
 # --- usados por los endpoints de ranking/IA (antes en routes_new.py) ---
 from fastapi import Body
 import json
-from helpers.utils import get_history
+from helpers.utils import get_history, _esc
 from IA.Open_AI import call
 
 
@@ -738,7 +738,9 @@ async def generar_reporte_ia(payload: dict = Body(...)):
 @router.get("/api/resumir_llamada/{id}")
 async def resumir_llamada(id: str):
 
-    llamada_data = get_history(f"id='{id}'")
+    # DEUDA: torniquete anti-inyección (id crudo de /api/resumir_llamada/{id}).
+    # Reemplazar por ScalarQueryParameter.
+    llamada_data = get_history(f"id='{_esc(id)}'")
 
     system_prompt = """
     Eres un analista experto en calidad de llamadas de servicio al cliente.

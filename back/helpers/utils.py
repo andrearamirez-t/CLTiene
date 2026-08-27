@@ -489,7 +489,9 @@ def get_asesor_context(where, asesor=""):
             Motivo_Rechazo
         FROM {TABLE}
         WHERE {where}
-        AND Cuenta LIKE '%{asesor}%'
+        -- DEUDA: torniquete anti-inyección (asesor viene crudo del endpoint).
+        -- Reemplazar por ScalarQueryParameter (parametrización nativa de BigQuery).
+        AND Cuenta LIKE '%{_esc(asesor)}%'
     ),
 
     resumen AS (
@@ -712,7 +714,9 @@ def get_search_results_context(where="1=1", search_query=""):
     FROM {TABLE}
     WHERE {where}
     AND transcripcion IS NOT NULL
-    AND LOWER(transcripcion) LIKE '%{search_query.lower()}%'
+    -- DEUDA: torniquete anti-inyección (search_query viene crudo del endpoint).
+    -- Reemplazar por ScalarQueryParameter (parametrización nativa de BigQuery).
+    AND LOWER(transcripcion) LIKE '%{_esc(search_query.lower())}%'
     LIMIT 50
     """
 
@@ -769,7 +773,9 @@ def get_llamada_context(filters, llamada_id):
         AND {where}
     )
     SELECT * FROM numeradas
-    WHERE id = {llamada_id}
+    -- DEUDA: torniquete — id es numérico (ROW_NUMBER); int() evita inyección
+    -- (aquí _esc NO sirve: no hay comillas). Reemplazar por ScalarQueryParameter.
+    WHERE id = {int(llamada_id)}
     LIMIT 1
     """
 
