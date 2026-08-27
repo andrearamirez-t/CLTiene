@@ -224,6 +224,17 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 | `GET /ia/reporte_completo` | `ReporteCompleto.jsx` | revisar |
 | `GET /ia/analisis_ranking` | `RankingIA.jsx` | revisar |
 
+## Mejoras de código / seguridad (2026-08-26, rev `00150`→`00151`, en `main` + desplegado)
+
+> 🔒 **REGLA (memoria):** NUNCA tocar el **SQL Server de la CUN** (`coe.CLTIENE_LLAMADAS`) — solo lectura y con permiso. Todo lo de abajo es código del lado **BigQuery**, cero escrituras al SQL Server. Diego se pone nervioso con esto: reconfirmarlo.
+
+Tanda de mejoras hechas en ramas (`mejoras-seguridad`, `refactor-tabla`, ya mergeadas a `main` y borradas). Todas **behavior-preserving** (verificado LOCAL vs PROD idéntico) y desplegadas:
+- **🔒 Inyección SQL cerrada** (`helpers/utils.py` `filters()`): antes interpolaba los valores del usuario directo (`f"{key} = '{value}'"`). Ahora `_esc()` escapa comilla/backslash/saltos y `_DATE_RE` valida las fechas (YYYY-MM-DD; no-fecha se ignora). Cambio en 1 función, sin tocar los ~50 llamadores; para valores válidos el SQL sale idéntico. **Es el cimiento del scoping por asesor** de la propuesta.
+- **🧹 `helpers/sql.py` = fuente única:** `TABLE` (nombre de tabla con backticks), `CONTACTADO`/`SIN_CONTACTO` (tuplas de la partición Contacto Efectivo) + `CONTACTADO_SQL`/`SIN_CONTACTO_SQL` (fragmentos). Un solo lugar para SQL y Python → no divergen (fue el bug del embudo). Consolidada la **partición** (distribucion_resultado, embudo, utils) y el **nombre de tabla** en las 28 queries de charts/filters/ia/routes + utils. `procesador.py` se deja con su `BQ_TABLA` sin backticks (es la API de **escritura** a BigQuery, no una query SQL).
+- **✅ Tests (`back/tests/`, unittest, 19):** `test_filters.py` (escape anti-inyección + WHERE builder) y `test_sql.py` (partición excluyente, cubre las 8 categorías, Venta cuenta como contacto). Correr: `PYTHONPATH=. python -m unittest discover -s tests`.
+- **📊 Motivo Rechazo sin N/A** (`motivo_rechazo.py`): excluye `Motivo_Rechazo='N/A'` (97.5% = no rechazadas) → el chart muestra los rechazos reales ("No Interesa" 92%). Mascota/Vehículo ya filtraban N/A.
+- **Pendientes de refactor (grandes, para sesión fresca):** partir el monolito `subir_datos.py` (~1130 líneas), unificar `routes.py`/`routes_new.py`, cache en el backend.
+
 ## Despliegue
 
 > ⚠️ **SIEMPRE desplegar el backend DESDE `back/`** (`cd back/` primero). La raíz del repo tiene su
