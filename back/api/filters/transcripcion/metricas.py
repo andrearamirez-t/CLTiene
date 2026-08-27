@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def metricas(id, filters: FilterModel = None):
@@ -9,7 +10,7 @@ def metricas(id, filters: FilterModel = None):
         WITH id_provicional AS (
             SELECT ROW_NUMBER() OVER (ORDER BY fecha ASC) AS id,
             *
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
               AND {filtro_query}
         ), base AS (

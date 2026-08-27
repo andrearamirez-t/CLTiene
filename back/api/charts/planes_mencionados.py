@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def planes_mencionados(filters: FilterModel):
@@ -10,7 +11,7 @@ def planes_mencionados(filters: FilterModel):
                 Plan_Mencionado,
                 count(*) total
             FROM
-                `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+                {TABLE}
             WHERE
                 {filters.get_query()}
             GROUP BY

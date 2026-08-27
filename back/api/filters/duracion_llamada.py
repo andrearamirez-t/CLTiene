@@ -1,5 +1,6 @@
 from api.database import option
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def duracion_llamada(filters: FilterModel):
@@ -13,7 +14,7 @@ def duracion_llamada(filters: FilterModel):
             ELSE 'Larga'
         END duracion
     from
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
     WHERE {filters.get_query()}
     group by duracion
                   

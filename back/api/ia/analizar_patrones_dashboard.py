@@ -2,6 +2,7 @@ import pandas as pd
 from api.database import client
 from api.ia.llm import generar_respuesta_ia
 from helpers.utils import contexto_tipo_llamada
+from helpers.sql import TABLE
 
 
 def analizar_patrones_dashboard(filters=None):
@@ -29,7 +30,7 @@ def analizar_patrones_dashboard(filters=None):
         Nombre_del_Modulo,
         clasificacion,
         duracion_estimada
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     """
 

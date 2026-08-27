@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def tipo_vehiculo(filters: FilterModel):
@@ -10,7 +11,7 @@ def tipo_vehiculo(filters: FilterModel):
                 Tipo_Vehiculo tipo,
                 count(*) value
             from
-                `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+                {TABLE}
             where
                 Tipo_Vehiculo != "N/A" AND
                 {filters.get_query()}

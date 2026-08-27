@@ -1,6 +1,7 @@
 import re
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def llamada(id=None, buscar="", filters=FilterModel):
@@ -24,7 +25,7 @@ def llamada(id=None, buscar="", filters=FilterModel):
                 COALESCE(Transcripcion_V4, transcripcion) AS transcripcion_text,
                 cuenta,
                 CAST(CAST(Telefono AS INT64) AS STRING) AS telefono
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
             {filtro} and {filters.get_query()}
         )

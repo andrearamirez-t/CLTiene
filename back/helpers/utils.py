@@ -1,7 +1,7 @@
 import re
 
 from api.database import client, calculo_fecha
-from helpers.sql import CONTACTADO, SIN_CONTACTO, CONTACTADO_SQL, SIN_CONTACTO_SQL
+from helpers.sql import CONTACTADO, SIN_CONTACTO, CONTACTADO_SQL, SIN_CONTACTO_SQL, TABLE
 
 
 def _esc(value) -> str:
@@ -142,7 +142,7 @@ def get_data_context(where="1=1"):
             SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
     ),
 
@@ -439,7 +439,7 @@ def get_periodo_anterior_context(where, desde, hasta):
             SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(0)] AS INT64) * 3600
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
     )
     SELECT
@@ -487,7 +487,7 @@ def get_asesor_context(where, asesor=""):
             cierre_servicio,
             Cuenta,
             Motivo_Rechazo
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
         AND Cuenta LIKE '%{asesor}%'
     ),
@@ -627,7 +627,7 @@ def get_ranking_context(where="1=1", es_servicio=False):
             ofrecimiento_solucion,
             Ofrecio_WhatsApp,
             cierre_servicio
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
     ),
 
@@ -709,7 +709,7 @@ def get_search_results_context(where="1=1", search_query=""):
         Plan_Mencionado,
         Motivo_Rechazo,
         SUBSTR(transcripcion,1,500) transcripcion
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     AND transcripcion IS NOT NULL
     AND LOWER(transcripcion) LIKE '%{search_query.lower()}%'
@@ -764,7 +764,7 @@ def get_llamada_context(filters, llamada_id):
             cierre_servicio,
             Ofrecio_WhatsApp,
             Transcripcion_V4
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
         AND {where}
     )
@@ -808,14 +808,12 @@ def get_llamada_context(filters, llamada_id):
 
 
 def get_raw_calls_data(where="1=1", search_query=""):
-    TABLE_REF = "desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas"
-
     query = f"""
     with resultado as (
         SELECT
-            CAST(ROW_NUMBER() OVER() AS STRING) as id, 
+            CAST(ROW_NUMBER() OVER() AS STRING) as id,
             *
-        FROM `{TABLE_REF}`
+        FROM {TABLE}
         LIMIT 20
     ) select * from resultado WHERE {where}
     """
@@ -835,7 +833,7 @@ def get_history(where):
         SELECT
             CAST(ROW_NUMBER() OVER() AS STRING) AS id,
             transcripcion
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE transcripcion IS NOT NULL AND LENGTH(transcripcion) > 50
     )
     SELECT * FROM resultado WHERE {where}

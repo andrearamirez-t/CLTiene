@@ -1,5 +1,6 @@
 from api.database import option
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def llamadas(filters: FilterModel):
@@ -19,7 +20,7 @@ def llamadas(filters: FilterModel):
             Resultado_Llamada,
             cuenta,
             Telefono
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL AND {filters.get_query()}
         )
         SELECT id, concat({concat_fields}) text

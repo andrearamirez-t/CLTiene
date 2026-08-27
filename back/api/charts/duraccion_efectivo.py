@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def duraccion_efectivo(filters: FilterModel):
@@ -11,7 +12,7 @@ def duraccion_efectivo(filters: FilterModel):
         count(*) total,
         countif (Resultado_Llamada = "Venta") total_ventas
         from
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
         WHERE {filters.get_query()}
         group by
         Duracion_Estimada

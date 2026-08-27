@@ -9,6 +9,7 @@ from google.cloud import bigquery
 from dotenv import load_dotenv
 from api.database import client as bq_client
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ async def generar_reporte_ia(payload: dict = Body(...)):
     try:
         query = """
             SELECT cuenta, Resultado_Llamada, transcripcion
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE transcripcion IS NOT NULL AND length(transcripcion) > 100
             LIMIT 10
         """
@@ -108,7 +109,7 @@ async def ranking_ia():
             SELECT cuenta,
                    AVG(saludo_inicial) * 100 as score_promedio,
                    COUNT(*) as total_llamadas
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             GROUP BY cuenta
             ORDER BY score_promedio DESC
             LIMIT 5
@@ -145,7 +146,7 @@ async def ranking_asesores(filters: FilterModel = Depends()):
                 COUNT(*) as llamadas,
                 SUM(CASE WHEN Resultado_Llamada = 'Venta' THEN 1 ELSE 0 END) as ventas,
                 ROUND(AVG(saludo_inicial) * 100) as puntos
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE {where}
             GROUP BY cuenta
             ORDER BY puntos DESC

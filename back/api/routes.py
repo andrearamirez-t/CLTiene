@@ -59,6 +59,7 @@ from api.ia.analisis_comparativo_ranking import analisis_comparativo_ranking
 from api.ia.generar_reporte_completo import generar_reporte_completo
 
 import dotenv
+from helpers.sql import TABLE
 
 dotenv.load_dotenv()
 
@@ -291,7 +292,7 @@ def limite_fecha():
         SELECT
             FORMAT_DATE('%Y-%m-%d', DATE(MIN({calculo_fecha()}))) AS primera_fecha,
             FORMAT_DATE('%Y-%m-%d', DATE(MAX({calculo_fecha()}))) AS ultima_fecha
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE Fecha IS NOT NULL
     """)
     row = list(job.result())[0]
@@ -324,7 +325,7 @@ def x_rendimiento_hora(filters: FilterModel = Depends()):
     COUNT(*) t,
     SUM(CAST(efectiva AS FLOAT64)) efectivas
     FROM
-    `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    {TABLE}
     WHERE {where}
     GROUP BY
     name
@@ -357,7 +358,7 @@ def x_rendimiento_dia(filters: FilterModel = Depends()):
         ) name,
         COUNT(*) t,
         SUM(CAST(efectiva AS FLOAT64)) efectivas
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     GROUP BY name
     """
@@ -397,7 +398,7 @@ def ventas_vs_servicio(filters: FilterModel = Depends()):
         tipo name,
         COUNT(*) total,
         SUM(CASE WHEN resultado_llamada = 'Venta' THEN 1 ELSE 0 END) efectivas
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     GROUP BY tipo
     """
@@ -418,7 +419,7 @@ def subjetividad_confianza_modulo(filters: FilterModel = Depends()):
         Nombre_del_Modulo name,
         AVG(subjectivity) x,
         AVG(confianza) y
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     GROUP BY Nombre_del_Modulo
     """
@@ -443,7 +444,7 @@ def desempeno_sentimiento_asesor(filters: FilterModel = Depends()):
         SELECT
             Cuenta,
             clasificacion
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
     ),
 
@@ -486,7 +487,7 @@ def evolucion_ventas(filters: FilterModel = Depends()):
                 WEEK(MONDAY)
             ) semana,
             resultado_llamada
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {where}
     )
 
@@ -536,7 +537,7 @@ def scorecard_asesores(filters: FilterModel = Depends()):
         ROUND(AVG(CAST(cierre_servicio AS FLOAT64)) * 100, 1) cierre,
         ROUND(AVG(CAST(proximo_paso AS FLOAT64)) * 100, 1) paso
     FROM
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
     WHERE {where}
     GROUP BY
         Cuenta
@@ -565,7 +566,7 @@ def duracion_vs_efectividad(filters: FilterModel = Depends()):
                 COUNT(*)
             ) * 100,1
         ) efectividad
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     GROUP BY duracion_estimada
     """
@@ -585,7 +586,7 @@ def x_clasificacion_sentimiento(filters: FilterModel = Depends()):
     SELECT
         clasificacion AS name,
         COUNT(*) AS value
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where} and clasificacion IS NOT NULL
     GROUP BY clasificacion
     ORDER BY value DESC
@@ -613,7 +614,7 @@ def api_duracion_llamadas(filters: FilterModel = Depends()):
                 SECOND
             )
         ) AS INT64) as segundos_promedio
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     GROUP BY Duracion_Estimada
     """
@@ -665,7 +666,7 @@ def limite_fecha():
         SELECT 
         date(min(fecha)) primera_fecha,
         date(max(fecha)) ultima_fecha,
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         """
     )
 
@@ -683,7 +684,7 @@ def api_lista_llamadas(filters: FilterModel = Depends()):
         Duracion_Estimada,
         Telefono,
         Cuenta
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
     AND transcripcion IS NOT NULL
     """,

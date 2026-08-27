@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def estatus_llamadas(filters: FilterModel):
@@ -20,7 +21,7 @@ def estatus_llamadas(filters: FilterModel):
                 ELSE Estado_de_la_LLamada
             END AS label,
             COUNT(*) AS valor
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {filters.get_query()}
             AND Estado_de_la_LLamada IS NOT NULL
             AND TRIM(Estado_de_la_LLamada) != ''

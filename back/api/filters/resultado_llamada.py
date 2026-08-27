@@ -1,6 +1,7 @@
 from api.database import option
 from api.models import FilterModel
 from api.database import client
+from helpers.sql import TABLE
 
 
 def resultado_llamada(filters):
@@ -17,7 +18,7 @@ def resultado_llamada(filters):
             ELSE Resultado_Llamada
         END name,
         COUNT(*) value
-    FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+    FROM {TABLE}
     WHERE {where}
         AND Resultado_Llamada != 'Sin Clasificar'
     GROUP BY name

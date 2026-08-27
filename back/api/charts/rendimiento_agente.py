@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def rendimiento_agente(filters: FilterModel):
@@ -32,7 +33,7 @@ def rendimiento_agente(filters: FilterModel):
         CONCAT('#', FORMAT('%06X', CAST(FLOOR(RAND() * 16777215) AS INT64))) AS color
 
     FROM
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
     WHERE {filters.get_query()}
     GROUP BY
         cuenta

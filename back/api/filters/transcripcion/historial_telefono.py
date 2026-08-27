@@ -1,4 +1,5 @@
 from api.database import result
+from helpers.sql import TABLE
 
 
 def historial_telefono(telefono: str):
@@ -15,7 +16,7 @@ def historial_telefono(telefono: str):
                 Duracion_Estimada,
                 Telefono,
                 COALESCE(Transcripcion_V4, transcripcion) AS transcripcion_text
-            FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+            FROM {TABLE}
             WHERE COALESCE(Transcripcion_V4, transcripcion) IS NOT NULL
         )
         SELECT

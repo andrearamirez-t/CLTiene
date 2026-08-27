@@ -1,6 +1,7 @@
 from api.database import result
 from api.models import FilterModel
 from api.database import calculo_fecha
+from helpers.sql import TABLE
 
 
 def kpi(filters: FilterModel):
@@ -23,7 +24,7 @@ def kpi(filters: FilterModel):
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(1)] AS INT64) * 60
               + SAFE_CAST(SPLIT(Tiempo__de_Conversacion, ':')[SAFE_OFFSET(2)] AS INT64) AS dur_seg,
             {calculo_fecha()} ts
-        FROM `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        FROM {TABLE}
         WHERE {filters.get_query()}
     ),
 

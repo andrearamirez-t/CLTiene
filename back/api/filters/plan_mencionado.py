@@ -1,5 +1,6 @@
 from api.database import option
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def plan_mencionado(filters: FilterModel):
@@ -7,7 +8,7 @@ def plan_mencionado(filters: FilterModel):
     SELECT
     Plan_Mencionado
     FROM
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
     WHERE
         Plan_Mencionado in (
             "Plan Manada",

@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def motivo_rechazo(filters: FilterModel):
@@ -10,7 +11,7 @@ def motivo_rechazo(filters: FilterModel):
         Motivo_Rechazo,
         count(*) total
         from
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
                   WHERE {filters.get_query()}
                     -- Excluye 'N/A' (97.5% = llamadas NO rechazadas): tapaba las
                     -- categorías reales de rechazo. Ahora se ve "No Interesa" etc.

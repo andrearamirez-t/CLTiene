@@ -1,5 +1,6 @@
 from api.database import result
 from api.models import FilterModel
+from helpers.sql import TABLE
 
 
 def transcripciones(filters: FilterModel):
@@ -7,7 +8,7 @@ def transcripciones(filters: FilterModel):
     SELECT
         transcripcion
     FROM
-        `desarrollo-investigaciones.call_center.cltiene_llamadas_procesadas`
+        {TABLE}
     WHERE
         transcripcion != "" AND
         {filters.get_query()}
