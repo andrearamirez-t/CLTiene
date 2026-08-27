@@ -23,7 +23,7 @@ def fetch_bigquery_data(query: str):
 @router.post("/analisis_automatico")
 async def generar_reporte_ia(payload: dict = Body(...)):
     try:
-        query = """
+        query = f"""
             SELECT cuenta, Resultado_Llamada, transcripcion
             FROM {TABLE}
             WHERE transcripcion IS NOT NULL AND length(transcripcion) > 100
@@ -105,7 +105,7 @@ async def resumir_llamada(id: str):
 @router.get("/ranking_ia")
 async def ranking_ia():
     try:
-        query = """
+        query = f"""
             SELECT cuenta,
                    AVG(saludo_inicial) * 100 as score_promedio,
                    COUNT(*) as total_llamadas
