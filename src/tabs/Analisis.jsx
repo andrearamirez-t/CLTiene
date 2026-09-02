@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useEffect, useState } from 'react';
 import GraficaBarrasAnalisis from '../components/ui/GraficaBarrasAnalisis';
 import GraficaPastelAnalisis from '../components/ui/GraficaPastelAnalisis';
@@ -27,7 +27,7 @@ const Analisis = () => {
         const params = buildQuery();
         const query = params ? `?${params}` : "";
 
-        const safe = (url) => fetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
+        const safe = (url) => apiFetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
 
         const [planes, mascotas, vehiculos, motivor] = await Promise.all([
           safe(`${API_BASE}/api/planes_mencionados${query}`),
@@ -63,7 +63,7 @@ const Analisis = () => {
       const query = params ? `?${params}` : "";
 
       const sep = params ? '&' : '?';
-      const response = await fetch(`${API_BASE}/ia/analisis_automatico${query}${sep}tipo_analisis=patrones_ventas`);
+      const response = await apiFetch(`${API_BASE}/ia/analisis_automatico${query}${sep}tipo_analisis=patrones_ventas`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);

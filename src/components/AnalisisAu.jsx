@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import { cleanHtml } from '../utils/cleanHtml';
 import React, { useState } from 'react';
 import { useFilters } from '../FiltersContext';
@@ -44,7 +44,7 @@ const AnalisisAu = () => {
 
         try {
 
-            const response = await fetch(
+            const response = await apiFetch(
                 `${API_BASE}/ia/analisis_automatico` +
                 (params
                     ? `?${params}&tipo_analisis=${mapTipos[tipo]}`

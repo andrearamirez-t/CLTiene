@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 ﻿import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 import Sidebar from '../layout/Sidebar.jsx';
@@ -38,7 +38,7 @@ const Dashboard = () => {
 
     const fetchKpi = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/kpi` + (params ? `?${params}` : ""));
+            const res = await apiFetch(`${API_BASE}/api/kpi` + (params ? `?${params}` : ""));
             const data = await res.json();
             setKpi(data[0] || []);
         } catch (err) {
@@ -50,7 +50,7 @@ const Dashboard = () => {
 
     // Ping cada 9 min para mantener Cloud Run activo mientras la pestaña está abierta
     useEffect(() => {
-        const ping = () => fetch(`${API_BASE}/api/kpi`).catch(() => {});
+        const ping = () => apiFetch(`${API_BASE}/api/kpi`).catch(() => {});
         const intervalo = setInterval(ping, 9 * 60 * 1000);
         return () => clearInterval(intervalo);
     }, []);

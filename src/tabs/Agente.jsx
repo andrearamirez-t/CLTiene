@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 ﻿import React, { useState } from 'react';
 import { useFilters } from '../FiltersContext';
 
@@ -50,7 +50,7 @@ const Agente = () => {
 
             const params = buildQuery();
             const url = `${API_BASE}/api/chat` + (params ? '?' + params : '');
-            const response = await fetch(url, {
+            const response = await apiFetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useFilters } from "../FiltersContext";
 
-import { API_BASE } from "../config";
+import { API_BASE, apiFetch } from "../config";
 import logoCLTiene from "../assets/logo_cl_tiene.png";
 
 // Carga el logo a un dataURL (jsPDF.addImage necesita base64). Devuelve null si falla.
@@ -41,7 +41,7 @@ const ReporteCompleto = () => {
     try {
       const params = buildQuery();
       const url = `${API_BASE}/ia/reporte_completo${params ? `?${params}` : ""}`;
-      const response = await fetch(url);
+      const response = await apiFetch(url);
       const data = await response.json();
       if (data.result) setReporte(data.result);
     } catch (error) {

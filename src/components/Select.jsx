@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import { useEffect, useState, useMemo } from "react";
 import { useFilters } from "../FiltersContext";
 
@@ -15,7 +15,7 @@ function Select({ endPoint, depsUseEffect = [], defaultValue = { id: "", name: "
     }, [filters, props.name]);
 
     useEffect(() => {
-        fetch(API_BASE + endPoint + (params ? `?${params}` : ""))
+        apiFetch(API_BASE + endPoint + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setOpciones(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

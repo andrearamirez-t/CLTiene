@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useState, useEffect } from 'react';
 import { useFilters } from '../FiltersContext';
 
@@ -14,7 +14,7 @@ const RankingIA = () => {
         setLoading(true);
         try {
             const params = buildQuery();
-            const response = await fetch(`${API_BASE}/api/ranking_asesores${params ? `?${params}` : ''}`);
+            const response = await apiFetch(`${API_BASE}/api/ranking_asesores${params ? `?${params}` : ''}`);
             const data = await response.json();
             setAsesores(data || []);
         } catch (error) {
@@ -36,7 +36,7 @@ const RankingIA = () => {
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
-            const response = await fetch(`${API_BASE}/ia/analisis_ranking${query}`);
+            const response = await apiFetch(`${API_BASE}/ia/analisis_ranking${query}`);
             const data = await response.json();
             const raw = data.result || 'No se obtuvo análisis.';
             setAnalisisHtml(raw

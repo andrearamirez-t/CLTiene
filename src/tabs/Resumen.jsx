@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useEffect, useState } from "react";
 import ResultadosChart from "../components/charts/ResultadosChart";
 import EmbudoChart from "../components/charts/EmbudoChart";
@@ -14,7 +14,7 @@ function Resumen() {
     useEffect(() => {
         const params = buildQuery() || null;
 
-        fetch(`${API_BASE}/api/distribucion_resultado${params ? `?${params}` : ""}`)
+        apiFetch(`${API_BASE}/api/distribucion_resultado${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 setResults(Array.isArray(data) ? data : []);

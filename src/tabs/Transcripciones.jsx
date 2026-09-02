@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useEffect, useState } from 'react';
 import FiltrosLateral from '../components/Transcripciones/FiltrosLateral';
 import ChatVisor from '../components/Transcripciones/ChatVisor';
@@ -25,11 +25,11 @@ const Transcripciones = () => {
 
     useEffect(() => {
         if (agentID != 0) {
-            fetch(`${API_BASE}/api/transcripcion/metricas/${agentID}${query}`)
+            apiFetch(`${API_BASE}/api/transcripcion/metricas/${agentID}${query}`)
                 .then(res => res.json())
                 .then(data => setMetricas(Array.isArray(data) ? data : []))
 
-            fetch(`${API_BASE}/api/transcripcion/llamada/${agentID}${query}`)
+            apiFetch(`${API_BASE}/api/transcripcion/llamada/${agentID}${query}`)
                 .then(res => res.json())
                 .then(data => {
                     setLlamada(Array.isArray(data) ? data : [])

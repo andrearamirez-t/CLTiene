@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useState } from 'react';
 import CuerpoLlamada from './CuerpoLlamada';
 import BotonAnalisis from './ui/BotonAnalisis';
@@ -21,7 +21,7 @@ const ResumirLlamadas = () => {
         setLlamadaAnalizada(null);
 
         try {
-            const response = await fetch(`${API_BASE}/api/resumir_llamada/${idSeleccionado}`);
+            const response = await apiFetch(`${API_BASE}/api/resumir_llamada/${idSeleccionado}`);
             const data = await response.json();
             if (data.error) {
                 setError(data.error);

@@ -1,4 +1,4 @@
-import { API_BASE } from '../../config';
+import { API_BASE, apiFetch } from '../../config';
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { useFilters } from '../../FiltersContext';
@@ -11,7 +11,7 @@ const EstatusChart = () => {
     const params = buildQuery() || null;
 
     useEffect(() => {
-        fetch(`${API_BASE}/api/estatus_llamadas` + (params ? `?${params}` : ""))
+        apiFetch(`${API_BASE}/api/estatus_llamadas` + (params ? `?${params}` : ""))
             .then(res => res.json())
             .then(data => setDatos(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));

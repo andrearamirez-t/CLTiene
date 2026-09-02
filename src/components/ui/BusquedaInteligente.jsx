@@ -1,4 +1,4 @@
-import { API_BASE } from '../../config';
+import { API_BASE, apiFetch } from '../../config';
 import React, { useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -26,7 +26,7 @@ const BusquedaInteligente = () => {
 
         try {
 
-            const response = await fetch(`${API_BASE}/api/busqueda_inteligente` + (params ? `?${params}` : ""), {
+            const response = await apiFetch(`${API_BASE}/api/busqueda_inteligente` + (params ? `?${params}` : ""), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

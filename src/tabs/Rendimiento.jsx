@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 ﻿import React, { useEffect, useState, useRef } from 'react';
 import ControlesAnalisis from '../components/ui/ControlesAnalisis';
 import GraficaCalidadIA from '../components/ui/GraficaCalidadIA';
@@ -37,7 +37,7 @@ const Rendimiento = () => {
 
         const params = buildQuery() || "";
 
-        fetch(`${API_BASE}/api/rendimiento_agente${params ? `?${params}` : ""}`)
+        apiFetch(`${API_BASE}/api/rendimiento_agente${params ? `?${params}` : ""}`)
             .then(res => res.json())
             .then(data => {
                 setRendimiento(data || []);
@@ -83,7 +83,7 @@ const Rendimiento = () => {
 
             const params = buildQuery();
             const sep = params ? '&' : '?';
-            const response = await fetch(`${API_BASE}/ia/analizar_asesor?asesor=${encodeURIComponent(asesorSeleccionado)}${params ? sep + params : ''}`);
+            const response = await apiFetch(`${API_BASE}/ia/analizar_asesor?asesor=${encodeURIComponent(asesorSeleccionado)}${params ? sep + params : ''}`);
 
             const result = await response.json();
             const data = result.result

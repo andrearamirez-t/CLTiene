@@ -1,4 +1,4 @@
-import { API_BASE } from '../../config';
+import { API_BASE, apiFetch } from '../../config';
 import React, { useState } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -30,7 +30,7 @@ const MetricasGrid = ({ data, llamadaId }) => {
             const url = llamadaId && llamadaId !== 0
                 ? `${API_BASE}/ia/analizar_llamada${query}${sep}llamada_id=${llamadaId}`
                 : `${API_BASE}/ia/inteligencia_operativa${query}`;
-            const response = await fetch(url);
+            const response = await apiFetch(url);
             const result = await response.json();
             const raw = result.result || 'No se obtuvo un análisis válido';
             const limpio = raw

@@ -1,4 +1,4 @@
-import { API_BASE } from '../../config';
+import { API_BASE, apiFetch } from '../../config';
 import React, { useState, useRef, useEffect } from 'react';
 import { useFilters } from '../../FiltersContext';
 
@@ -29,7 +29,7 @@ const InsightsCard = () => {
         try {
             const params = buildQuery();
             const query = params ? `?${params}` : '';
-            const response = await fetch(`${API_BASE}/ia/generar_insights${query}`);
+            const response = await apiFetch(`${API_BASE}/ia/generar_insights${query}`);
             const data = await response.json();
 
             if (!response.ok || !data.result) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from "../Select";
-import { API_BASE } from '../../config';
+import { API_BASE, apiFetch } from '../../config';
 
 const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, setFiltroPalabra, chatData, cuentaActual }) => {
     const [temaBusqueda, setTemaBusqueda] = useState("");
@@ -30,7 +30,7 @@ const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, 
             return;
         }
         setCargandoHistorial(true);
-        fetch(`${API_BASE}/api/transcripcion/historial/${telefonoActivo}`)
+        apiFetch(`${API_BASE}/api/transcripcion/historial/${telefonoActivo}`)
             .then(r => r.json())
             .then(data => setHistorial(Array.isArray(data) ? data : []))
             .catch(() => setHistorial([]))

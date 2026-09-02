@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE, apiFetch } from '../config';
 import React, { useEffect, useState } from 'react';
 import Hora from '../components/Inteligencia/Hora';
 import Dia from '../components/Inteligencia/Dia';
@@ -69,7 +69,7 @@ export default function Inteligencia() {
         const params = buildQuery();
         const query = params ? `?${params}` : '';
 
-        const safe = (url) => fetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
+        const safe = (url) => apiFetch(url).then((r) => r.ok ? r.json() : []).catch(() => []);
 
         const [hora, dia, ventas, evolucion, scorecard, duracion] =
           await Promise.all([
@@ -103,8 +103,8 @@ export default function Inteligencia() {
       const params = buildQuery();
       const query = params ? `?${params}` : '';
 
-      // const response = await fetch(`${API_BASE}/analisis-ia${query}`);
-      const response = await fetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
+      // const response = await apiFetch(`${API_BASE}/analisis-ia${query}`);
+      const response = await apiFetch(`${API_BASE}/ia/inteligencia_operativa${query}`);
       const result = await response.json();
       const data = result.result
 
