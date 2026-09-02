@@ -224,6 +224,19 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 | `GET /ia/reporte_completo` | `ReporteCompleto.jsx` | revisar |
 | `GET /ia/analisis_ranking` | `RankingIA.jsx` | revisar |
 
+## Autenticación — token Firebase verificado en el backend (2026-09-02, rama `feat/auth-firebase`, DESPLEGADO)
+
+> Cierra el hueco que marcó la revisión externa de seguridad: el frontend **ya tenía login Firebase** (`src/pages/Login.jsx` + `App.jsx` con `onAuthStateChanged`), pero el **backend NO verificaba nada** → cualquiera con la URL de Cloud Run bajaba todos los datos saltándose el login. Y el CORS era `allow_origins=["*"]` + `allow_credentials=True` (abierto e inválido).
+
+- **Backend `back/api/auth.py`:** dependencia FastAPI `verificar_token` que valida el `Authorization: Bearer <idToken>` de Firebase — firma contra las llaves públicas de Google (`google.auth.jwt.decode`, **sin dependencias nuevas**, usa `google-auth` ya instalado), audiencia = `desarrollo-investigaciones`, emisor `securetoken.google.com/<proyecto>`, expiración, + exige dominio `@cltiene.com`/`@cun.edu.co` (igual que el front). **Certs cacheados 1h** (evita fetch por request). Sin token → **401**; dominio no permitido → 403.
+- **`main.py`:** CORS restringido a `cltiene-dashboard.web.app` (+ `.firebaseapp.com` + `localhost:5173/3000`), ya no `*` (+ env `CORS_EXTRA_ORIGINS`). Dependencia global en los routers: `include_router(router, dependencies=[Depends(verificar_token)])` (a nivel router, no app → `/docs` y `/openapi.json` quedan abiertos).
+- **Rollback instantáneo sin re-deploy:** `AUTH_ENABLED=0` por env → apaga la verificación (`gcloud run services update cltiene-backend --update-env-vars AUTH_ENABLED=0 ...`).
+- **Frontend `src/config.js`:** `apiFetch(url, options)` adjunta el token (`auth.currentUser.getIdToken()`) en `Authorization`; se reemplazaron los **29 `fetch`** por `apiFetch` en 21 archivos. Merge de headers preserva `Content-Type` de los POST.
+- **Orden de despliegue (OBLIGATORIO):** frontend **primero** (empieza a mandar token; el backend viejo lo ignora → nada se rompe) → backend **después** (lo exige). **NO** se toca `--allow-unauthenticated` (Cloud Run sigue público; lo que asegura es el token a nivel app — Cloud Run IAM necesita OIDC de Google, no el token Firebase).
+- **Verificado:** local (TestClient: 401 sin/con token malo, CORS bloquea `evil.com` y echa el origen real, toggle 200, 19 tests, build limpio) + **en vivo** (curl sin token → 401; dashboard logueado carga los 10 KPIs + Contacto Efectivo + Embudo).
+- **Alcance:** solo autenticación. El **scoping por asesor** (que cada uno vea solo SUS datos) es Fase 1 de la propuesta → espera aprobación de CL Tiene. `verificar_token` ya devuelve los claims (`email`) para engancharlo después.
+- **Local:** correr el backend sin token con `AUTH_ENABLED=0` en `.env`.
+
 ## Mejoras de código / seguridad (2026-08-26, rev `00150`→`00151`, en `main` + desplegado)
 
 > 🔒 **REGLA (memoria):** NUNCA tocar el **SQL Server de la CUN** (`coe.CLTIENE_LLAMADAS`) — solo lectura y con permiso. Todo lo de abajo es código del lado **BigQuery**, cero escrituras al SQL Server. Diego se pone nervioso con esto: reconfirmarlo.
