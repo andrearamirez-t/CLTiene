@@ -1,6 +1,7 @@
 from api.database import result
 from api.models import FilterModel
 from helpers.sql import TABLE
+from google.cloud import bigquery
 
 
 def metricas(id, filters: FilterModel = None):
@@ -16,9 +17,7 @@ def metricas(id, filters: FilterModel = None):
         ), base AS (
             SELECT *
             FROM id_provicional
-            -- DEUDA: torniquete — id numérico crudo; int() evita inyección.
-            -- Reemplazar por ScalarQueryParameter.
-            WHERE id = {int(id)}
+            WHERE id = @rowid
             LIMIT 1
         )
 
@@ -38,5 +37,6 @@ def metricas(id, filters: FilterModel = None):
         UNION ALL
         SELECT 7, 'WhatsApp', IFNULL(Ofrecio_WhatsApp,'-') FROM base
         ORDER BY ord
-        """
+        """,
+        [bigquery.ScalarQueryParameter("rowid", "INT64", int(id))],
     )

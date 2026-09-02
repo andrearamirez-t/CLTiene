@@ -2,23 +2,22 @@ import re
 from api.database import result
 from api.models import FilterModel
 from helpers.sql import TABLE
-from helpers.utils import _esc
+from google.cloud import bigquery
 
 
 def llamada(id=None, buscar="", filters=FilterModel):
 
     filtro = ""
+    params = []
 
     if buscar:
-        # DEUDA: torniquete anti-inyección (buscar crudo del endpoint).
-        # Reemplazar por ScalarQueryParameter.
-        b = _esc(buscar)
-        filtro = f"""
+        filtro = """
         AND (
-            CAST(cuenta AS STRING) LIKE '%{b}%'
-            OR LOWER(asesor) LIKE LOWER('%{b}%')
+            CAST(cuenta AS STRING) LIKE @buscar
+            OR LOWER(asesor) LIKE LOWER(@buscar)
         )
         """
+        params.append(bigquery.ScalarQueryParameter("buscar", "STRING", f"%{buscar}%"))
 
     data = result(
         f"""
@@ -36,7 +35,8 @@ def llamada(id=None, buscar="", filters=FilterModel):
         SELECT * FROM id_provicional
         {"WHERE id = " + str(id) if id else ""}
         LIMIT 1
-        """
+        """,
+        params,
     )
 
     if not data:

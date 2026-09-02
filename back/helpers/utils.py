@@ -1,5 +1,7 @@
 import re
 
+from google.cloud import bigquery
+
 from api.database import client, calculo_fecha
 from helpers.sql import CONTACTADO, SIN_CONTACTO, CONTACTADO_SQL, SIN_CONTACTO_SQL, TABLE
 
@@ -489,9 +491,7 @@ def get_asesor_context(where, asesor=""):
             Motivo_Rechazo
         FROM {TABLE}
         WHERE {where}
-        -- DEUDA: torniquete anti-inyección (asesor viene crudo del endpoint).
-        -- Reemplazar por ScalarQueryParameter (parametrización nativa de BigQuery).
-        AND Cuenta LIKE '%{_esc(asesor)}%'
+        AND Cuenta LIKE @asesor
     ),
 
     resumen AS (
@@ -566,7 +566,8 @@ def get_asesor_context(where, asesor=""):
         ) rechazos
     """
 
-    job = client.query(query)
+    job = client.query(query, job_config=bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("asesor", "STRING", f"%{asesor}%")]))
     row = dict(list(job.result())[0])
 
     total = row["resumen"]["total"]
@@ -714,13 +715,12 @@ def get_search_results_context(where="1=1", search_query=""):
     FROM {TABLE}
     WHERE {where}
     AND transcripcion IS NOT NULL
-    -- DEUDA: torniquete anti-inyección (search_query viene crudo del endpoint).
-    -- Reemplazar por ScalarQueryParameter (parametrización nativa de BigQuery).
-    AND LOWER(transcripcion) LIKE '%{_esc(search_query.lower())}%'
+    AND LOWER(transcripcion) LIKE @q
     LIMIT 50
     """
 
-    job = client.query(query)
+    job = client.query(query, job_config=bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("q", "STRING", f"%{search_query.lower()}%")]))
     rows = list(job.result())
 
     ctx = f"""
@@ -773,13 +773,12 @@ def get_llamada_context(filters, llamada_id):
         AND {where}
     )
     SELECT * FROM numeradas
-    -- DEUDA: torniquete — id es numérico (ROW_NUMBER); int() evita inyección
-    -- (aquí _esc NO sirve: no hay comillas). Reemplazar por ScalarQueryParameter.
-    WHERE id = {int(llamada_id)}
+    WHERE id = @llamada_id
     LIMIT 1
     """
 
-    job = client.query(query)
+    job = client.query(query, job_config=bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("llamada_id", "INT64", int(llamada_id))]))
     rows = list(job.result())
 
     if not rows:
@@ -833,7 +832,7 @@ def get_raw_calls_data(where="1=1", search_query=""):
         return []
 
 
-def get_history(where):
+def get_history(where, query_parameters=None):
     query = f"""
     WITH resultado AS (
         SELECT
@@ -846,7 +845,8 @@ def get_history(where):
     LIMIT 40
     """
 
-    job = client.query(query)
+    job = client.query(query, job_config=bigquery.QueryJobConfig(
+        query_parameters=query_parameters or []))
     results = job.result()
 
     transcripciones = [
