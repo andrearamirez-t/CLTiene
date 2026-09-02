@@ -14,7 +14,7 @@ def llamada(id=None, buscar="", filters=FilterModel):
         filtro = """
         AND (
             CAST(cuenta AS STRING) LIKE @buscar
-            OR LOWER(asesor) LIKE LOWER(@buscar)
+            OR LOWER(CAST(cuenta AS STRING)) LIKE LOWER(@buscar)
         )
         """
         params.append(bigquery.ScalarQueryParameter("buscar", "STRING", f"%{buscar}%"))
