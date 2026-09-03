@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Select from "../Select";
 import { API_BASE, apiFetch } from '../../config';
+import { useFilters } from '../../FiltersContext';
 
 const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, setFiltroPalabra, chatData, cuentaActual }) => {
     const [temaBusqueda, setTemaBusqueda] = useState("");
     const [coincidencias, setCoincidencias] = useState(0);
     const [historial, setHistorial] = useState([]);
     const [cargandoHistorial, setCargandoHistorial] = useState(false);
+    const { setFilters } = useFilters();
+    const primeraVez = useRef(true);
 
     const esTelefono = (v) => /^\d{7,15}$/.test(v.trim());
     // Teléfono activo: lo que el usuario escribió, o el de la llamada seleccionada
@@ -23,6 +26,21 @@ const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, 
         const matches = textoChat.match(regex);
         setCoincidencias(matches ? matches.length : 0);
     }, [temaBusqueda, chatData]);
+
+    // Buscar por asesor: al escribir un nombre (no teléfono), aplica el filtro
+    // "Nombre del Asesor" (debounced) → el dropdown "Seleccionar llamada" reacciona
+    // y muestra las llamadas de ese asesor. Salta el 1er render para no pisar un
+    // filtro que ya venga del sidebar.
+    useEffect(() => {
+        if (primeraVez.current) { primeraVez.current = false; return; }
+        const v = inputValue.trim();
+        const t = setTimeout(() => {
+            const nombre = (v && !esTelefono(v)) ? v : null;
+            setFilters(prev => ({ ...prev, nombre_asesor: nombre }));
+        }, 500);
+        return () => clearTimeout(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [inputValue]);
 
     useEffect(() => {
         if (!telefonoActivo) {
@@ -57,11 +75,7 @@ const FiltrosLateral = ({ asesorCargado, changeAgent, inputValue, changeFilter, 
                     <input
                         type="text"
                         value={inputValue}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            changeFilter(value);
-                            if (!esTelefono(value)) changeAgent(value);
-                        }}
+                        onChange={(e) => changeFilter(e.target.value)}
                         style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#1e293b', color: 'white', fontSize: '13px' }}
                     />
                 </div>

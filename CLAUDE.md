@@ -237,6 +237,19 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 - **Alcance:** solo autenticación. El **scoping por asesor** (que cada uno vea solo SUS datos) es Fase 1 de la propuesta → espera aprobación de CL Tiene. `verificar_token` ya devuelve los claims (`email`) para engancharlo después.
 - **Local:** correr el backend sin token con `AUTH_ENABLED=0` en `.env`.
 
+## Inyección SQL: torniquete → parametrización nativa (2026-09-02, en `main` + DESPLEGADO)
+
+> Cierra la DEUDA del torniquete `_esc()` que había en 6 interpolaciones crudas (commit `dd6361c`).
+
+- **Parametrización con `ScalarQueryParameter`** (commits `486edcb` + `3ce0b8f`): los 6 puntos de inyección de texto libre / ids ahora usan **parámetros nativos de BigQuery** (`@param`) en vez de escape manual:
+  - `utils.py` → `get_asesor_context` (`@asesor`), `get_search_results_context` (`@q`), `get_llamada_context` (`@llamada_id`), `get_history` (acepta `query_parameters`).
+  - `api/filters/transcripcion/llamada.py` (`@buscar`), `metricas.py` (`@rowid`), `api/routes.py` `resumir_llamada` (`@id`).
+  - `result()` (database.py) ya soportaba `query_parameters` y el cache-key los incluye. Los 3 `client.query()` directos de `utils.py` pasan `job_config=QueryJobConfig(query_parameters=[...])`.
+- **`_esc()` queda SOLO en `filters()`** (el escape base de los ~50 valores de dropdown/enum del `FilterModel`; parametrizarlo es el refactor grande de los 50 llamadores, no urgente).
+- **Fix del bug `asesor` (backend, mismo lote):** `llamada.py` filtraba por `LOWER(asesor)`, columna que **no existe** (solo `Cuenta`/`Agente`/`Telefono`) → el parámetro `buscar` daba `400 Unrecognized name: asesor`. Cambiado a `LOWER(CAST(cuenta AS STRING))`. ⚠️ Ese parámetro `buscar` **NO lo usa la caja de búsqueda del tab Transcripciones** (ver siguiente).
+- **Fix de la búsqueda por asesor en Transcripciones (frontend, 2026-09-02, DESPLEGADO):** la caja "Buscar por teléfono o asesor" mandaba el nombre escrito como `id` entero a `/api/transcripcion/llamada/{id}` (typed `int`) → `422`, no cargaba nada. Fix en `FiltrosLateral.jsx`: al escribir un nombre (no teléfono) aplica el filtro `nombre_asesor` (debounced 500ms, salta el 1er render para no pisar el filtro del sidebar) → el dropdown "Seleccionar llamada" (`/api/transcripcion/llamadas`, que reacciona a `filters`) se filtra a las llamadas de ese asesor. Verificado en vivo: escribir "Jimmy" → KPIs a 8.752 + dropdown con 4.469 llamadas suyas. **Ojo UX:** el dropdown no tiene LIMIT (miles de opciones); candidato a limitar/paginar. `FiltrosLateral.jsx` pendiente de commitear.
+- **Verificado:** 19 tests, app ensambla (65 rutas), inyecciones inertes (INT64 rechazados por `int()` antes del SQL; texto como literal vía `@param`), y tras el deploy `curl` sin token → 401 (sin regresión). Behavior-preserving para valores válidos.
+
 ## Mejoras de código / seguridad (2026-08-26, rev `00150`→`00151`, en `main` + desplegado)
 
 > 🔒 **REGLA (memoria):** NUNCA tocar el **SQL Server de la CUN** (`coe.CLTIENE_LLAMADAS`) — solo lectura y con permiso. Todo lo de abajo es código del lado **BigQuery**, cero escrituras al SQL Server. Diego se pone nervioso con esto: reconfirmarlo.
