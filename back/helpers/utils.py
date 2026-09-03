@@ -70,7 +70,9 @@ def filters(filters: dict) -> dict:
             filtros_string.append(f"Saludo_Completo = '{_esc(value)}'")
 
         if key == "nombre_asesor":
-            filtros_string.append(f"cuenta like '%{_esc(value)}%'")
+            # case-insensitive: el sidebar pasa el nombre exacto, pero la caja de
+            # Transcripciones deja escribir a mano (ej. "jimmy" vs "Jimmy").
+            filtros_string.append(f"LOWER(cuenta) like LOWER('%{_esc(value)}%')")
 
         if key == "modulo_atencion":
             filtros_string.append(f"Nombre_del_Modulo = '{_esc(value)}'")

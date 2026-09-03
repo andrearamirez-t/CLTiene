@@ -25,6 +25,8 @@ def llamadas(filters: FilterModel):
         )
         SELECT id, concat({concat_fields}) text
         FROM id_provicional
+        ORDER BY Fecha DESC
+        LIMIT 300
         """,
         "id",
         "text",

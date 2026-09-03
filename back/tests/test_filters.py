@@ -23,7 +23,7 @@ class TestFiltersNormal(unittest.TestCase):
 
     def test_nombre_asesor_like(self):
         r = filters({"nombre_asesor": "Andres"})["filter_string"]
-        self.assertEqual(r, "cuenta like '%Andres%'")
+        self.assertEqual(r, "LOWER(cuenta) like LOWER('%Andres%')")
 
     def test_fecha_valida_se_incluye(self):
         r = filters({"fecha_desde": "2026-08-10"})["filter_string"]
@@ -47,7 +47,7 @@ class TestFiltersInyeccion(unittest.TestCase):
 
     def test_apostrofe_legitimo_funciona(self):
         r = filters({"nombre_asesor": "O'Brien"})["filter_string"]
-        self.assertEqual(r, "cuenta like '%O\\'Brien%'")
+        self.assertEqual(r, "LOWER(cuenta) like LOWER('%O\\'Brien%')")
 
 
 class TestEsc(unittest.TestCase):
