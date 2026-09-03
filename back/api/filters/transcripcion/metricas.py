@@ -30,7 +30,7 @@ def metricas(id, filters: FilterModel = None):
         SELECT 4, 'Plan', IFNULL(Plan_Mencionado,'-') FROM base
         UNION ALL
         SELECT 5, 'Turnos', CAST(
-            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4,''), r'\[(Asesor|Cliente)\]'))
+            ARRAY_LENGTH(REGEXP_EXTRACT_ALL(IFNULL(Transcripcion_V4,''), r'\\[(Asesor|Cliente)\\]'))
             AS STRING) FROM base
         UNION ALL
         SELECT 6, 'Saludo', IFNULL(Saludo_Completo,'-') FROM base
