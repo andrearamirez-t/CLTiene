@@ -236,6 +236,7 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 - **Verificado:** local (TestClient: 401 sin/con token malo, CORS bloquea `evil.com` y echa el origen real, toggle 200, 19 tests, build limpio) + **en vivo** (curl sin token → 401; dashboard logueado carga los 10 KPIs + Contacto Efectivo + Embudo).
 - **Alcance:** solo autenticación. El **scoping por asesor** (que cada uno vea solo SUS datos) es Fase 1 de la propuesta → espera aprobación de CL Tiene. `verificar_token` ya devuelve los claims (`email`) para engancharlo después.
 - **Local:** correr el backend sin token con `AUTH_ENABLED=0` en `.env`.
+- **Endurecimiento defensa-en-profundidad (2026-09-03, tras revisión externa):** (1) en prod (`AUTH_ENABLED=1`) se **ocultan `/docs`, `/redoc` y `/openapi.json`** (`main.py`, `docs_url=None...`) para no publicar el mapa de endpoints; en local siguen disponibles. (2) `auth.py` imprime un **WARNING ruidoso a stderr al arrancar con `AUTH_ENABLED=0`** (evita dejar la escotilla abierta por olvido). (3) Pendiente futuro: cuando se construya el **scoping por asesor** (Fase 1 propuesta), la identidad del usuario autenticado va **parametrizada** (`ScalarQueryParameter`), NUNCA por `_esc()`. (4) **Cumplimiento (no-código, para Fabián/legal CUN):** las transcripciones (datos personales de clientes) se mandan a OpenAI = tratamiento con tercero + transferencia internacional → conviene base legal/autorización documentada (Ley 1581).
 
 ## Inyección SQL: torniquete → parametrización nativa (2026-09-02, en `main` + DESPLEGADO)
 

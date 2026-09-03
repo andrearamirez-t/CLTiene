@@ -34,6 +34,18 @@ _DOMINIOS_PERMITIDOS = ("@cltiene.com", "@cun.edu.co")
 # Se puede apagar la verificación por entorno (rollback sin re-deploy / local).
 AUTH_ENABLED = os.getenv("AUTH_ENABLED", "1") != "0"
 
+if not AUTH_ENABLED:
+    # Aviso RUIDOSO al arrancar sin auth: la API queda abierta (acepta peticiones
+    # sin token). Evita dejar la escotilla abierta por olvido tras un rollback.
+    import sys
+    print(
+        "\n" + "=" * 72 +
+        "\n⚠️  AUTH_ENABLED=0 — VERIFICACIÓN DE TOKEN DESACTIVADA."
+        "\n    La API acepta peticiones SIN token (solo para local / rollback)."
+        "\n" + "=" * 72 + "\n",
+        file=sys.stderr, flush=True,
+    )
+
 # Cache de certificados en memoria (Firebase rota las llaves ~cada día; el
 # header Cache-Control suele dar varias horas — usamos 1h como tope prudente).
 _certs = {"data": None, "exp": 0.0}

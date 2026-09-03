@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from api.routes import router
-from api.auth import verificar_token
+from api.auth import verificar_token, AUTH_ENABLED
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -14,7 +14,15 @@ except Exception:
 
 load_dotenv()
 
-app = FastAPI(title="Dashboard API")
+# En producción (auth activa) se ocultan /docs, /redoc y /openapi.json para no
+# publicar el mapa de endpoints/parámetros a quien no tiene token. En local
+# (AUTH_ENABLED=0) siguen disponibles para desarrollar.
+app = FastAPI(
+    title="Dashboard API",
+    docs_url=None if AUTH_ENABLED else "/docs",
+    redoc_url=None if AUTH_ENABLED else "/redoc",
+    openapi_url=None if AUTH_ENABLED else "/openapi.json",
+)
 
 # Orígenes permitidos: el frontend de producción (Firebase Hosting sirve tanto
 # .web.app como .firebaseapp.com) y el dev local de Vite. Ya NO es "*" (que
