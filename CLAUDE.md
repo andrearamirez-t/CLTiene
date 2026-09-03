@@ -711,6 +711,14 @@ Al revisar el ChatVisor pueden aparecer dos problemas distintos con causas y sol
 - **Fix (`subir_datos.py`):** nueva `parse_fecha_es()` (normaliza espacios Unicode con `unicodedata.category=='Zs'` + regex + 12h→24h) parsea el formato en **Python** (7.142/7.142 OK). El query principal (ISO 120) **NO se tocó**; se agregó un **query fallback aditivo** (`sql_fb`, `WHERE TRY_CONVERT(120) IS NULL AND fecha LIKE '%/%/%'`) que trae esas filas crudas y se concatenan tras parsear en Python. Columnas compartidas vía `_COLS_MEDIO` (sin duplicar). Se agregó **log** de recuperadas/descartadas (punto válido de Copilot).
 - **Nota:** las 7.142 son **solo metadata** (0 transcripción → $0 OpenAI, sin V4/atribución); solo suman volumen/estatus de oct-2025 y extienden la historia. Aparecen **4 asesores nuevos** (rotación: gente que salió antes de nov).
 
+### Carga de datos 2026-09-03 (hecha, con gpt-4o + 2 keys)
+- Corrida **incremental** con `gpt-4o` + 2 keys, Diego en la red CUN. Juan Manuel cargó datos nuevos al SQL (hasta **29-ago**).
+- **Estado previo:** SQL 56.909 crudas / máx 29-ago (antes 55.123 / 17-ago); BigQuery 47.880 / 17-ago. → ~1.786 filas nuevas (18-29 ago).
+- **Resultado:** BigQuery 47.880 → **48.842 filas** (+962 netas). Dedup quitó **8.067 (14.2%)**. Historia **2025-10-10 → 2026-08-29**. Backup: `cltiene_llamadas_procesadas_backup_20260903` (estado previo, 47.880).
+- **Fix `Entrantes` aplicado:** primera carga con la normalización `Entrantes→Entrante` (rev `fb57476`) → `Tipo_Llamada` quedó limpio: `Saliente` 18.410 / `Entrante` 5.403, **cero `Entrantes`** (el WRITE_TRUNCATE no re-introdujo el bug).
+- **Verificado** (BQ): 48.842 filas, **26 asesores**, 0 Cuenta NULL, historia al 29-ago.
+- ⚠️ **2 líos de encoding en Windows al correr:** (1) `subir_datos.py` abortó con `'charmap' can't encode '→'` (un `→` en un log) → se corre con **`PYTHONIOENCODING=utf-8`** (igual que `comparar_metodos.py`). No llegó a tocar BigQuery, seguro re-correr.
+
 ### Carga de datos 2026-08-24 (hecha, con gpt-4o + 2 keys)
 - Corrida **incremental** con **`gpt-4o`** + las **2 API keys**. Diego dentro de la red CUN.
 - **Estado previo (SQL vs BQ):** SQL tenía datos hasta **17-ago** (55.123 crudas / 47.981 ISO + 7.142 español); BigQuery hasta **9-ago** (47.409). ⇒ ~8 días nuevos (10-17 ago).
