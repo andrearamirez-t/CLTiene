@@ -1051,7 +1051,7 @@ def contar_objeciones(texto):
 # ─── Procesamiento ────────────────────────────────────────────────────────────────
 
 def procesar(df):
-    df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente'})
+    df['Tipo_Llamada'] = df['Tipo_Llamada'].str.strip().replace({'Salientes': 'Saliente', 'Entrantes': 'Entrante'})
 
     if REPROCESO_COMPLETO:
         log("  ⚠️ RE-PROCESO COMPLETO: ignorando cache; se re-procesan TODAS con el prompt actual (v15)")
