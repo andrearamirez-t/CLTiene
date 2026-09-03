@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import MiDesempeno from './pages/MiDesempeno';
 import "./css/style.css";
 import { FiltersProvider } from './FiltersContext';
 
@@ -46,6 +47,10 @@ function App() {
                 <Route path="/" element={usuario ? <FiltersProvider>
                     <ErrorBoundary><Dashboard /></ErrorBoundary>
                 </FiltersProvider> : <Navigate to="/login" />} />
+                {/* PROTOTIPO — vista individual del asesor (aislada del dashboard) */}
+                <Route path="/mi-desempeno" element={usuario
+                    ? <ErrorBoundary><MiDesempeno /></ErrorBoundary>
+                    : <Navigate to="/login" />} />
             </Routes>
         </Router>
     );
