@@ -31,7 +31,7 @@ Desarrollado por **DivergencyAI SAS**.
 | Frontend | React 19 + Vite 7 → Firebase Hosting |
 | Backend | Python 3.11 + FastAPI → Google Cloud Run |
 | Base de datos | Google BigQuery |
-| IA | OpenAI gpt-4o-mini (`OPENAI_API_MUNDIAL`) |
+| IA | OpenAI gpt-4o (`OPENAI_API_MUNDIAL`) |
 
 ## URLs de producción
 
@@ -84,7 +84,7 @@ CL Tiene
 
 > Confirmado en reunión BD 2026-07-01. El proceso de la CUN es **independiente** de nuestro pipeline V4.
 
-- **Motor:** Ollama local con modelo `qwen2.5:7b-instruct` (temperature 0). NO es GPT-4o-mini.
+- **Motor:** Ollama local con modelo `qwen2.5:7b-instruct` (temperature 0). No usa OpenAI.
 - **7 categorías de calidad (cada una 0/1)**, el LLM devuelve JSON con 1 si aparece claramente:
   `saludo_inicial`, `identificacion_cliente`, `comprension_problema`, `ofrecimiento_solucion`, `manejo_inquietudes`, `cierre_servicio`, `proximo_paso`
 - **`efectiva` NO es venta.** Es score de calidad: `puntaje = sum(7 categorías)/7`; `efectiva = 1 if puntaje >= 0.8 else 0` (mínimo 6 de 7 categorías cumplidas).
@@ -229,7 +229,7 @@ oculta columnas/pasos de ventas en Resumen, Rendimiento, Inteligencia, Embudo e 
 > Cierra el hueco que marcó la revisión externa de seguridad: el frontend **ya tenía login Firebase** (`src/pages/Login.jsx` + `App.jsx` con `onAuthStateChanged`), pero el **backend NO verificaba nada** → cualquiera con la URL de Cloud Run bajaba todos los datos saltándose el login. Y el CORS era `allow_origins=["*"]` + `allow_credentials=True` (abierto e inválido).
 
 - **Backend `back/api/auth.py`:** dependencia FastAPI `verificar_token` que valida el `Authorization: Bearer <idToken>` de Firebase — firma contra las llaves públicas de Google (`google.auth.jwt.decode`, **sin dependencias nuevas**, usa `google-auth` ya instalado), audiencia = `desarrollo-investigaciones`, emisor `securetoken.google.com/<proyecto>`, expiración, + exige dominio `@cltiene.com`/`@cun.edu.co` (igual que el front). **Certs cacheados 1h** (evita fetch por request). Sin token → **401**; dominio no permitido → 403.
-- **`main.py`:** CORS restringido a `cltiene-dashboard.web.app` (+ `.firebaseapp.com` + `localhost:5173/3000`), ya no `*` (+ env `CORS_EXTRA_ORIGINS`). Dependencia global en los routers: `include_router(router, dependencies=[Depends(verificar_token)])` (a nivel router, no app → `/docs` y `/openapi.json` quedan abiertos).
+- **`main.py`:** CORS restringido a `cltiene-dashboard.web.app` (+ `.firebaseapp.com` + `localhost:5173/3000`), ya no `*` (+ env `CORS_EXTRA_ORIGINS`). Dependencia global en los routers: `include_router(router, dependencies=[Depends(verificar_token)])` (a nivel router, no app). En producción, `/docs`, `/redoc` y `/openapi.json` están ocultos.
 - **Rollback instantáneo sin re-deploy:** `AUTH_ENABLED=0` por env → apaga la verificación (`gcloud run services update cltiene-backend --update-env-vars AUTH_ENABLED=0 ...`).
 - **Frontend `src/config.js`:** `apiFetch(url, options)` adjunta el token (`auth.currentUser.getIdToken()`) en `Authorization`; se reemplazaron los **29 `fetch`** por `apiFetch` en 21 archivos. Merge de headers preserva `Content-Type` de los POST.
 - **Orden de despliegue (OBLIGATORIO):** frontend **primero** (empieza a mandar token; el backend viejo lo ignora → nada se rompe) → backend **después** (lo exige). **NO** se toca `--allow-unauthenticated` (Cloud Run sigue público; lo que asegura es el token a nivel app — Cloud Run IAM necesita OIDC de Google, no el token Firebase).
@@ -461,7 +461,7 @@ OPENAI_API_MUNDIAL_2=sk-proj-...
 - **Conclusión:** inferir la venta desde la transcripción NO es confiable (ni regex ni IA) porque el cierre real rara vez queda en el texto (y el STT lo corta).
 - **FUENTE REAL DE VENTAS = tabla `coe.CLTIENE_VENTAS`** (SQL Server CUN): es el **CRM (Zoho)** de negociaciones (14.342 deals), con columna **`Fase`**. Las ventas reales = **`Fase = 'Cerrado Ganado'` = 959** (histórico ~ago-2023 a may-2026). Tiene `Importe`, `Fecha de cierre`, `Propietario de Negociación`, `Identificación`, `Correo`, etc. Los IDs de negociación empiezan por `zom_...` (Zoho).
 - Esta tabla es **SEPARADA del pipeline de Juan** (el notebook solo maneja `CLTIENE_LLAMADAS`; nunca toca `CLTIENE_VENTAS`). La mantiene el **lado BI (David Cerón)** desde el CRM; alimenta el Power BI de la CUN.
-- **Pendiente / recomendación:** el dashboard debería tomar "Ventas Cerradas" de `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`), no de la inferencia por transcripción. Reto: cruzar CRM ↔ llamadas por cédula (`Identificación`) / asesor / fecha.
+- **Pendiente / recomendación:** el dashboard debe tomar la venta real de `CLTIENE_VENTAS` (`Fase='Cerrado Ganado'`), no de la inferencia por transcripción. Reto: cruzar CRM ↔ llamadas por cédula (`Identificación`) / asesor / fecha.
 
 ### Sergio confirmó la fuente de ventas (WhatsApp 2026-07-14)
 - Diego preguntó a Sergio por una columna de venta real y por la fuente de `CLTIENE_VENTAS`. Sergio confirmó en nota de voz:

@@ -54,7 +54,6 @@ CLTiene/
 │   ├── main.py                 # App principal
 │   ├── api/
 │   │   ├── routes.py           # ~50 endpoints GET /api/ y /ia/ con FilterModel
-│   │   ├── routes_new.py       # Endpoints de rankings (también con FilterModel)
 │   │   ├── models.py           # FilterModel — construye WHERE para BigQuery
 │   │   ├── charts/             # Queries BigQuery por gráfica
 │   │   ├── ia/                 # Módulos de IA — todos usan call() + prompt_html()
@@ -296,7 +295,7 @@ El repo tiene **2 Dockerfiles** (Cloud Build los usa al desplegar con `--source`
 | `OPENAI_API_MUNDIAL_2` | Segunda API key (secret) — `call()` balancea el consumo ~50/50 y hace failover si una topa cupo |
 | `GOOGLE_CLOUD_PROJECT` | ID del proyecto GCP |
 | `MAX_TOKENS` | Máximo de tokens por respuesta IA (default: 4000) |
-| `MODEL` | Modelo OpenAI para los endpoints de IA/reportes (default en código: gpt-4o-mini; **en producción está en `gpt-4o`**) |
+| `MODEL` | Modelo OpenAI para los endpoints de IA/reportes (en producción: `gpt-4o`; el valor por defecto local puede ser más económico) |
 | `MODELO_HABLANTES` | Modelo para separar [Asesor]/[Cliente] en el pipeline (default: gpt-4o) |
 
 ## Automatización de carga de datos
