@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { auth } from "../firebase";
+import logoClTiene from "../assets/logo_cl_tiene.png";
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -9,7 +10,7 @@ import {
   updateProfile,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { ShieldCheck, User, Mail, Lock, ChevronLeft } from "lucide-react";
+import { User, Mail, Lock, ChevronLeft } from "lucide-react";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -112,7 +113,7 @@ const Login = () => {
     <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f172a" }}>
       <div style={{ background: "#1e293b", padding: "40px", borderRadius: "16px", textAlign: "center", width: "100%", maxWidth: "400px", border: "1px solid #334155" }}>
         
-        <ShieldCheck size={48} color="#FC3276" style={{ margin: "0 auto 20px" }} />
+        <img src={logoClTiene} alt="CL Tiene" style={{ display: "block", width: "220px", height: "auto", margin: "0 auto 20px" }} />
         <h2 style={{ marginBottom: "10px", fontSize: "22px", color: "white" }}>CL Tiene Analytics</h2>
 
         {!modoManual ? (
