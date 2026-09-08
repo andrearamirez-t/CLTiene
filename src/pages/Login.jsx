@@ -114,11 +114,11 @@ const Login = () => {
       <div style={{ background: "#1e293b", padding: "40px", borderRadius: "16px", textAlign: "center", width: "100%", maxWidth: "400px", border: "1px solid #334155" }}>
         
         <img src={logoClTiene} alt="CL Tiene" style={{ display: "block", width: "220px", height: "auto", margin: "0 auto 20px" }} />
-        <h2 style={{ marginBottom: "10px", fontSize: "22px", color: "white" }}>CL Tiene Analytics</h2>
+        <h2 style={{ marginBottom: "10px", fontSize: "22px", color: "white" }}>Contact Center Analytics</h2>
 
         {!modoManual ? (
           <>
-            <p style={{ color: "#94a3b8", fontSize: "14px", marginBottom: "30px" }}>Selecciona tu método de acceso</p>
+            <p style={{ color: "#94a3b8", fontSize: "14px", marginBottom: "30px" }}>Selecciona tu método de acceso institucional</p>
             <button onClick={loginConGoogle} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", width: "100%", padding: "12px", background: "white", color: "#0f172a", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginBottom: "15px" }}>
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" width="20" />
               Entrar con Google
